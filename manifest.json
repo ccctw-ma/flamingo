@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "msc's chrome extensions",
+    "version": "1.0.0",
+    "description": "我来学习写 chrome 插件了",
+    "icons": {
+        "16": "images/blue_128.png",
+        "48": "images/blue_128.png",
+        "128": "images/blue_128.png"
+    },
+    "action": {
+        "default_icon": "images/blue_128.png",
+        "default_title": "Hello msc",
+        "default_popup": "./src/index.html"
+    },
+    "permissions": [
+        "webRequest",
+        "storage",
+        "webRequestBlocking",
+        "browsingData"
+    ]
+}
