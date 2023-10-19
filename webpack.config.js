@@ -1,14 +1,28 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CopyPlugin = require("copy-webpack-plugin");
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { webpack } = require("webpack");
+const smp = new SpeedMeasurePlugin();
 const pathResolve = p => path.resolve(__dirname, p);
-module.exports = {
+const useSmp = false;
+const wrapConfig = useSmp ? smp.wrap : (x) => x;
+module.exports = wrapConfig({
+  cache: {
+    type: "filesystem",
+  },
   entry: "./src/index.tsx",
   // devtool: "inline-source-map",
+  devtool: false,
   output: {
     path: pathResolve("build/src"),
     filename: "main.js",
+  },
+  optimization: {
+    splitChunks: {}
   },
   // 执行顺序是数组从右往左
   module: {
@@ -21,6 +35,10 @@ module.exports = {
           options: {
             presets: ["@babel/preset-react", "@babel/preset-env"],
           },
+          options: {
+            cacheDirectory: true,
+            cacheCompression: true
+          }
         },
       },
       {
@@ -28,14 +46,30 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                config: pathResolve("postcss.config.js"),
+              }
+            }
+          }],
+      }
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
+    // new BundleAnalyzerPlugin(),
+    new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
-      template: pathResolve("./src/html/index.html"),
+      template: pathResolve("./home.html"),
     }),
     new CleanWebpackPlugin(),
     // new CopyPlugin({
@@ -44,10 +78,10 @@ module.exports = {
     //     { from: "lib", to: "lib" },
     //     "manifest.json",
     //   ]
-    // })
+    // }),
   ],
   externals: {
     react: "React",
     'react-dom': "ReactDOM",
   }
-};
+});
