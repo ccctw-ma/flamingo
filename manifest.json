@@ -17,6 +17,18 @@
         "webRequest",
         "storage",
         "webRequestBlocking",
-        "browsingData"
-    ]
+        "browsingData",
+        "declarativeNetRequest",
+        "declarativeNetRequestWithHostAccess",
+        "declarativeNetRequestFeedback",
+        "<all_urls>"
+    ],
+    "host_permissions": [
+        "<all_urls>",
+        "https://www.bilibili.com/*"
+    ],
+
+    "background": {
+        "service_worker": "./src/bg.js"
+    }
 }

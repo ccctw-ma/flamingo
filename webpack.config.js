@@ -5,7 +5,6 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const CopyPlugin = require("copy-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { webpack } = require("webpack");
 const smp = new SpeedMeasurePlugin();
 const pathResolve = p => path.resolve(__dirname, p);
 const useSmp = false;
@@ -14,12 +13,15 @@ module.exports = wrapConfig({
   cache: {
     type: "filesystem",
   },
-  entry: "./src/index.tsx",
+  entry: {
+    main: "./src/index.tsx",
+    bg: "./src/background.ts",
+  },
   // devtool: "inline-source-map",
   devtool: false,
   output: {
     path: pathResolve("build/src"),
-    filename: "main.js",
+    filename: "[name].js",
   },
   optimization: {
     splitChunks: {}
@@ -72,13 +74,14 @@ module.exports = wrapConfig({
       template: pathResolve("./home.html"),
     }),
     new CleanWebpackPlugin(),
-    // new CopyPlugin({
-    //   patterns: [
-    //     { from: "images", to: "images" },
-    //     { from: "lib", to: "lib" },
-    //     "manifest.json",
-    //   ]
-    // }),
+    new CopyPlugin({
+      patterns: [
+        // { from: "images", to: "images" },
+        // { from: "lib", to: "lib" },
+        { from: "manifest.json", to: "../" },
+        { from: "rules.json", to: "../" }
+      ]
+    }),
   ],
   externals: {
     react: "React",

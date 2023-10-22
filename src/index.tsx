@@ -11,7 +11,7 @@ interface HelloProps {
 
 export const Hello = (props: HelloProps) => {
   return (
-    <div className="w-96 bg-red-100">
+    <div className="w-[500px] bg-red-100">
       <h1>
         Hello from {props.compiler} and {props.framework}!
       </h1>
@@ -24,10 +24,9 @@ export const Hello = (props: HelloProps) => {
         }}
       >
         click me hello world
-        {new Array(100).fill(20).map((_) => {
+        {new Array(12).fill(12).map((_) => {
           return <div>1</div>;
         })}
-        {223}
       </button>
     </div>
   );

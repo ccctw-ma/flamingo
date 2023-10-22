@@ -1,7 +1,7 @@
 {
-  "name": "my-xswitch",
-  "version": "1.0.0",
-  "description": "",
+  "name": "flamingo",
+  "version": "0.0.1",
+  "description": "chrome proxy extension",
   "main": "index.js",
   "scripts": {
     "dev": "webpack --watch --mode development",

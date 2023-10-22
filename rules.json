@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "bilibili",
+            "initiatorDomains": [
+                "foo.com"
+            ],
+            "resourceTypes": [
+                "script"
+            ]
+        }
+    }
+]
