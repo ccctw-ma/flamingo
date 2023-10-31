@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="btn">send request</button>
+
+    <div id="container"></div>
+  </body>
+
+  <script>
+    const btn = document.getElementById("btn");
+    const container = document.getElementById("container");
+
+    btn.addEventListener("click", () => {
+      fetch("https://jsonplaceholder.typicode.com/posts/1").then((res) => {
+        res.json().then((v) => {
+          console.log(v);
+          container.innerText = JSON.stringify(v);
+        });
+      });
+    });
+  </script>
+</html>

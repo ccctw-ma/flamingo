@@ -1,5 +1,3 @@
-import { type } from "os";
-import { ALL_URLS } from "./constants";
 console.log("hello this is background scripts");
 
 async function getNewRules(): Promise<
@@ -12,12 +10,13 @@ async function getNewRules(): Promise<
       action: {
         type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
         redirect: {
-          url: "https://www.baidu.com",
+          url: "https://jsonplaceholder.typicode.com/posts/2",
         },
       },
       condition: {
-        urlFilter: "bilibili",
-        domains: ["www.bilibili.com"],
+        // urlFilter: "bilibili",
+        // domains: ["www.bilibili.com"],
+        regexFilter: "https://jsonplaceholder.typicode.com/posts/1",
         resourceTypes: [
           chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
         ],
@@ -50,7 +49,15 @@ function addRuleMatchedDebugListener() {
   });
 }
 
+function addChromeStorageListener() {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    console.log(changes);
+    console.log(area);
+  });
+}
+
 (() => {
-  setRules();
   addRuleMatchedDebugListener();
+  addChromeStorageListener();
+  setRules();
 })();

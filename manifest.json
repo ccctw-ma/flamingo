@@ -24,10 +24,11 @@
         "<all_urls>"
     ],
     "host_permissions": [
-        "<all_urls>",
-        "https://www.bilibili.com/*"
+        "https://*/*",
+        "https://*/",
+        "http://*/*",
+        "http://*/"
     ],
-
     "background": {
         "service_worker": "./src/bg.js"
     }

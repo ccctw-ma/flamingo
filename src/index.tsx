@@ -1,38 +1,34 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
 import { calcTime } from "./utils/index";
-// import { Anchor } from "antd";
-import Button from "antd/lib/button";
+import { Anchor, Button, Input } from "antd";
 import "./index.css";
+import { ASPECT_RATIO, HOME_WIDTH } from "./constants";
+import { useState } from "react";
+import { localSet } from "./utils/storage";
 interface HelloProps {
   compiler: string;
   framework: string;
 }
 
-export const Hello = (props: HelloProps) => {
+export const Home = (props: HelloProps) => {
   return (
-    <div className="w-[500px] bg-red-100">
-      <h1>
-        Hello from {props.compiler} and {props.framework}!
-      </h1>
-      {/* <Anchor /> */}
-      <Button />
-      <button
-        onClick={() => {
-          console.log("Hello world");
-          console.log(calcTime());
-        }}
-      >
-        click me hello world
-        {new Array(12).fill(12).map((_) => {
-          return <div>1</div>;
-        })}
-      </button>
+    <div style={{ width: HOME_WIDTH, height: HOME_WIDTH / ASPECT_RATIO }}>
+      <div className="w-full h-full">
+        <Input
+          defaultValue="Hello world"
+          onChange={(e) => {
+            localSet({ s: Date.now() }, () => {
+              console.log("hello world");
+            });
+          }}
+        />
+      </div>
     </div>
   );
 };
 
 ReactDOM.render(
-  <Hello compiler={"ts"} framework={"react"} />,
+  <Home compiler={"ts"} framework={"react"} />,
   document.getElementById("root")
 );
