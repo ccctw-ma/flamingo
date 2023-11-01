@@ -1,3 +1,5 @@
+import { noop } from ".";
+
 export type AreaName = "sync" | "local" | "managed" | "session";
 
 function storageSet(
@@ -16,10 +18,10 @@ function storageGet(
   chrome.storage[areaName].get(keys, callback);
 }
 
-export function localSet(obj: Object, callback: (args: any) => void) {
+export function localSet(obj: Object, callback: (args: any) => void = noop) {
   storageSet("local", obj, callback);
 }
 
-export function localGet(keys: any, callback: (items: Object) => void) {
+export function localGet(keys: any, callback: (items: any) => void) {
   storageGet("local", keys, callback);
 }
