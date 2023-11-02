@@ -1,7 +1,18 @@
-import { Tabs, TabsProps } from "antd";
+import { Checkbox, Tabs, TabsProps } from "antd";
 import * as React from "react";
-import { HOME_HEIGHT, LEFT_TAB_BAR_HEIGHT } from "./constants";
-
+import {
+  HOME_HEIGHT,
+  LEFT_TAB_BAR_HEIGHT,
+  LEFT_TAB_ITEM_HEIGHT,
+} from "./constants";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
+import GroupItem from "./components/GroupItem";
+import { useState } from "react";
 export default function LeftBar() {
   const items: TabsProps["items"] = [
     {
@@ -33,11 +44,23 @@ export default function LeftBar() {
 }
 
 function Group() {
+  const groups = new Array(30).fill(null).map((_, idx) => ({
+    id: idx,
+    label: "Hello worldHello worldHello world".substring(
+      0,
+      Math.max(33 * Math.random(), 2)
+    ),
+    children: [],
+  }));
+
   return (
-    <div style={{ height: HOME_HEIGHT - LEFT_TAB_BAR_HEIGHT }} className="overflow-y-scroll no-scrollbar">
-      {new Array(100).fill(1).map((_) => {
-        return <div>Hello world</div>;
-      })}
+    <div
+      style={{ height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)` }}
+      className="relative overflow-y-scroll no-scrollbar pb-4"
+    >
+      {groups.map((val) => (
+        <GroupItem group={val} />
+      ))}
     </div>
   );
 }

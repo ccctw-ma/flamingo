@@ -5,6 +5,8 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const CopyPlugin = require("copy-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { HotModuleReplacementPlugin } = require("webpack");
+const { webpack } = require("webpack");
 const smp = new SpeedMeasurePlugin();
 const pathResolve = p => path.resolve(__dirname, p);
 const useSmp = false;
@@ -51,7 +53,7 @@ module.exports = wrapConfig({
       {
         test: /\.css$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          process.env.NODE_ENV == 'development' ? { loader: 'style-loader' } : MiniCssExtractPlugin.loader,
           'css-loader',
           {
             loader: "postcss-loader",

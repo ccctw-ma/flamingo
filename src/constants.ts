@@ -23,5 +23,6 @@ export const LEFT_BAR_WIDTH_MIN_RATIO = 1 / 4;
 export const LEFT_BAR_WIDTH_MAX_RATIO = 2 / 3;
 
 export const LEFT_TAB_BAR_HEIGHT = 40;
+export const LEFT_TAB_ITEM_HEIGHT = 40;
 
 export const DIVIDER_WIDTH = 2;

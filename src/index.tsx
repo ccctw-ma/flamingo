@@ -1,10 +1,9 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
-import { calcTime, throttle } from "./utils/index";
-import { Anchor, Button, Input } from "antd";
+import { throttle } from "./utils/index";
+import { StyleProvider } from "@ant-design/cssinjs";
 import "./index.css";
 import {
-  ASPECT_RATIO,
   DIVIDER_WIDTH,
   HOME_HEIGHT,
   HOME_WIDTH,
@@ -15,6 +14,7 @@ import {
 import { useLayoutEffect, useRef, useState } from "react";
 import { localGet, localSet } from "./utils/storage";
 import LeftBar from "./LeftBar";
+import RightBar from "./RightBar";
 
 export const Home = () => {
   const container = useRef<HTMLDivElement>(null);
@@ -68,7 +68,15 @@ export const Home = () => {
   }, []);
 
   return (
-    <div style={{ width: HOME_WIDTH, height: HOME_HEIGHT }}>
+    // change size to fit different scenes
+    <div
+      style={{
+        minWidth: HOME_WIDTH,
+        width: "100%",
+        height: "100vh",
+        minHeight: HOME_HEIGHT,
+      }}
+    >
       <div className="w-full h-full flex" ref={container}>
         <div style={{ width: leftBarSize, height: "100%" }} ref={leftBar}>
           <LeftBar />
@@ -79,10 +87,17 @@ export const Home = () => {
           onMouseDown={handleChangeSize}
           style={{ width: DIVIDER_WIDTH }}
         />
-        <div className="flex-1">Right</div>
+        <div className="flex-1">
+          <RightBar />
+        </div>
       </div>
     </div>
   );
 };
 
-ReactDOM.render(<Home />, document.getElementById("root"));
+ReactDOM.render(
+  <StyleProvider hashPriority="high">
+    <Home />
+  </StyleProvider>,
+  document.getElementById("root")
+);
