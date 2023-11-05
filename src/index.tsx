@@ -15,6 +15,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { localGet, localSet } from "./utils/storage";
 import LeftBar from "./LeftBar";
 import RightBar from "./RightBar";
+import { FloatButton } from "antd";
 
 export const Home = () => {
   const container = useRef<HTMLDivElement>(null);
@@ -91,6 +92,13 @@ export const Home = () => {
           <RightBar />
         </div>
       </div>
+
+      <FloatButton
+        type="primary"
+        onClick={() =>
+          chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })
+        }
+      />
     </div>
   );
 };

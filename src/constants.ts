@@ -24,5 +24,22 @@ export const LEFT_BAR_WIDTH_MAX_RATIO = 2 / 3;
 
 export const LEFT_TAB_BAR_HEIGHT = 40;
 export const LEFT_TAB_ITEM_HEIGHT = 40;
+export const LEFT_TAB_ACTION_HEIGHT = 40;
 
 export const DIVIDER_WIDTH = 2;
+
+/**
+ * enum
+ */
+export enum ACTION {
+  Add,
+  Search,
+  OrderByName,
+  OrderByCreateTime,
+  OrderByUpdateTime,
+}
+
+export enum TYPE {
+  Group = "Group",
+  Rule = "Rule",
+}

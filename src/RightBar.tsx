@@ -6,7 +6,7 @@ export default function RightBar() {
     <div>
       <Button
         onClick={() => {
-          chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") });
+          
         }}
       >
         tabs
