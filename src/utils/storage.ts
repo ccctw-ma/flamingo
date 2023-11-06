@@ -1,27 +1,23 @@
-import { noop } from ".";
-
 export type AreaName = "sync" | "local" | "managed" | "session";
+export type StorageKey = string | string[] | { [key: string]: any };
 
-function storageSet(
-  areaName: AreaName,
-  obj: Object,
-  callback: (args: any) => void
-) {
-  chrome.storage[areaName].set(obj).then(callback);
+/** function currying*/
+function storageSet(areaName: AreaName) {
+  return async function (obj: { [key: string]: any }) {
+    await chrome.storage[areaName].set(obj);
+  };
 }
 
-function storageGet(
-  areaName: AreaName,
-  keys: string | string[] | Object,
-  callback: (items: Object) => void
-) {
-  chrome.storage[areaName].get(keys, callback);
+function storageGet(archName: AreaName) {
+  return async function (key: StorageKey) {
+    return await chrome.storage[archName].get(key);
+  };
 }
 
-export function localSet(obj: Object, callback: (args: any) => void = noop) {
-  storageSet("local", obj, callback);
+export async function localSet(obj: { [key: string]: any }) {
+  return await storageSet("local")(obj);
 }
 
-export function localGet(keys: any, callback: (items: any) => void) {
-  storageGet("local", keys, callback);
+export async function localGet(keys: StorageKey) {
+  return await storageGet("local")(keys);
 }

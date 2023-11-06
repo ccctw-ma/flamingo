@@ -62,10 +62,11 @@ export const Home = () => {
    * try to avoid container flickering as much as possible
    */
   useLayoutEffect(() => {
-    localGet(LEFT_BAR_WIDTH_KEY, (obj) => {
-      const localVal = obj[LEFT_BAR_WIDTH_KEY];
+    (async () => {
+      const res = await localGet(LEFT_BAR_WIDTH_KEY);
+      const localVal = res[LEFT_BAR_WIDTH_KEY];
       localVal && setLeftBarSize(localVal);
-    });
+    })();
   }, []);
 
   return (

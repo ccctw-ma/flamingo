@@ -11,15 +11,13 @@ import {
   Tooltip,
 } from "antd";
 import * as React from "react";
-import type { SelectProps } from "antd";
 import {
-  ACTION,
   HOME_HEIGHT,
   LEFT_TAB_ACTION_HEIGHT,
   LEFT_TAB_BAR_HEIGHT,
   LEFT_TAB_ITEM_HEIGHT,
-  TYPE,
 } from "./constants";
+
 import {
   EditOutlined,
   DeleteOutlined,
@@ -36,6 +34,7 @@ import {
 import Item from "./components/item";
 import { useState } from "react";
 import { noop } from "./utils";
+import { ACTION, TYPE } from "./types";
 
 function Groups() {
   const groups = new Array(30).fill(null).map((_, idx) => ({

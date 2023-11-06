@@ -10,16 +10,35 @@ async function getNewRules(): Promise<
       action: {
         type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
         redirect: {
-          url: "https://jsonplaceholder.typicode.com/posts/2",
+          // url: "https://jsonplaceholder.typicode.com/posts/2",
+          regexSubstitution:
+            "https://jsonplaceholder.typicode.com/posts/\\2",
         },
       },
       condition: {
         // urlFilter: "bilibili",
         // domains: ["www.bilibili.com"],
-        regexFilter: "https://jsonplaceholder.typicode.com/posts/1",
-        resourceTypes: [
-          chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+        regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
+        // resourceTypes: [
+        //   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+        // ],
+      },
+    },
+    {
+      id: 2,
+      priority: 1,
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+        requestHeaders: [
+          {
+            header: "hello",
+            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            value: "world",
+          },
         ],
+      },
+      condition: {
+        regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
       },
     },
   ];
@@ -28,7 +47,7 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    console.log(newRules, oldRules);
+    console.log(JSON.stringify(newRules));
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: newRules,
