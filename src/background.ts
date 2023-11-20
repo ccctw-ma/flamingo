@@ -47,7 +47,7 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    console.log(JSON.stringify(newRules));
+    // console.log(JSON.stringify(newRules));
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: newRules,

@@ -1,6 +1,6 @@
 import { Checkbox, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
-import { LEFT_TAB_ITEM_HEIGHT } from "../constants";
+import { LEFT_TAB_ITEM_HEIGHT } from "../utils/constants";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -8,7 +8,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
-import { useGroup } from "../store";
+import { useGroup } from "../utils/store";
 export default function GroupItem(props: any) {
   const { group: current } = props;
   const [isEdit, setIsEdit] = useState(false);

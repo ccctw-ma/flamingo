@@ -10,11 +10,11 @@ import {
   LEFT_BAR_WIDTH_KEY,
   LEFT_BAR_WIDTH_MAX_RATIO,
   LEFT_BAR_WIDTH_MIN_RATIO,
-} from "./constants";
+} from "./utils/constants";
 import { useLayoutEffect, useRef, useState } from "react";
 import { localGet, localSet } from "./utils/storage";
-import LeftBar from "./LeftBar";
-import RightBar from "./RightBar";
+import LeftBar from "./views/LeftBar";
+import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
 
 export const Home = () => {

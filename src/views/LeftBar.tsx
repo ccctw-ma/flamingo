@@ -16,7 +16,7 @@ import {
   LEFT_TAB_ACTION_HEIGHT,
   LEFT_TAB_BAR_HEIGHT,
   LEFT_TAB_ITEM_HEIGHT,
-} from "./constants";
+} from "../utils/constants";
 
 import {
   EditOutlined,
@@ -31,10 +31,10 @@ import {
   CloudUploadOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import Item from "./components/item";
+import Item from "../components/item";
 import { useState } from "react";
-import { noop } from "./utils";
-import { ACTION, TYPE } from "./types";
+import { noop } from "../utils";
+import { ACTION, TYPE } from "../utils/types";
 
 function Groups() {
   const groups = new Array(30).fill(null).map((_, idx) => ({

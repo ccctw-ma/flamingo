@@ -7,6 +7,7 @@ const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { HotModuleReplacementPlugin } = require("webpack");
 const { webpack } = require("webpack");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const smp = new SpeedMeasurePlugin();
 const pathResolve = p => path.resolve(__dirname, p);
 const useSmp = false;
@@ -84,6 +85,9 @@ module.exports = wrapConfig({
         { from: "rules.json", to: "../" }
       ]
     }),
+    new MonacoWebpackPlugin({
+      languages: ['json', 'xml', 'yaml', 'html', 'typescript']
+    })
   ],
   externals: {
     react: "React",

@@ -24,7 +24,9 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
   /** The timestamp when this rule is modified */
   update: number;
 
-  /**  Determine whether this rule is global*/
+  /**  Determine whether this rule is global 
+   *   todo! not sure whether need this key
+  */
   isGlobal: number;
 }
 

@@ -45,6 +45,9 @@
   "dependencies": {
     "@ant-design/cssinjs": "^1.17.2",
     "@ant-design/icons": "^5.2.6",
+    "monaco-editor": "^0.44.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "react-monaco-editor": "^0.54.0",
     "zustand": "^4.4.5"
   }
 }
