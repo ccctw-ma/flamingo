@@ -8,25 +8,25 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
-import { useGroup } from "../utils/store";
-export default function GroupItem(props: any) {
-  const { group: current } = props;
+import { useGroup, useSelected } from "../utils/store";
+export default function Item(props: any) {
+  const { item: current } = props;
   const [isEdit, setIsEdit] = useState(false);
-  const { group, setGroup } = useGroup();
-  const [label, setLabel] = useState(current.label);
+  const { type, selected, setSelected } = useSelected();
+  const [label, setLabel] = useState(current.name);
 
   useEffect(() => {
-    group.id !== current.id && setIsEdit(false);
-  }, [group]);
+    selected.id !== current.id && setIsEdit(false);
+  }, [selected]);
   return (
     <div
       style={{ width: "100%", height: LEFT_TAB_ITEM_HEIGHT }}
       className={`border-solid border-b-2 border-b-slate-200 flex justify-between items-center px-2 ${
-        group.id === current.id && "bg-slate-200"
+        selected.id === current.id && "bg-slate-200"
       }`}
       onClick={() => {
         console.log(current);
-        setGroup(current);
+        setSelected(current);
       }}
     >
       <Checkbox />
@@ -64,7 +64,7 @@ export default function GroupItem(props: any) {
       ) : (
         <div
           className={`flex justify-between transition-all space-x-2 ${
-            group.id === current.id ? "opacity-100" : "opacity-0"
+            selected.id === current.id ? "opacity-100" : "opacity-0"
           }`}
         >
           <EditOutlined onClick={() => setIsEdit(true)} />

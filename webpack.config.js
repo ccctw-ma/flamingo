@@ -86,7 +86,7 @@ module.exports = wrapConfig({
       ]
     }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'xml', 'yaml', 'html', 'typescript']
+      languages: ['json', 'typescript']
     })
   ],
   externals: {

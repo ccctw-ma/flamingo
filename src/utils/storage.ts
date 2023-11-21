@@ -1,3 +1,11 @@
+import {
+  DEMO_GROUP,
+  DEMO_RULE,
+  GROUPS_STORAGE_KEY,
+  RULES_STORAGE_KEY,
+} from "./constants";
+import { Group, Rule } from "./types";
+
 export type AreaName = "sync" | "local" | "managed" | "session";
 export type StorageKey = string | string[] | { [key: string]: any };
 
@@ -20,4 +28,21 @@ export async function localSet(obj: { [key: string]: any }) {
 
 export async function localGet(keys: StorageKey) {
   return await storageGet("local")(keys);
+}
+
+export async function getLocalGroups() {
+  return (
+    (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [DEMO_GROUP]
+  );
+}
+
+export async function setLocalGroups(groups: Array<Group>) {
+  return await localSet({ [GROUPS_STORAGE_KEY]: groups });
+}
+export async function getLocalRules() {
+  return (await localGet(RULES_STORAGE_KEY))[RULES_STORAGE_KEY] || [DEMO_RULE];
+}
+
+export async function setLocalRules(rules: Array<Rule>) {
+  return await localSet({ [RULES_STORAGE_KEY]: rules });
 }

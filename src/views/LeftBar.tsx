@@ -32,16 +32,18 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import Item from "../components/item";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { noop } from "../utils";
 import { ACTION, TYPE } from "../utils/types";
+import { useGroup, useRule, useSelected } from "../utils/store";
+import { getLocalGroups, getLocalRules } from "../utils/storage";
 
 function Groups() {
-  const groups = new Array(30).fill(null).map((_, idx) => ({
-    id: idx,
-    label: Math.random().toString(36).substring(2, 10),
-    children: [],
-  }));
+  // const groups = new Array(30).fill(null).map((_, idx) => ({
+  //   id: idx,
+  //   label: Math.random().toString(36).substring(2, 10),
+  //   children: [],
+  // }));
 
   return (
     <div
@@ -51,21 +53,21 @@ function Groups() {
       }}
       className="relative overflow-y-scroll no-scrollbar"
     >
-      {groups.map((val) => (
-        <Item group={val} />
+      {useGroup().groups.map((val) => (
+        <Item item={val} type={TYPE.Group} />
       ))}
     </div>
   );
 }
 
 function Rules() {
-  const groups = new Array(30).fill(null).map((_, idx) => ({
-    id: idx,
-    label: Math.random()
-      .toString(36)
-      .substring(2, Math.max(33 * Math.random(), 3)),
-    children: [],
-  }));
+  // const groups = new Array(30).fill(null).map((_, idx) => ({
+  //   id: idx,
+  //   label: Math.random()
+  //     .toString(36)
+  //     .substring(2, Math.max(33 * Math.random(), 3)),
+  //   children: [],
+  // }));
 
   return (
     <div
@@ -75,8 +77,8 @@ function Rules() {
       }}
       className="relative overflow-y-scroll no-scrollbar pb-4"
     >
-      {groups.map((val) => (
-        <Item group={val} />
+      {useRule().rules.map((val) => (
+        <Item item={val} />
       ))}
     </div>
   );
@@ -111,9 +113,22 @@ function generatePlaceHolder(tab: TYPE, action: ACTION): string {
 }
 
 export default function LeftBar() {
-  const [tab, setTab] = useState<TYPE>(TYPE.Group);
+  const { type, setType } = useSelected();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
-  const placeHolder = generatePlaceHolder(tab, action);
+  const placeHolder = generatePlaceHolder(type, action);
+  const { setGroups } = useGroup();
+  const { setRules } = useRule();
+
+  useEffect(() => {
+    (async () => {
+      const localGroups = await getLocalGroups();
+      const localRules = await getLocalRules();
+      console.log(localGroups);
+      console.log(localRules);
+      setGroups(localGroups);
+      setRules(localRules);
+    })();
+  }, []);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -132,7 +147,7 @@ export default function LeftBar() {
           },
         ]}
         onChange={(v: any) => {
-          setTab(v);
+          setType(v);
         }}
         size="small"
         centered

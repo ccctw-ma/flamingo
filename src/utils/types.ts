@@ -24,10 +24,13 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
   /** The timestamp when this rule is modified */
   update: number;
 
-  /**  Determine whether this rule is global 
+  /** Determin whether this rule is working*/
+  enable: boolean;
+
+  /**  Determine whether this rule is global
    *   todo! not sure whether need this key
-  */
-  isGlobal: number;
+   */
+  isGlobal?: number;
 }
 
 export interface Group {
@@ -39,9 +42,12 @@ export interface Group {
   /** The name of this group*/
   name: string;
 
-  /** All of rules of this group*/
-  rules: Rule[];
+  /** Determin whether this group is working*/
+  enable: boolean;
 
   /** The timestamp when this group is modified */
   update: number;
+
+  /** All of rules of this group*/
+  rules: Rule[];
 }

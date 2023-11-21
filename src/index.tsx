@@ -11,7 +11,7 @@ import {
   LEFT_BAR_WIDTH_MAX_RATIO,
   LEFT_BAR_WIDTH_MIN_RATIO,
 } from "./utils/constants";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { localGet, localSet } from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
@@ -22,6 +22,10 @@ export const Home = () => {
   const leftBar = useRef<HTMLDivElement>(null);
   const [leftBarSize, setLeftBarSize] = useState<string>(
     HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO + "px"
+  );
+
+  const [rightBarSize, setRightBarSize] = useState<string>(
+    HOME_WIDTH * (1 - LEFT_BAR_WIDTH_MIN_RATIO) - DIVIDER_WIDTH + "px"
   );
 
   function handleChangeSize() {
@@ -64,9 +68,22 @@ export const Home = () => {
   useLayoutEffect(() => {
     (async () => {
       const res = await localGet(LEFT_BAR_WIDTH_KEY);
-      const localVal = res[LEFT_BAR_WIDTH_KEY];
-      localVal && setLeftBarSize(localVal);
+      const localVal: string = res[LEFT_BAR_WIDTH_KEY];
+      if (localVal) {
+        setLeftBarSize(localVal);
+        const localNumVal = +localVal.substring(0, localVal.length - 2);
+        setRightBarSize(
+          document.body.clientWidth - DIVIDER_WIDTH - localNumVal + "px"
+        );
+      }
     })();
+
+    window.addEventListener("resize", () => {
+      const leftBarNumSize = +leftBarSize.substring(0, leftBarSize.length - 2);
+      setRightBarSize(
+        document.body.clientWidth - DIVIDER_WIDTH - leftBarNumSize + "px"
+      );
+    });
   }, []);
 
   return (

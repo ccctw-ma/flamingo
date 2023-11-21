@@ -1,3 +1,5 @@
+import { Group, Rule } from "./types";
+
 /**
  * infos
  */
@@ -30,3 +32,31 @@ export const LEFT_TAB_ITEM_HEIGHT = 40;
 export const LEFT_TAB_ACTION_HEIGHT = 40;
 
 export const DIVIDER_WIDTH = 2;
+
+/**
+ * demo
+ */
+
+export const DEMO_RULE: Rule = {
+  id: Date.now(),
+  name: "demo-rule",
+  update: Date.now(),
+  enable: false,
+  action: {
+    type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+    redirect: {
+      regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
+    },
+  },
+  condition: {
+    regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
+  },
+};
+
+export const DEMO_GROUP: Group = {
+  id: Date.now(),
+  name: "demo-group",
+  enable: false,
+  update: 0,
+  rules: [],
+};
