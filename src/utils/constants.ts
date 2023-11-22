@@ -1,3 +1,4 @@
+import { generateId } from ".";
 import { Group, Rule } from "./types";
 
 /**
@@ -38,8 +39,9 @@ export const DIVIDER_WIDTH = 2;
  */
 
 export const DEMO_RULE: Rule = {
-  id: Date.now(),
+  id: generateId(),
   name: "demo-rule",
+  create: Date.now(),
   update: Date.now(),
   enable: false,
   action: {
@@ -53,10 +55,34 @@ export const DEMO_RULE: Rule = {
   },
 };
 
+export const EMPTY_RULE: Rule = {
+  name: "",
+  create: Date.now(),
+  update: Date.now(),
+  enable: false,
+  action: {
+    type: chrome.declarativeNetRequest.RuleActionType.ALLOW,
+  },
+  condition: {
+    regexFilter: "",
+  },
+  id: generateId(),
+};
+
 export const DEMO_GROUP: Group = {
-  id: Date.now(),
+  id: generateId(),
   name: "demo-group",
   enable: false,
-  update: 0,
+  create: Date.now(),
+  update: Date.now(),
+  rules: [],
+};
+
+export const EMPTY_GROUP: Group = {
+  id: generateId(),
+  name: "",
+  enable: false,
+  create: Date.now(),
+  update: Date.now(),
   rules: [],
 };

@@ -30,6 +30,9 @@ export async function localGet(keys: StorageKey) {
   return await storageGet("local")(keys);
 }
 
+/**
+ * groups add delete update query
+ */
 export async function getLocalGroups() {
   return (
     (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [DEMO_GROUP]
@@ -39,10 +42,70 @@ export async function getLocalGroups() {
 export async function setLocalGroups(groups: Array<Group>) {
   return await localSet({ [GROUPS_STORAGE_KEY]: groups });
 }
+
+export async function addGroup(group: Group) {
+  const oldGroups: Array<Group> = await getLocalGroups();
+  const newGroups = [...oldGroups, group];
+  return await setLocalGroups(newGroups);
+}
+
+export async function updateGroups(group: Group) {
+  const oldGroups: Array<Group> = await getLocalGroups();
+  const newGroups = oldGroups.map((g) => {
+    // override
+    if (g.id === group.id) {
+      return {
+        ...g,
+        ...group,
+      };
+    } else {
+      return g;
+    }
+  });
+  return await setLocalGroups(newGroups);
+}
+
+export async function deleteGroup(group: Group) {
+  const oldGroups: Array<Group> = await getLocalGroups();
+  const newGroups = oldGroups.filter((g) => g.id !== group.id);
+  return await setLocalGroups(newGroups);
+}
+
+/**
+ * rules add delete update query
+ */
 export async function getLocalRules() {
   return (await localGet(RULES_STORAGE_KEY))[RULES_STORAGE_KEY] || [DEMO_RULE];
 }
 
 export async function setLocalRules(rules: Array<Rule>) {
   return await localSet({ [RULES_STORAGE_KEY]: rules });
+}
+
+export async function addRule(rule: Rule) {
+  const oldRules = await getLocalRules();
+  const newRules = [...oldRules, rule];
+  return await setLocalRules(newRules);
+}
+
+export async function updateRules(rule: Rule) {
+  const oldRules: Array<Rule> = await getLocalRules();
+  const newRules = oldRules.map((r) => {
+    // override
+    if (r.id === rule.id) {
+      return {
+        ...r,
+        ...rule,
+      };
+    } else {
+      return r;
+    }
+  });
+  return await setLocalRules(newRules);
+}
+
+export async function deleteRule(rule: Rule) {
+  const oldRules: Array<Rule> = await getLocalRules();
+  const newRules = oldRules.filter((r) => r.id !== rule.id);
+  return await setLocalRules(newRules);
 }

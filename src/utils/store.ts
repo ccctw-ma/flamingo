@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Group, Rule, TYPE } from "./types";
+import { EMPTY_GROUP, EMPTY_RULE } from "./constants";
 
 type GroupStore = {
   groups: Array<Group>;
@@ -9,13 +10,7 @@ type GroupStore = {
 };
 export const useGroup = create<GroupStore>()((set) => ({
   groups: [],
-  selectedGroup: {
-    id: -1,
-    name: "",
-    enable: false,
-    update: 0,
-    rules: [],
-  },
+  selectedGroup: EMPTY_GROUP,
   setGroups: (val: Array<Group>) => set((state: any) => ({ groups: val })),
   setSelectedGroup: (val: Group) =>
     set((state: any) => ({ selectedGroup: val })),
@@ -29,19 +24,7 @@ type RuleStore = {
 };
 export const useRule = create<RuleStore>()((set) => ({
   rules: [],
-  selectedRule: {
-    id: -1,
-    name: "",
-    enable: false,
-    update: 0,
-    isGlobal: 0,
-    action: {
-      type: chrome.declarativeNetRequest.RuleActionType.ALLOW,
-    },
-    condition: {
-      regexFilter: "",
-    },
-  },
+  selectedRule: EMPTY_RULE,
   setRules: (val: Array<Rule>) => set((state: any) => ({ rules: val })),
   setSelectedRule: (val: Rule) => set((state: any) => ({ selectedRule: val })),
 }));
@@ -55,13 +38,7 @@ type SelecedStore = {
 
 export const useSelected = create<SelecedStore>()((set) => ({
   type: TYPE.Group,
-  selected: {
-    id: -1,
-    name: "",
-    enable: false,
-    update: 0,
-    rules: [],
-  },
+  selected: EMPTY_GROUP,
   setSelected: (val: Rule | Group) => set((state: any) => ({ selected: val })),
   setType: (val: TYPE) => set((state: any) => ({ type: val })),
 }));

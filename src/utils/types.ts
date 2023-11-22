@@ -14,12 +14,21 @@ export enum TYPE {
   Rule = "Rule",
 }
 
+export enum STATUS {
+  ERROR = "error",
+  WARN = "warning",
+  NONE = "",
+}
+
 /**
  * interfaces and types
  */
 export interface Rule extends chrome.declarativeNetRequest.Rule {
   /** The name of this rule*/
   name: string;
+
+  /** The timestamp when this rule is created */
+  create: number;
 
   /** The timestamp when this rule is modified */
   update: number;
@@ -44,6 +53,9 @@ export interface Group {
 
   /** Determin whether this group is working*/
   enable: boolean;
+
+  /** The timestamp when this group is created */
+  create: number;
 
   /** The timestamp when this group is modified */
   update: number;

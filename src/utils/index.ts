@@ -12,14 +12,19 @@ export function throttle(fn: any, delay = 10) {
   };
 }
 
+const Count = (() => {
+  let c = 1;
+  return () => {
+    return c++;
+  };
+})();
 /**
  * generate unique id for rule
  * here use timeStamp
  */
 export function generateId() {
-  return Date.now();
+  return Date.now() + Count();
 }
 
 // no operation for placeholder
 export function noop() {}
-

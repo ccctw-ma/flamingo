@@ -9,11 +9,43 @@ import {
 } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
 import { useGroup, useSelected } from "../utils/store";
-export default function Item(props: any) {
-  const { item: current } = props;
+import { Group, Rule, TYPE } from "../utils/types";
+import {
+  deleteGroup,
+  deleteRule,
+  updateGroups,
+  updateRules,
+} from "../utils/storage";
+
+interface Props {
+  item: Group | Rule;
+  type: TYPE;
+  refresh: () => void;
+}
+export default function Item(props: Props) {
+  const { item: current, type: curType, refresh } = props;
   const [isEdit, setIsEdit] = useState(false);
-  const { type, selected, setSelected } = useSelected();
+  const { type, selected, setType, setSelected } = useSelected();
   const [label, setLabel] = useState(current.name);
+  const [checked, setChecked] = useState(current.enable);
+
+  const deleteItem = async (item: Group | Rule) => {
+    if (curType === TYPE.Group) {
+      await deleteGroup(item as Group);
+    } else {
+      await deleteRule(item as Rule);
+    }
+    refresh();
+  };
+
+  const updateItem = async (item: Group | Rule) => {
+    if (curType === TYPE.Group) {
+      await updateGroups({ ...item, update: Date.now() } as Group);
+    } else {
+      await updateRules({ ...item, update: Date.now() } as Rule);
+    }
+    refresh();
+  };
 
   useEffect(() => {
     selected.id !== current.id && setIsEdit(false);
@@ -22,14 +54,24 @@ export default function Item(props: any) {
     <div
       style={{ width: "100%", height: LEFT_TAB_ITEM_HEIGHT }}
       className={`border-solid border-b-2 border-b-slate-200 flex justify-between items-center px-2 ${
-        selected.id === current.id && "bg-slate-200"
+        selected.id === current.id && curType === type && "bg-slate-200"
       }`}
       onClick={() => {
-        console.log(current);
         setSelected(current);
+        setType(curType);
+        console.log(curType, current);
       }}
     >
-      <Checkbox />
+      <Checkbox
+        checked={checked}
+        onChange={(e) => {
+          setChecked(e.target.checked);
+          updateItem({ ...current, enable: e.target.checked });
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      />
       {isEdit ? (
         <Input
           value={label}
@@ -44,6 +86,7 @@ export default function Item(props: any) {
           }}
           onPressEnter={() => {
             setLabel(label);
+            updateItem({ ...current, name: label });
             setIsEdit(false);
           }}
         />
@@ -73,7 +116,7 @@ export default function Item(props: any) {
             title="Delete the Group"
             description="Are you sure to delete this group?"
             onConfirm={() => {
-              console.log("delete");
+              deleteItem(current);
             }}
             okText="Yes"
             cancelText="No"

@@ -12,6 +12,8 @@ import {
 } from "antd";
 import * as React from "react";
 import {
+  EMPTY_GROUP,
+  EMPTY_RULE,
   HOME_HEIGHT,
   LEFT_TAB_ACTION_HEIGHT,
   LEFT_TAB_BAR_HEIGHT,
@@ -32,59 +34,40 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import Item from "../components/item";
-import { useEffect, useState } from "react";
-import { noop } from "../utils";
-import { ACTION, TYPE } from "../utils/types";
+import { useCallback, useEffect, useState } from "react";
+import { generateId, noop } from "../utils";
+import { ACTION, STATUS, TYPE } from "../utils/types";
 import { useGroup, useRule, useSelected } from "../utils/store";
-import { getLocalGroups, getLocalRules } from "../utils/storage";
+import {
+  addGroup,
+  addRule,
+  getLocalGroups,
+  getLocalRules,
+} from "../utils/storage";
 
-function Groups() {
-  // const groups = new Array(30).fill(null).map((_, idx) => ({
-  //   id: idx,
-  //   label: Math.random().toString(36).substring(2, 10),
-  //   children: [],
-  // }));
+// function Groups() {
+//   // const groups = new Array(30).fill(null).map((_, idx) => ({
+//   //   id: idx,
+//   //   label: Math.random().toString(36).substring(2, 10),
+//   //   children: [],
+//   // }));
 
-  return (
-    <div
-      style={{
-        height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
-        paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
-      }}
-      className="relative overflow-y-scroll no-scrollbar"
-    >
-      {useGroup().groups.map((val) => (
-        <Item item={val} type={TYPE.Group} />
-      ))}
-    </div>
-  );
-}
+//   return;
+// }
 
-function Rules() {
-  // const groups = new Array(30).fill(null).map((_, idx) => ({
-  //   id: idx,
-  //   label: Math.random()
-  //     .toString(36)
-  //     .substring(2, Math.max(33 * Math.random(), 3)),
-  //   children: [],
-  // }));
+// function Rules() {
+//   // const groups = new Array(30).fill(null).map((_, idx) => ({
+//   //   id: idx,
+//   //   label: Math.random()
+//   //     .toString(36)
+//   //     .substring(2, Math.max(33 * Math.random(), 3)),
+//   //   children: [],
+//   // }));
 
-  return (
-    <div
-      style={{
-        height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
-        paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
-      }}
-      className="relative overflow-y-scroll no-scrollbar pb-4"
-    >
-      {useRule().rules.map((val) => (
-        <Item item={val} />
-      ))}
-    </div>
-  );
-}
+//   return;
+// }
 
-const actions = {
+const actionView = {
   [ACTION.Add]: { label: "add", icon: <PlusCircleOutlined /> },
   [ACTION.Search]: {
     label: "search",
@@ -106,44 +89,112 @@ const actions = {
 
 function generatePlaceHolder(tab: TYPE, action: ACTION): string {
   if (action === ACTION.Add || action === ACTION.Search) {
-    return `${actions[action].label} a ${tab.toLowerCase()}`;
+    return `${actionView[action].label} a ${tab.toLowerCase()}`;
   } else {
-    return `${actions[action].label}`;
+    return `${actionView[action].label}`;
   }
 }
 
 export default function LeftBar() {
-  const { type, setType } = useSelected();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
-  const placeHolder = generatePlaceHolder(type, action);
-  const { setGroups } = useGroup();
-  const { setRules } = useRule();
+  const [input, setInput] = useState<string>("");
+  const [status, setStatus] = useState<STATUS>(STATUS.NONE);
+  const { type, setType } = useSelected();
+  const { groups, setGroups } = useGroup();
+  const { rules, setRules } = useRule();
+
+  const refresh = async () => {
+    const localGroups = await getLocalGroups();
+    const localRules = await getLocalRules();
+    setGroups(localGroups);
+    setRules(localRules);
+  };
 
   useEffect(() => {
-    (async () => {
-      const localGroups = await getLocalGroups();
-      const localRules = await getLocalRules();
-      console.log(localGroups);
-      console.log(localRules);
-      setGroups(localGroups);
-      setRules(localRules);
-    })();
+    refresh();
   }, []);
+
+  function handleAction() {
+    const addItem = async (input: string) => {
+      if (!input) {
+        setStatus(STATUS.ERROR);
+        setTimeout(() => {
+          setStatus(STATUS.NONE);
+        }, 1000);
+        return;
+      }
+      if (type === TYPE.Group) {
+        await addGroup({
+          ...EMPTY_GROUP,
+          name: input,
+          id: generateId(),
+          create: Date.now(),
+          update: Date.now(),
+        });
+      } else {
+        await addRule({
+          ...EMPTY_RULE,
+          name: input,
+          id: generateId(),
+          create: Date.now(),
+          update: Date.now(),
+        });
+      }
+      setInput("");
+      await refresh();
+    };
+    const searchItem = (input: string) => {};
+    const orderItemsByName = () => {};
+    const orderItemsByCreateTime = () => {};
+    const orderItemsByUpdateTime = () => {};
+    const actionOper = {
+      [ACTION.Add]: addItem,
+      [ACTION.Search]: searchItem,
+      [ACTION.OrderByName]: orderItemsByName,
+      [ACTION.OrderByCreateTime]: orderItemsByCreateTime,
+      [ACTION.OrderByUpdateTime]: orderItemsByUpdateTime,
+    };
+    actionOper[action](input);
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden">
       <Tabs
-        defaultActiveKey="group"
+        defaultActiveKey={TYPE.Group}
         items={[
           {
-            key: "group",
-            label: "Group",
-            children: <Groups />,
+            key: TYPE.Group,
+            label: TYPE.Group,
+            children: (
+              <div
+                style={{
+                  height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
+                  paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
+                }}
+                className="relative overflow-y-scroll no-scrollbar"
+              >
+                {groups.map((val) => (
+                  <Item item={val} type={TYPE.Group} refresh={refresh} />
+                ))}
+              </div>
+            ),
           },
           {
-            key: "rule",
-            label: "Rule",
-            children: <Rules />,
+            key: TYPE.Rule,
+            label: TYPE.Rule,
+            children: (
+              <div
+                style={{
+                  height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
+                  paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
+                }}
+                className="relative overflow-y-scroll no-scrollbar pb-4"
+              >
+                {rules.map((val) => (
+                  <Item item={val} type={TYPE.Rule} refresh={refresh} />
+                ))}
+              </div>
+            ),
           },
         ]}
         onChange={(v: any) => {
@@ -158,11 +209,19 @@ export default function LeftBar() {
         style={{ height: LEFT_TAB_ACTION_HEIGHT }}
         className="absolute flex items-center justify-center bottom-0 w-full bg-transparent px-6 gap-2"
       >
-        <Input placeholder={placeHolder} onPressEnter={noop} />
+        <Input
+          placeholder={generatePlaceHolder(type, action)}
+          onPressEnter={handleAction}
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
+          status={status}
+        />
         <Popover
           content={
             <div className="flex flex-col items-center">
-              {Object.entries(actions).map(([key, { label, icon }]) => (
+              {Object.entries(actionView).map(([key, { label, icon }]) => (
                 // todo add bg-color for tooltip
                 <Tooltip placement="right" title={label}>
                   <span
@@ -177,7 +236,7 @@ export default function LeftBar() {
             </div>
           }
         >
-          <Button icon={actions[action].icon} />
+          <Button icon={actionView[action].icon} onClick={handleAction} />
         </Popover>
       </div>
     </div>
