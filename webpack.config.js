@@ -20,8 +20,8 @@ module.exports = wrapConfig({
     main: "./src/index.tsx",
     bg: "./src/background.ts",
   },
-  // devtool: "inline-source-map",
-  devtool: false,
+  devtool: "inline-source-map",
+  // devtool: false,
   output: {
     path: pathResolve("build/src"),
     filename: "[name].js",

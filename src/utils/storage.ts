@@ -3,8 +3,9 @@ import {
   DEMO_RULE,
   GROUPS_STORAGE_KEY,
   RULES_STORAGE_KEY,
+  SELECTED_KEY,
 } from "./constants";
-import { Group, Rule } from "./types";
+import { Group, Rule, TYPE } from "./types";
 
 export type AreaName = "sync" | "local" | "managed" | "session";
 export type StorageKey = string | string[] | { [key: string]: any };
@@ -34,9 +35,12 @@ export async function localGet(keys: StorageKey) {
  * groups add delete update query
  */
 export async function getLocalGroups() {
-  return (
-    (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [DEMO_GROUP]
-  );
+  let localGroups =
+    (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [];
+  if (localGroups.length === 0) {
+    localGroups = [DEMO_GROUP];
+  }
+  return localGroups;
 }
 
 export async function setLocalGroups(groups: Array<Group>) {
@@ -75,7 +79,11 @@ export async function deleteGroup(group: Group) {
  * rules add delete update query
  */
 export async function getLocalRules() {
-  return (await localGet(RULES_STORAGE_KEY))[RULES_STORAGE_KEY] || [DEMO_RULE];
+  let localRules = (await localGet(RULES_STORAGE_KEY))[RULES_STORAGE_KEY] || [];
+  if (localRules.length === 0) {
+    localRules = [DEMO_RULE];
+  }
+  return localRules;
 }
 
 export async function setLocalRules(rules: Array<Rule>) {
@@ -108,4 +116,17 @@ export async function deleteRule(rule: Rule) {
   const oldRules: Array<Rule> = await getLocalRules();
   const newRules = oldRules.filter((r) => r.id !== rule.id);
   return await setLocalRules(newRules);
+}
+
+/**
+ * selelcted  update query
+ */
+export async function getLocalSelected() {
+  return (
+    (await localGet(SELECTED_KEY))[SELECTED_KEY] || [TYPE.Group, DEMO_GROUP]
+  );
+}
+
+export async function setLocalSelected(type: TYPE, selected: Rule | Group) {
+  return await localSet({ [SELECTED_KEY]: [type, selected] });
 }

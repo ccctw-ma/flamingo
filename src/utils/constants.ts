@@ -15,6 +15,7 @@ export const ALL_URLS = "<all_urls>";
 
 export const GROUPS_STORAGE_KEY = "groups_storage_key";
 export const RULES_STORAGE_KEY = "rules_storage_key";
+export const SELECTED_KEY = "selected_storage_key";
 
 /**
  * view config
@@ -39,7 +40,7 @@ export const DIVIDER_WIDTH = 2;
  */
 
 export const DEMO_RULE: Rule = {
-  id: generateId(),
+  id: -1,
   name: "demo-rule",
   create: Date.now(),
   update: Date.now(),
@@ -56,6 +57,7 @@ export const DEMO_RULE: Rule = {
 };
 
 export const EMPTY_RULE: Rule = {
+  id: -2,
   name: "",
   create: Date.now(),
   update: Date.now(),
@@ -66,11 +68,10 @@ export const EMPTY_RULE: Rule = {
   condition: {
     regexFilter: "",
   },
-  id: generateId(),
 };
 
 export const DEMO_GROUP: Group = {
-  id: generateId(),
+  id: -3,
   name: "demo-group",
   enable: false,
   create: Date.now(),
@@ -79,7 +80,7 @@ export const DEMO_GROUP: Group = {
 };
 
 export const EMPTY_GROUP: Group = {
-  id: generateId(),
+  id: -4,
   name: "",
   enable: false,
   create: Date.now(),

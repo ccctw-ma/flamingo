@@ -43,6 +43,7 @@ import {
   addRule,
   getLocalGroups,
   getLocalRules,
+  getLocalSelected,
 } from "../utils/storage";
 
 // function Groups() {
@@ -99,19 +100,30 @@ export default function LeftBar() {
   const [action, setAction] = useState<ACTION>(ACTION.Add);
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
-  const { type, setType } = useSelected();
+  const { type, setType, setSelected } = useSelected();
   const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
 
   const refresh = async () => {
     const localGroups = await getLocalGroups();
     const localRules = await getLocalRules();
+    console.log(localGroups, localRules);
     setGroups(localGroups);
     setRules(localRules);
   };
 
+  const initSelected = async () => {
+    const [localSelectedType, localSelected] = await getLocalSelected();
+    console.log(localSelectedType, localSelected);
+    setSelected(localSelected);
+    setType(localSelectedType);
+  };
+
   useEffect(() => {
-    refresh();
+    (async () => {
+      await refresh();
+      await initSelected();
+    })();
   }, []);
 
   function handleAction() {
@@ -160,7 +172,7 @@ export default function LeftBar() {
   return (
     <div className="relative w-full h-full overflow-hidden">
       <Tabs
-        defaultActiveKey={TYPE.Group}
+        activeKey={type}
         items={[
           {
             key: TYPE.Group,

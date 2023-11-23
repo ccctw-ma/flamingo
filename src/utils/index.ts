@@ -28,3 +28,25 @@ export function generateId() {
 
 // no operation for placeholder
 export function noop() {}
+
+/**
+ * loop until the condition is readched,
+ * action can be executed or time out
+ *  */
+export function loop(condition: () => any, action: () => void, time: number) {
+  const start = Date.now();
+  const end = start + time;
+  const fn = () => {
+    console.log(condition());
+    if (condition()) {
+      action();
+      return;
+    }
+    if (Date.now() > end) {
+      return;
+    }
+    requestIdleCallback(fn);
+  };
+
+  fn();
+}

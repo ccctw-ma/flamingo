@@ -12,10 +12,22 @@ import {
   LEFT_BAR_WIDTH_MIN_RATIO,
 } from "./utils/constants";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { localGet, localSet } from "./utils/storage";
+import {
+  localGet,
+  localSet,
+  setLocalGroups,
+  setLocalRules,
+} from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
+import {
+  CodeOutlined,
+  CommentOutlined,
+  CustomerServiceOutlined,
+  MenuOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 
 export const Home = () => {
   const container = useRef<HTMLDivElement>(null);
@@ -111,12 +123,22 @@ export const Home = () => {
         </div>
       </div>
 
-      <FloatButton
-        type="primary"
-        onClick={() =>
-          chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })
-        }
-      />
+      <FloatButton.Group trigger="click" icon={<MenuOutlined />}>
+        <FloatButton
+          icon={<CodeOutlined title="open in new tab" />}
+          onClick={() =>
+            chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })
+          }
+        />
+        <FloatButton
+          icon={<SettingOutlined title="open setting page" />}
+          onClick={() => {
+            /**just for clean localstorage */
+            setLocalRules([]);
+            setLocalGroups([]);
+          }}
+        />
+      </FloatButton.Group>
     </div>
   );
 };

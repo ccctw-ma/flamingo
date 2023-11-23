@@ -1,6 +1,10 @@
 import { Checkbox, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
-import { LEFT_TAB_ITEM_HEIGHT } from "../utils/constants";
+import {
+  DEMO_GROUP,
+  DEMO_RULE,
+  LEFT_TAB_ITEM_HEIGHT,
+} from "../utils/constants";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -13,6 +17,7 @@ import { Group, Rule, TYPE } from "../utils/types";
 import {
   deleteGroup,
   deleteRule,
+  setLocalSelected,
   updateGroups,
   updateRules,
 } from "../utils/storage";
@@ -32,8 +37,12 @@ export default function Item(props: Props) {
   const deleteItem = async (item: Group | Rule) => {
     if (curType === TYPE.Group) {
       await deleteGroup(item as Group);
+      await setLocalSelected(curType, DEMO_GROUP);
+      setSelected(DEMO_GROUP);
     } else {
       await deleteRule(item as Rule);
+      await setLocalSelected(curType, DEMO_RULE);
+      setSelected(DEMO_RULE);
     }
     refresh();
   };
@@ -45,6 +54,10 @@ export default function Item(props: Props) {
       await updateRules({ ...item, update: Date.now() } as Rule);
     }
     refresh();
+  };
+
+  const isDemo = (item: Group | Rule) => {
+    return item.id === DEMO_GROUP.id || item.id === DEMO_RULE.id;
   };
 
   useEffect(() => {
@@ -59,7 +72,7 @@ export default function Item(props: Props) {
       onClick={() => {
         setSelected(current);
         setType(curType);
-        console.log(curType, current);
+        setLocalSelected(curType, current);
       }}
     >
       <Checkbox
@@ -91,7 +104,7 @@ export default function Item(props: Props) {
           }}
         />
       ) : (
-        <span className="flex-1 inline-block px-[17px] overflow-clip whitespace-nowrap">
+        <span className="flex-1 inline-block ml-[17px] mr-[6px] text-clip overflow-clip whitespace-nowrap">
           {label}
         </span>
       )}
@@ -110,19 +123,21 @@ export default function Item(props: Props) {
             selected.id === current.id ? "opacity-100" : "opacity-0"
           }`}
         >
-          <EditOutlined onClick={() => setIsEdit(true)} />
+          {!isDemo(current) && <EditOutlined onClick={() => setIsEdit(true)} />}
 
-          <Popconfirm
-            title="Delete the Group"
-            description="Are you sure to delete this group?"
-            onConfirm={() => {
-              deleteItem(current);
-            }}
-            okText="Yes"
-            cancelText="No"
-          >
-            <DeleteOutlined />
-          </Popconfirm>
+          {!isDemo(current) && (
+            <Popconfirm
+              title={`Delete the ${curType}`}
+              description={`Are you sure to delete this ${curType.toLocaleLowerCase()}?`}
+              onConfirm={() => {
+                deleteItem(current);
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <DeleteOutlined />
+            </Popconfirm>
+          )}
         </div>
       )}
     </div>

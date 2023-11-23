@@ -1,24 +1,48 @@
-import { Button } from "antd";
 import * as React from "react";
-import MonacoEditor from "react-monaco-editor";
-import { useGroup, useSelected } from "../utils/store";
+import MonacoEditor, { monaco } from "react-monaco-editor";
+import { useSelected } from "../utils/store";
+import { useEffect, useRef } from "react";
+import { loop } from "../utils";
 export default function RightBar() {
-  const code = JSON.stringify("let x = 10;");
+  const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
 
   const { type, selected } = useSelected();
+
+  const format = () => {
+    const formater = editor.current!.getAction("editor.action.formatDocument");
+    loop(
+      () => formater?.isSupported(),
+      () => formater?.run(),
+      2000
+    );
+  };
+  useEffect(() => {
+    // format();
+  }, [selected]);
+
   return (
     <div className="w-full h-full flex justify-center items-center">
       <MonacoEditor
-        value={JSON.stringify(selected)}
+        height="100%"
+        width="100%"
         language="json"
-        theme="vs-dark"
-        width={500}
-        height={500}
-        onChange={(val, e) => {
-          // console.log(val, e);
-          // console.log(JSON.parse(val));
+        theme={"vs-light"}
+        value={JSON.stringify(selected, null, "\t")}
+        onChange={(value, e) => {
+          console.log(value, e);
+        }}
+        editorDidMount={(_editor, _monaco) => {
+          editor.current = _editor;
+          editor.current.focus();
+        }}
+        options={{
+          minimap: {
+            enabled: false,
+          },
+          scrollBeyondLastLine: false,
         }}
       />
+      ;
     </div>
   );
 }
