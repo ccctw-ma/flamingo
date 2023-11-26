@@ -1,12 +1,23 @@
 import * as React from "react";
 import MonacoEditor, { monaco } from "react-monaco-editor";
 import { useSelected } from "../utils/store";
-import { useEffect, useRef } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { loop } from "../utils";
-export default function RightBar() {
+
+const RightBar = forwardRef((props: { width: number }, ref) => {
+  const [containerWidth, setContainerWidth] = useState<number>(props.width);
+  const { type, selected } = useSelected();
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
 
-  const { type, selected } = useSelected();
+  useImperativeHandle(ref, () => ({
+    setContainerWidth,
+  }));
 
   const format = () => {
     const formater = editor.current!.getAction("editor.action.formatDocument");
@@ -21,10 +32,10 @@ export default function RightBar() {
   }, [selected]);
 
   return (
-    <div className="w-full h-full flex justify-center items-center">
+    <div className="w-full h-full flex justify-center items-center overflow-hidden">
       <MonacoEditor
         height="100%"
-        width="100%"
+        width={containerWidth}
         language="json"
         theme={"vs-light"}
         value={JSON.stringify(selected, null, "\t")}
@@ -42,7 +53,8 @@ export default function RightBar() {
           scrollBeyondLastLine: false,
         }}
       />
-      ;
     </div>
   );
-}
+});
+
+export default RightBar;

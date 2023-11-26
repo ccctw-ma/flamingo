@@ -14,6 +14,7 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   localGet,
+  localGetBySingleKey,
   localSet,
   setLocalGroups,
   setLocalRules,
@@ -30,28 +31,59 @@ import {
 } from "@ant-design/icons";
 
 export const Home = () => {
+  /**
+   * Because we don't know if there will be a scrolling axis when
+   * executing this code, but we have defined the minimum width,
+   * so special handling is needed here to avoid exceptions.
+   */
+  const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
+
   const container = useRef<HTMLDivElement>(null);
-  const leftBar = useRef<HTMLDivElement>(null);
-  const [leftBarSize, setLeftBarSize] = useState<string>(
-    HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO + "px"
+  const rightBar = useRef<any>();
+  const [leftBarSize, setLeftBarSize] = useState<number>(
+    HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO
   );
 
-  const [rightBarSize, setRightBarSize] = useState<string>(
-    HOME_WIDTH * (1 - LEFT_BAR_WIDTH_MIN_RATIO) - DIVIDER_WIDTH + "px"
-  );
+  const [_, sa] = useState({});
+  /**
+   * use empty object {} to refresh Home page, and the reason why containerWidth
+   * is not used here is that this function has only been registered once,
+   * so the containerWidth used will only be the containerWidth from the
+   * first registration and will not be updated.
+   */
+  const redraw = () => {
+    sa({});
+    rightBar.current.setContainerWidth(
+      document.body.scrollWidth - leftBarSize - DIVIDER_WIDTH
+    );
+  };
 
   function handleChangeSize() {
+    const [leftBarContainer, middleDivder, rightBarContainer] = Array.from(
+      container.current!.children
+    ) as Array<HTMLDivElement>;
+
+    let tempLeftBarSize = +leftBarContainer.style.width.slice(0, -2);
     const throttleHandleMouseMove = throttle((e: MouseEvent) => {
-      const clientX = e.clientX;
       const maxSize = LEFT_BAR_WIDTH_MAX_RATIO * HOME_WIDTH;
       const minSize = LEFT_BAR_WIDTH_MIN_RATIO * HOME_WIDTH;
+      const clientX = e.clientX;
       const newSize =
         clientX > maxSize
           ? Math.min(maxSize, clientX)
           : clientX < minSize
           ? Math.max(minSize, clientX)
           : clientX;
-      leftBar.current!.style.width = `${newSize}px`;
+
+      tempLeftBarSize = newSize;
+      leftBarContainer.style.width = `${newSize}px`;
+      middleDivder.style.left = `${newSize}px`;
+      rightBarContainer.style.width = `${
+        containerWidth - newSize - DIVIDER_WIDTH
+      }px`;
+      rightBar.current!.setContainerWidth(
+        containerWidth - newSize - DIVIDER_WIDTH
+      );
     });
 
     const handleMouseUp = () => {
@@ -60,12 +92,11 @@ export const Home = () => {
         throttleHandleMouseMove
       );
 
-      const currentLeftBarSize = leftBar.current!.style.width;
       /**
        * storing data and synchronizing state
        */
-      setLeftBarSize(currentLeftBarSize);
-      localSet({ [LEFT_BAR_WIDTH_KEY]: currentLeftBarSize });
+      setLeftBarSize(tempLeftBarSize);
+      localSet({ [LEFT_BAR_WIDTH_KEY]: tempLeftBarSize });
     };
 
     container.current!.addEventListener("mousemove", throttleHandleMouseMove);
@@ -79,23 +110,20 @@ export const Home = () => {
    */
   useLayoutEffect(() => {
     (async () => {
-      const res = await localGet(LEFT_BAR_WIDTH_KEY);
-      const localVal: string = res[LEFT_BAR_WIDTH_KEY];
-      if (localVal) {
-        setLeftBarSize(localVal);
-        const localNumVal = +localVal.substring(0, localVal.length - 2);
-        setRightBarSize(
-          document.body.clientWidth - DIVIDER_WIDTH - localNumVal + "px"
-        );
-      }
+      const localVal: number =
+        (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ||
+        HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
+      setLeftBarSize(localVal);
+      rightBar.current!.setContainerWidth(
+        containerWidth - localVal - DIVIDER_WIDTH
+      );
     })();
 
-    window.addEventListener("resize", () => {
-      const leftBarNumSize = +leftBarSize.substring(0, leftBarSize.length - 2);
-      setRightBarSize(
-        document.body.clientWidth - DIVIDER_WIDTH - leftBarNumSize + "px"
-      );
-    });
+    /**
+     * when window size changes, only the size of the right bar
+     * needs to be changed
+     */
+    window.addEventListener("resize", redraw);
   }, []);
 
   return (
@@ -108,18 +136,38 @@ export const Home = () => {
         minHeight: HOME_HEIGHT,
       }}
     >
-      <div className="w-full h-full flex" ref={container}>
-        <div style={{ width: leftBarSize, height: "100%" }} ref={leftBar}>
+      <div className="w-full h-full relative" ref={container}>
+        <div
+          style={{ width: leftBarSize, height: "100%", position: "absolute" }}
+        >
           <LeftBar />
         </div>
         <div
           // todo! ensure a theme color
           className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-pink-600 hover:scale-x-150 "
           onMouseDown={handleChangeSize}
-          style={{ width: DIVIDER_WIDTH }}
+          style={{
+            width: DIVIDER_WIDTH,
+            height: "100%",
+            position: "absolute",
+            left: leftBarSize,
+            top: 0,
+            zIndex: 9999,
+          }}
         />
-        <div className="flex-1">
-          <RightBar />
+        <div
+          style={{
+            width: `${containerWidth - leftBarSize - DIVIDER_WIDTH}px`,
+            height: "100%",
+            position: "absolute",
+            right: 0,
+            top: 0,
+          }}
+        >
+          <RightBar
+            width={containerWidth - leftBarSize - DIVIDER_WIDTH}
+            ref={rightBar}
+          />
         </div>
       </div>
 

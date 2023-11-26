@@ -31,6 +31,10 @@ export async function localGet(keys: StorageKey) {
   return await storageGet("local")(keys);
 }
 
+export async function localGetBySingleKey(key: string) {
+  return (await localGet(key))[key];
+}
+
 /**
  * groups add delete update query
  */
