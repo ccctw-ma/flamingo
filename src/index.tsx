@@ -152,7 +152,7 @@ export const Home = () => {
             position: "absolute",
             left: leftBarSize,
             top: 0,
-            zIndex: 9999,
+            zIndex: 10,
           }}
         />
         <div

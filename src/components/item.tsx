@@ -1,5 +1,5 @@
 import { Checkbox, Popconfirm } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DEMO_GROUP,
   DEMO_RULE,
@@ -27,10 +27,12 @@ interface Props {
   type: TYPE;
   refresh: () => void;
 }
+
 export default function Item(props: Props) {
   const { item: current, type: curType, refresh } = props;
-  const [isEdit, setIsEdit] = useState(false);
   const { type, selected, setType, setSelected } = useSelected();
+  // item built-in states
+  const [isEdit, setIsEdit] = useState(false);
   const [label, setLabel] = useState(current.name);
   const [checked, setChecked] = useState(current.enable);
 
@@ -63,6 +65,7 @@ export default function Item(props: Props) {
   useEffect(() => {
     selected.id !== current.id && setIsEdit(false);
   }, [selected]);
+
   return (
     <div
       style={{ width: "100%", height: LEFT_TAB_ITEM_HEIGHT }}
