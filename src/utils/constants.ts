@@ -35,6 +35,7 @@ export const LEFT_TAB_ACTION_HEIGHT = 40;
 
 export const DIVIDER_WIDTH = 2;
 
+export const RIGHT_HEADER_HEIGHT = 40;
 export const RULE_CONTAINER_HEIGHT = 200;
 
 /**

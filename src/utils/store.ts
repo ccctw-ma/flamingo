@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Group, Rule, TYPE } from "./types";
 import { EMPTY_GROUP, EMPTY_RULE } from "./constants";
+import { getLocalGroups, getLocalRules } from "./storage";
 
 type GroupStore = {
   groups: Array<Group>;
@@ -42,3 +43,21 @@ export const useSelected = create<SelecedStore>()((set) => ({
   setSelected: (val: Rule | Group) => set((state: any) => ({ selected: val })),
   setType: (val: TYPE) => set((state: any) => ({ type: val })),
 }));
+
+export function useGroupsAndRules() {
+  const { groups, setGroups } = useGroup();
+  const { rules, setRules } = useRule();
+  const refresh = async () => {
+    const localGroups = await getLocalGroups();
+    const localRules = await getLocalRules();
+    setGroups(localGroups);
+    setRules(localRules);
+  };
+  return {
+    groups,
+    rules,
+    setGroups,
+    setRules,
+    refresh,
+  };
+}

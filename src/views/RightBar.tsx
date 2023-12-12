@@ -1,5 +1,5 @@
 import * as React from "react";
-import { monaco } from "react-monaco-editor";
+import MonacoEditor, { monaco } from "react-monaco-editor";
 import { useSelected } from "../utils/store";
 import {
   forwardRef,
@@ -10,12 +10,22 @@ import {
 } from "react";
 import { loop } from "../utils";
 import RuleEditor from "../components/ruleEditor";
-import { Breadcrumb, Switch } from "antd";
+import { Breadcrumb, Divider, Switch } from "antd";
+import { RIGHT_HEADER_HEIGHT } from "../utils/constants";
+import {
+  ArrowsAltOutlined,
+  CodeOutlined,
+  PoweroffOutlined,
+  ShrinkOutlined,
+} from "@ant-design/icons";
+import { TYPE } from "../utils/types";
+import GroupEditor from "../components/groupEditor";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
   const { type, selected } = useSelected();
   const [isDetail, setIsDetail] = useState(false);
+  const [isWorking, setIsWorking] = useState(true);
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
 
   useImperativeHandle(ref, () => ({
@@ -36,7 +46,12 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
 
   return (
     <div className="w-full h-full overflow-hidden">
-      <div className="flex justify-between items-center px-4">
+      <div
+        style={{
+          height: RIGHT_HEADER_HEIGHT,
+        }}
+        className="flex justify-between items-center px-6"
+      >
         <Breadcrumb
           separator="/"
           items={[
@@ -47,20 +62,34 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
               title: selected.name,
             },
           ]}
+          className="flex-1"
         />
-        <Switch
-          value={isDetail}
-          onChange={(checked) => setIsDetail(checked)}
-          title="detail"
+
+        {isDetail ? (
+          <ArrowsAltOutlined
+            style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
+            title="Detail Mode"
+            onClick={() => setIsDetail(false)}
+          />
+        ) : (
+          <ShrinkOutlined
+            style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
+            title="Compact Mode"
+            onClick={() => setIsDetail(true)}
+          />
+        )}
+        <PoweroffOutlined
+          className="transition-all"
+          style={{ color: `${isWorking ? "red" : ""}`, fontSize: "16px" }}
+          title={`${isWorking ? "Off" : "On"}`}
+          onClick={() => setIsWorking((v) => !v)}
         />
       </div>
-
-      <RuleEditor containerWidth={containerWidth} />
-      {/* const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
-
-      <MonacoEditor
-          height="100%"
-          width={props.containerWidth}
+      <Divider style={{ marginTop: 0, marginBottom: 0 }} />
+      {isDetail ? (
+        <MonacoEditor
+          height={`calc(100% - ${RIGHT_HEADER_HEIGHT + 1}px)`}
+          width={containerWidth}
           language="json"
           theme={"vs-light"}
           value={JSON.stringify(selected, null, "\t")}
@@ -77,7 +106,12 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
             },
             scrollBeyondLastLine: false,
           }}
-        /> */}
+        />
+      ) : type === TYPE.Group ? (
+        <GroupEditor />
+      ) : (
+        <RuleEditor />
+      )}
     </div>
   );
 });

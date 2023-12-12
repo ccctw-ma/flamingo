@@ -1,50 +1,25 @@
-import {
-  Button,
-  Checkbox,
-  FloatButton,
-  Input,
-  Popover,
-  Select,
-  Space,
-  Tabs,
-  TabsProps,
-  Tooltip,
-} from "antd";
+import { Button, Input, Popover, Tabs, Tooltip } from "antd";
 import * as React from "react";
 import {
   EMPTY_GROUP,
   EMPTY_RULE,
-  HOME_HEIGHT,
   LEFT_TAB_ACTION_HEIGHT,
   LEFT_TAB_BAR_HEIGHT,
-  LEFT_TAB_ITEM_HEIGHT,
 } from "../utils/constants";
 
 import {
-  EditOutlined,
-  DeleteOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  OrderedListOutlined,
   SearchOutlined,
   SortAscendingOutlined,
-  AppstoreAddOutlined,
   CloudSyncOutlined,
   CloudUploadOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import Item from "../components/item";
-import { useCallback, useEffect, useState } from "react";
-import { generateId, noop } from "../utils";
+import { useEffect, useState } from "react";
+import { generateId } from "../utils";
 import { ACTION, STATUS, TYPE } from "../utils/types";
-import { useGroup, useRule, useSelected } from "../utils/store";
-import {
-  addGroup,
-  addRule,
-  getLocalGroups,
-  getLocalRules,
-  getLocalSelected,
-} from "../utils/storage";
+import { useSelected, useGroupsAndRules } from "../utils/store";
+import { addGroup, addRule, getLocalSelected } from "../utils/storage";
 
 // function Groups() {
 //   // const groups = new Array(30).fill(null).map((_, idx) => ({
@@ -101,20 +76,11 @@ export default function LeftBar() {
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
   const { type, setType, setSelected } = useSelected();
-  const { groups, setGroups } = useGroup();
-  const { rules, setRules } = useRule();
-
-  const refresh = async () => {
-    const localGroups = await getLocalGroups();
-    const localRules = await getLocalRules();
-    console.log(localGroups, localRules);
-    setGroups(localGroups);
-    setRules(localRules);
-  };
+  const { rules, groups, refresh } = useGroupsAndRules();
 
   const initSelected = async () => {
     const [localSelectedType, localSelected] = await getLocalSelected();
-    console.log(localSelectedType, localSelected);
+    // console.log(localSelectedType, localSelected);
     setSelected(localSelected);
     setType(localSelectedType);
   };
@@ -254,3 +220,4 @@ export default function LeftBar() {
     </div>
   );
 }
+
