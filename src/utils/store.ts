@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Group, Rule, TYPE } from "./types";
 import { EMPTY_GROUP, EMPTY_RULE } from "./constants";
-import { getLocalGroups, getLocalRules } from "./storage";
+import { getLocalGroups, getLocalRules, getLocalSelected } from "./storage";
 
 type GroupStore = {
   groups: Array<Group>;
@@ -47,13 +47,28 @@ export const useSelected = create<SelecedStore>()((set) => ({
 export function useGroupsAndRules() {
   const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
+  const { type, selected, setType, setSelected } = useSelected();
   const refresh = async () => {
-    const localGroups = await getLocalGroups();
-    const localRules = await getLocalRules();
+    const localGroups: Group[] = await getLocalGroups();
+    const localRules: Rule[] = await getLocalRules();
+    const [localSelectedType, localSelected] = await getLocalSelected();
     setGroups(localGroups);
     setRules(localRules);
+    /**
+     * It is necessary to keep the selected rule or group
+     * synchronized with the database storage
+     */
+    setSelected(
+      localSelectedType === TYPE.Group
+        ? localGroups.find((g) => g.id === localSelected.id)!
+        : localRules.find((r) => r.id === localSelected.id)!
+    );
+    setType(localSelectedType);
+    console.log("refresh");
   };
   return {
+    type,
+    selected,
     groups,
     rules,
     setGroups,
@@ -61,3 +76,13 @@ export function useGroupsAndRules() {
     refresh,
   };
 }
+
+type FalgStore = {
+  isSaved: boolean;
+  setIsSaved: (val: boolean) => void;
+};
+
+export const useFlag = create<FalgStore>()((set) => ({
+  isSaved: true,
+  setIsSaved: (val: boolean) => set((state: any) => ({ isSaved: val })),
+}));

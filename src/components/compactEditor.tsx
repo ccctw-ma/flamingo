@@ -3,6 +3,8 @@ import { Rule } from "../utils/types";
 import { Form, Select, Input } from "antd";
 import { noop } from "../utils";
 import { RULE_CONTAINER_HEIGHT } from "../utils/constants";
+import { clearScreenDown } from "readline";
+import { useFlag } from "../utils/store";
 
 interface Porps {
   rule: Rule;
@@ -10,8 +12,6 @@ interface Porps {
 }
 export default function CompactEditor(props: Porps) {
   const { rule, onChange } = props;
-  //   console.log(rule);
-
   const [form] = Form.useForm();
   const handleValueChange = (_: any, values: any) => {
     const newRule: Rule = {
@@ -30,11 +30,17 @@ export default function CompactEditor(props: Porps) {
       },
       update: Date.now(),
     };
-    console.log(newRule);
     onChange(newRule);
   };
-
-  //TODO 处理表单数据的更新与数据库同步
+  useEffect(() => {
+    //TODO 处理不同类型的Rule
+    form.setFieldValue("type", rule.action.type);
+    form.setFieldValue("regexFilter", rule.condition.regexFilter);
+    form.setFieldValue(
+      "regexSubstitution",
+      rule.action.redirect?.regexSubstitution
+    );
+  }, [rule]);
 
   return (
     <div
@@ -44,11 +50,6 @@ export default function CompactEditor(props: Porps) {
       <Form
         form={form}
         className="w-full"
-        initialValues={{
-          type: rule.action.type,
-          regexFilter: rule.condition.regexFilter,
-          regexSubstitution: rule.action.redirect?.regexSubstitution,
-        }}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 16 }}
         onValuesChange={handleValueChange}

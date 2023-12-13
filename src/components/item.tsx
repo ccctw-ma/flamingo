@@ -40,11 +40,9 @@ export default function Item(props: Props) {
     if (curType === TYPE.Group) {
       await deleteGroup(item as Group);
       await setLocalSelected(curType, DEMO_GROUP);
-      setSelected(DEMO_GROUP);
     } else {
       await deleteRule(item as Rule);
       await setLocalSelected(curType, DEMO_RULE);
-      setSelected(DEMO_RULE);
     }
     refresh();
   };

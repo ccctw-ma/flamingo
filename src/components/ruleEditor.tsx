@@ -1,21 +1,27 @@
-import { Tag, Input, Switch, Select, Breadcrumb, Form } from "antd";
-import React, { useRef, useState } from "react";
-import { RULE_CONTAINER_HEIGHT } from "../utils/constants";
-import { useGroupsAndRules, useSelected } from "../utils/store";
+import React, { useEffect, useRef } from "react";
+import { useFlag, useGroupsAndRules, useSelected } from "../utils/store";
 import { Rule } from "../utils/types";
-import { noop } from "../utils";
 import CompactEditor from "./compactEditor";
 import { updateRules } from "../utils/storage";
 
 export default function RuleEditor() {
-  const { selected, setSelected } = useSelected();
-
+  const { selected } = useSelected();
+  const currentRule = useRef<Rule>(selected as Rule);
+  const { isSaved, setIsSaved } = useFlag();
   const { refresh } = useGroupsAndRules();
   const handleRuleChange = async (rule: Rule) => {
-    await updateRules(rule);
-    await refresh();
-    setSelected(rule);
+    setIsSaved(false);
+    currentRule.current = rule;
   };
+  const handleRuleSave = async () => {
+    await updateRules(currentRule.current);
+    await refresh();
+  };
+
+  useEffect(() => {
+    isSaved && handleRuleSave();
+  }, [isSaved]);
+
   return (
     <div>
       <CompactEditor rule={selected as Rule} onChange={handleRuleChange} />

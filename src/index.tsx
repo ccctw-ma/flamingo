@@ -29,6 +29,7 @@ import {
   MenuOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
+import { useFlag } from "./utils/store";
 
 export const Home = () => {
   /**
@@ -38,6 +39,7 @@ export const Home = () => {
    */
   const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
 
+  const { setIsSaved } = useFlag();
   const container = useRef<HTMLDivElement>(null);
   const rightBar = useRef<any>();
   const [leftBarSize, setLeftBarSize] = useState<number>(
@@ -72,8 +74,8 @@ export const Home = () => {
         clientX > maxSize
           ? Math.min(maxSize, clientX)
           : clientX < minSize
-          ? Math.max(minSize, clientX)
-          : clientX;
+            ? Math.max(minSize, clientX)
+            : clientX;
 
       tempLeftBarSize = newSize;
       leftBarContainer.style.width = `${newSize}px`;
@@ -105,6 +107,13 @@ export const Home = () => {
     });
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.ctrlKey && e.key === "s") {
+      e.preventDefault();
+      setIsSaved(true);
+    }
+  }
+
   /**
    * try to avoid container flickering as much as possible
    */
@@ -124,6 +133,12 @@ export const Home = () => {
      * needs to be changed
      */
     window.addEventListener("resize", redraw);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("resize", redraw);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   return (

@@ -15,7 +15,7 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import Item from "../components/item";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { generateId } from "../utils";
 import { ACTION, STATUS, TYPE } from "../utils/types";
 import { useSelected, useGroupsAndRules } from "../utils/store";
@@ -72,25 +72,11 @@ function generatePlaceHolder(tab: TYPE, action: ACTION): string {
 }
 
 export default function LeftBar() {
+  const { type, rules, groups, refresh } = useGroupsAndRules();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
-  const { type, setType, setSelected } = useSelected();
-  const { rules, groups, refresh } = useGroupsAndRules();
-
-  const initSelected = async () => {
-    const [localSelectedType, localSelected] = await getLocalSelected();
-    // console.log(localSelectedType, localSelected);
-    setSelected(localSelected);
-    setType(localSelectedType);
-  };
-
-  useEffect(() => {
-    (async () => {
-      await refresh();
-      await initSelected();
-    })();
-  }, []);
+  const [tabType, setTabType] = useState<TYPE>(type);
 
   function handleAction() {
     const addItem = async (input: string) => {
@@ -101,7 +87,7 @@ export default function LeftBar() {
         }, 1000);
         return;
       }
-      if (type === TYPE.Group) {
+      if (tabType === TYPE.Group) {
         await addGroup({
           ...EMPTY_GROUP,
           name: input,
@@ -135,10 +121,18 @@ export default function LeftBar() {
     actionOper[action](input);
   }
 
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  useEffect(() => {
+    setTabType(type);
+  }, [type]);
+
   return (
     <div className="relative w-full h-full overflow-hidden">
       <Tabs
-        activeKey={type}
+        activeKey={tabType}
         items={[
           {
             key: TYPE.Group,
@@ -176,7 +170,7 @@ export default function LeftBar() {
           },
         ]}
         onChange={(v: any) => {
-          setType(v);
+          setTabType(v);
         }}
         size="small"
         centered
@@ -220,4 +214,3 @@ export default function LeftBar() {
     </div>
   );
 }
-

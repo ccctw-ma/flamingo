@@ -1,6 +1,6 @@
 import * as React from "react";
 import MonacoEditor, { monaco } from "react-monaco-editor";
-import { useSelected } from "../utils/store";
+import { useFlag, useSelected } from "../utils/store";
 import {
   forwardRef,
   useEffect,
@@ -15,6 +15,7 @@ import { RIGHT_HEADER_HEIGHT } from "../utils/constants";
 import {
   ArrowsAltOutlined,
   CodeOutlined,
+  FileDoneOutlined,
   PoweroffOutlined,
   ShrinkOutlined,
 } from "@ant-design/icons";
@@ -24,6 +25,7 @@ import GroupEditor from "../components/groupEditor";
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
   const { type, selected } = useSelected();
+  const { isSaved, setIsSaved } = useFlag();
   const [isDetail, setIsDetail] = useState(false);
   const [isWorking, setIsWorking] = useState(true);
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
@@ -62,9 +64,20 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
               title: selected.name,
             },
           ]}
-          className="flex-1"
         />
 
+        <Divider type="vertical" />
+        <p
+          className={`text-base ${isSaved ? "text-green-400" : "text-red-400"}`}
+        >
+          {isSaved ? "saved" : "not saved"}
+        </p>
+        <div className="flex-1" />
+        <FileDoneOutlined
+          style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
+          title="save"
+          onClick={() => setIsSaved(true)}
+        />
         {isDetail ? (
           <ArrowsAltOutlined
             style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
@@ -94,6 +107,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
           theme={"vs-light"}
           value={JSON.stringify(selected, null, "\t")}
           onChange={(value, e) => {
+            setIsSaved(false);
             console.log(value, e);
           }}
           editorDidMount={(_editor, _monaco) => {
