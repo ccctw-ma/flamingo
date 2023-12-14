@@ -122,10 +122,6 @@ export default function LeftBar() {
   }
 
   useEffect(() => {
-    refresh();
-  }, []);
-
-  useEffect(() => {
     setTabType(type);
   }, [type]);
 

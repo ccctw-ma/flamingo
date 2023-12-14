@@ -29,7 +29,7 @@ import {
   MenuOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { useFlag } from "./utils/store";
+import { useFlag, useGroupsAndRules } from "./utils/store";
 
 export const Home = () => {
   /**
@@ -38,7 +38,7 @@ export const Home = () => {
    * so special handling is needed here to avoid exceptions.
    */
   const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
-
+  const { loaded, refresh } = useGroupsAndRules();
   const { setIsSaved } = useFlag();
   const container = useRef<HTMLDivElement>(null);
   const rightBar = useRef<any>();
@@ -119,10 +119,12 @@ export const Home = () => {
    */
   useLayoutEffect(() => {
     (async () => {
+      await refresh();
       const localVal: number =
         (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ||
         HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
       setLeftBarSize(localVal);
+      /** TODO don't understand */
       rightBar.current!.setContainerWidth(
         containerWidth - localVal - DIVIDER_WIDTH
       );
@@ -151,40 +153,42 @@ export const Home = () => {
         minHeight: HOME_HEIGHT,
       }}
     >
-      <div className="w-full h-full relative" ref={container}>
-        <div
-          style={{ width: leftBarSize, height: "100%", position: "absolute" }}
-        >
-          <LeftBar />
-        </div>
-        <div
-          // todo! ensure a theme color
-          className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-pink-600 hover:scale-x-150 "
-          onMouseDown={handleChangeSize}
-          style={{
-            width: DIVIDER_WIDTH,
-            height: "100%",
-            position: "absolute",
-            left: leftBarSize,
-            top: 0,
-            zIndex: 10,
-          }}
-        />
-        <div
-          style={{
-            width: `${containerWidth - leftBarSize - DIVIDER_WIDTH}px`,
-            height: "100%",
-            position: "absolute",
-            right: 0,
-            top: 0,
-          }}
-        >
-          <RightBar
-            width={containerWidth - leftBarSize - DIVIDER_WIDTH}
-            ref={rightBar}
+      {loaded && (
+        <div className="w-full h-full relative" ref={container}>
+          <div
+            style={{ width: leftBarSize, height: "100%", position: "absolute" }}
+          >
+            <LeftBar />
+          </div>
+          <div
+            // todo! ensure a theme color
+            className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-pink-600 hover:scale-x-150 "
+            onMouseDown={handleChangeSize}
+            style={{
+              width: DIVIDER_WIDTH,
+              height: "100%",
+              position: "absolute",
+              left: leftBarSize,
+              top: 0,
+              zIndex: 10,
+            }}
           />
+          <div
+            style={{
+              width: `${containerWidth - leftBarSize - DIVIDER_WIDTH}px`,
+              height: "100%",
+              position: "absolute",
+              right: 0,
+              top: 0,
+            }}
+          >
+            <RightBar
+              width={containerWidth - leftBarSize - DIVIDER_WIDTH}
+              ref={rightBar}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <FloatButton.Group trigger="click" icon={<MenuOutlined />}>
         <FloatButton

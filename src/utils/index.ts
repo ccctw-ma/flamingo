@@ -18,6 +18,7 @@ const Count = (() => {
     return c++;
   };
 })();
+
 /**
  * generate unique id for rule
  * here use timeStamp
@@ -26,7 +27,7 @@ export function generateId() {
   return Date.now() + Count();
 }
 
-// no operation for placeholder
+// no operation just for placeholder
 export function noop() {}
 
 /**

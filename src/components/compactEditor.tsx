@@ -1,10 +1,7 @@
 import React, { useEffect } from "react";
 import { Rule } from "../utils/types";
-import { Form, Select, Input } from "antd";
-import { noop } from "../utils";
+import { Form, Select, Input, Divider } from "antd";
 import { RULE_CONTAINER_HEIGHT } from "../utils/constants";
-import { clearScreenDown } from "readline";
-import { useFlag } from "../utils/store";
 
 interface Porps {
   rule: Rule;
@@ -34,18 +31,19 @@ export default function CompactEditor(props: Porps) {
   };
   useEffect(() => {
     //TODO 处理不同类型的Rule
-    form.setFieldValue("type", rule.action.type);
-    form.setFieldValue("regexFilter", rule.condition.regexFilter);
-    form.setFieldValue(
-      "regexSubstitution",
-      rule.action.redirect?.regexSubstitution
-    );
+    if (rule) {
+      form.setFieldValue("type", rule?.action.type);
+      form.setFieldValue("regexFilter", rule?.condition.regexFilter);
+      form.setFieldValue(
+        "regexSubstitution",
+        rule?.action.redirect?.regexSubstitution
+      );
+    }
   }, [rule]);
 
   return (
     <div
-      className="w-full flex justify-around items-center mt-6"
-      style={{ minHeight: RULE_CONTAINER_HEIGHT }}
+      className="w-full flex flex-col justify-around items-center mt-4"
     >
       <Form
         form={form}
@@ -82,6 +80,7 @@ export default function CompactEditor(props: Porps) {
           <Input.TextArea autoSize />
         </Form.Item>
       </Form>
+      <Divider style={{ margin: 0 }} />
     </div>
   );
 }

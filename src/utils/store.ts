@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Group, Rule, TYPE } from "./types";
 import { EMPTY_GROUP, EMPTY_RULE } from "./constants";
 import { getLocalGroups, getLocalRules, getLocalSelected } from "./storage";
+import { useState } from "react";
 
 type GroupStore = {
   groups: Array<Group>;
@@ -48,6 +49,7 @@ export function useGroupsAndRules() {
   const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
+  const [loaded, setIsLoaded] = useState(false);
   const refresh = async () => {
     const localGroups: Group[] = await getLocalGroups();
     const localRules: Rule[] = await getLocalRules();
@@ -64,9 +66,11 @@ export function useGroupsAndRules() {
         : localRules.find((r) => r.id === localSelected.id)!
     );
     setType(localSelectedType);
+    !loaded && setIsLoaded(true);
     console.log("refresh");
   };
   return {
+    loaded,
     type,
     selected,
     groups,

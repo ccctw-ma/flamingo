@@ -22,9 +22,5 @@ export default function RuleEditor() {
     isSaved && handleRuleSave();
   }, [isSaved]);
 
-  return (
-    <div>
-      <CompactEditor rule={selected as Rule} onChange={handleRuleChange} />
-    </div>
-  );
+  return <CompactEditor rule={selected as Rule} onChange={handleRuleChange} />;
 }
