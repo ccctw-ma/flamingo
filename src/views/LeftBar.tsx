@@ -18,30 +18,8 @@ import Item from "../components/item";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { generateId } from "../utils";
 import { ACTION, STATUS, TYPE } from "../utils/types";
-import { useSelected, useGroupsAndRules } from "../utils/store";
+import { useSelected, useGlobalState } from "../utils/store";
 import { addGroup, addRule, getLocalSelected } from "../utils/storage";
-
-// function Groups() {
-//   // const groups = new Array(30).fill(null).map((_, idx) => ({
-//   //   id: idx,
-//   //   label: Math.random().toString(36).substring(2, 10),
-//   //   children: [],
-//   // }));
-
-//   return;
-// }
-
-// function Rules() {
-//   // const groups = new Array(30).fill(null).map((_, idx) => ({
-//   //   id: idx,
-//   //   label: Math.random()
-//   //     .toString(36)
-//   //     .substring(2, Math.max(33 * Math.random(), 3)),
-//   //   children: [],
-//   // }));
-
-//   return;
-// }
 
 const actionView = {
   [ACTION.Add]: { label: "add", icon: <PlusCircleOutlined /> },
@@ -72,7 +50,7 @@ function generatePlaceHolder(tab: TYPE, action: ACTION): string {
 }
 
 export default function LeftBar() {
-  const { type, rules, groups, refresh } = useGroupsAndRules();
+  const { type, rules, groups, refresh } = useGlobalState();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
@@ -142,7 +120,7 @@ export default function LeftBar() {
                 className="relative overflow-y-scroll no-scrollbar"
               >
                 {groups.map((val) => (
-                  <Item item={val} type={TYPE.Group} refresh={refresh} />
+                  <Item item={val} type={TYPE.Group} />
                 ))}
               </div>
             ),
@@ -159,7 +137,7 @@ export default function LeftBar() {
                 className="relative overflow-y-scroll no-scrollbar pb-4"
               >
                 {rules.map((val) => (
-                  <Item item={val} type={TYPE.Rule} refresh={refresh} />
+                  <Item item={val} type={TYPE.Rule} />
                 ))}
               </div>
             ),

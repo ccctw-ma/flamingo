@@ -70,8 +70,8 @@ function addRuleMatchedDebugListener() {
 
 function addChromeStorageListener() {
   chrome.storage.onChanged.addListener((changes, area) => {
-    console.log(changes);
-    console.log(area);
+    // console.log(changes);
+    // console.log(area);
   });
 }
 

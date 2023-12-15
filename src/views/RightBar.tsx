@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useFlag, useSelected } from "../utils/store";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { useFlag, useGlobalState, useSelected } from "../utils/store";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RuleEditor from "../components/ruleEditor";
 import { Breadcrumb, Divider } from "antd";
 import { RIGHT_HEADER_HEIGHT } from "../utils/constants";
@@ -16,7 +16,7 @@ import DetailEditor from "../components/detailEditor";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
-  const { type, selected } = useSelected();
+  const { type, selected, saveEdit, refresh, edit, setEdit } = useGlobalState();
   const { isSaved, setIsSaved } = useFlag();
   const [isDetail, setIsDetail] = useState(false);
   const [isWorking, setIsWorking] = useState(true);
@@ -24,6 +24,13 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
   useImperativeHandle(ref, () => ({
     setContainerWidth,
   }));
+
+  useEffect(() => {
+    (async () => {
+      await saveEdit();
+      setEdit(selected);
+    })();
+  }, [selected.id]);
 
   return (
     <div className="w-full h-full overflow-hidden">
@@ -55,7 +62,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
         <FileDoneOutlined
           style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
           title="save"
-          onClick={() => setIsSaved(true)}
+          onClick={() => saveEdit()}
         />
         {isDetail ? (
           <ArrowsAltOutlined

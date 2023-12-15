@@ -13,7 +13,6 @@ import {
 } from "./utils/constants";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  localGet,
   localGetBySingleKey,
   localSet,
   setLocalGroups,
@@ -22,14 +21,8 @@ import {
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
-import {
-  CodeOutlined,
-  CommentOutlined,
-  CustomerServiceOutlined,
-  MenuOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { useFlag, useGroupsAndRules } from "./utils/store";
+import { CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
+import { useFlag, useGlobalState } from "./utils/store";
 
 export const Home = () => {
   /**
@@ -38,8 +31,7 @@ export const Home = () => {
    * so special handling is needed here to avoid exceptions.
    */
   const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
-  const { loaded, refresh } = useGroupsAndRules();
-  const { setIsSaved } = useFlag();
+  const { loaded, refresh, saveEdit } = useGlobalState();
   const container = useRef<HTMLDivElement>(null);
   const rightBar = useRef<any>();
   const [leftBarSize, setLeftBarSize] = useState<number>(
@@ -107,10 +99,10 @@ export const Home = () => {
     });
   }
 
-  function handleKeyDown(e: KeyboardEvent) {
+  async function handleKeyDown(e: KeyboardEvent) {
     if (e.ctrlKey && e.key === "s") {
       e.preventDefault();
-      setIsSaved(true);
+      saveEdit();
     }
   }
 
@@ -124,7 +116,6 @@ export const Home = () => {
         (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ||
         HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
       setLeftBarSize(localVal);
-      /** TODO don't understand */
       rightBar.current!.setContainerWidth(
         containerWidth - localVal - DIVIDER_WIDTH
       );
@@ -135,13 +126,18 @@ export const Home = () => {
      * needs to be changed
      */
     window.addEventListener("resize", redraw);
-    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("resize", redraw);
-      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [saveEdit]);
 
   return (
     // change size to fit different scenes
@@ -210,6 +206,13 @@ export const Home = () => {
   );
 };
 
+/**
+ * Here we use ReactDOM.render() updates inside of promises, setTimeout,
+ * native event handlers, or any other event were not batched in React by default.
+ * Starting in React 18 with createRoot, all updates will be automatically batched,
+ * no matter where they originate from.
+ * #https://github.com/reactwg/react-18/discussions/21
+ */
 ReactDOM.render(
   <StyleProvider hashPriority="high">
     <Home />

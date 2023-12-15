@@ -1,50 +1,99 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useFlag, useGroupsAndRules, useSelected } from "../utils/store";
-import { Group, Rule } from "../utils/types";
+import React, { useState } from "react";
+import { useFlag, useGlobalState } from "../utils/store";
+import { Group, Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
-import { getLocalGroups, updateGroups, updateRules } from "../utils/storage";
-import { noop } from "../utils";
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Select } from "antd";
+import { generateId } from "../utils";
+import {
+  DeleteOutlined,
+  ExportOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import { Button, Select, message } from "antd";
 import { DEMO_RULE, RIGHT_HEADER_HEIGHT } from "../utils/constants";
-import { calc } from "antd/es/theme/internal";
 
 export default function GroupEditor() {
-  const { groups, selected, rules, refresh } = useGroupsAndRules();
-  const { isSaved, setIsSaved } = useFlag();
-  const currentGroup = useRef<Group>(selected as Group);
+  const { selected, rules, setEdit, setEditType, saveEdit, edit } =
+    useGlobalState();
+  const { setIsSaved } = useFlag();
   const [ruleAddId, setRuleAddId] = useState<number>(DEMO_RULE.id);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const handleGroupChange = (group: Group) => {
+  const handleGroupChange = (newRule: Rule) => {
     setIsSaved(false);
-    currentGroup.current = group;
+    setEditType(TYPE.Group);
+    const newGroup: Group = {
+      ...selected,
+      update: Date.now(),
+      rules: (edit as Group).rules.map((r) => {
+        if (r.id === newRule.id) {
+          return {
+            ...r,
+            ...newRule,
+          };
+        } else {
+          return r;
+        }
+      }),
+    };
+    setEdit(newGroup);
   };
-  const handleGroupSave = async () => {
-    await updateGroups(currentGroup.current);
-    await refresh();
-  };
-  const handleGroupAddRule = async () => {
+
+  const handleGroupAddRule = () => {
     const addRule = rules.find((rule) => rule.id === ruleAddId)!;
     const newGroup = {
-      ...currentGroup.current,
+      ...(edit as Group),
       update: Date.now(),
-      rules: [...currentGroup.current.rules, addRule],
+      rules: [
+        ...(edit as Group).rules,
+        {
+          ...addRule,
+          id: generateId(),
+        },
+      ],
     };
-    currentGroup.current = newGroup;
-    await handleGroupSave();
+    console.log(edit, newGroup);
+    saveEdit(newGroup);
   };
 
-  useEffect(() => {
-    isSaved && handleGroupSave();
-  }, [isSaved]);
+  const handleGroupDeleteRule = (ruleId: number) => {
+    const newGroup = {
+      ...(edit as Group),
+      update: Date.now(),
+      rules: (edit as Group).rules.filter((rule) => rule.id !== ruleId),
+    };
+    console.log(edit, newGroup);
+    saveEdit(newGroup);
+  };
+
+  const handleExportRule = async (ruleId: number) => {
+    messageApi.open({
+      type: "success",
+      content: "This is a success message",
+    });
+  };
 
   return (
     <div
       style={{ height: `calc(100% - ${RIGHT_HEADER_HEIGHT + 1}px)` }}
       className="w-full flex flex-col overflow-y-scroll no-scrollbar pb-10"
     >
+      {contextHolder}
       {(selected as Group).rules.map((rule) => (
-        <CompactEditor rule={rule} onChange={noop} />
+        <div className="group w-full flex" key={rule.id}>
+          <CompactEditor rule={rule} onChange={handleGroupChange} />
+          <div className="w-8 mt-4 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
+            <ExportOutlined
+              style={{ fontSize: "14px", cursor: "pointer" }}
+              title="export"
+              onClick={() => handleExportRule(rule.id)}
+            />
+            <DeleteOutlined
+              style={{ fontSize: "14px", cursor: "pointer" }}
+              title="delete"
+              onClick={() => handleGroupDeleteRule(rule.id)}
+            />
+          </div>
+        </div>
       ))}
       <div className="w-full flex mt-4 items-center justify-center gap-4">
         <Select

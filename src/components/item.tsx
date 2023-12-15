@@ -12,7 +12,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
-import { useGroup, useSelected } from "../utils/store";
+import { useGroup, useGlobalState, useSelected } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import {
   deleteGroup,
@@ -25,12 +25,12 @@ import {
 interface Props {
   item: Group | Rule;
   type: TYPE;
-  refresh: () => void;
 }
 
 export default function Item(props: Props) {
-  const { item: current, type: curType, refresh } = props;
-  const { type, selected, setType, setSelected } = useSelected();
+  const { item: current, type: curType } = props;
+  const { type, selected, setType, setSelected, groups, rules, refresh } =
+  useGlobalState();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
   const [label, setLabel] = useState(current.name);
@@ -39,10 +39,16 @@ export default function Item(props: Props) {
   const deleteItem = async (item: Group | Rule) => {
     if (curType === TYPE.Group) {
       await deleteGroup(item as Group);
-      await setLocalSelected(curType, DEMO_GROUP);
+      await setLocalSelected(
+        curType,
+        groups.find((g) => g.id === DEMO_GROUP.id)!
+      );
     } else {
       await deleteRule(item as Rule);
-      await setLocalSelected(curType, DEMO_RULE);
+      await setLocalSelected(
+        curType,
+        rules.find((r) => r.id === DEMO_RULE.id)!
+      );
     }
     refresh();
   };

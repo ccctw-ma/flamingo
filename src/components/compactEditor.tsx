@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { Rule } from "../utils/types";
+import { Rule, TYPE } from "../utils/types";
 import { Form, Select, Input, Divider } from "antd";
 import { RULE_CONTAINER_HEIGHT } from "../utils/constants";
 
 interface Porps {
   rule: Rule;
-  onChange: (args: any) => void;
+  onChange: (newRule: Rule) => void;
 }
 export default function CompactEditor(props: Porps) {
   const { rule, onChange } = props;
@@ -42,9 +42,7 @@ export default function CompactEditor(props: Porps) {
   }, [rule]);
 
   return (
-    <div
-      className="w-full flex flex-col justify-around items-center mt-4"
-    >
+    <div className="w-full flex flex-col justify-around items-center mt-4">
       <Form
         form={form}
         className="w-full"
@@ -80,6 +78,7 @@ export default function CompactEditor(props: Porps) {
           <Input.TextArea autoSize />
         </Form.Item>
       </Form>
+      
       <Divider style={{ margin: 0 }} />
     </div>
   );

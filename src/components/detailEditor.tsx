@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from "react";
 import MonacoEditor, { monaco } from "react-monaco-editor";
 import { RIGHT_HEADER_HEIGHT } from "../utils/constants";
 import { loop } from "../utils";
-import { useFlag, useGroupsAndRules, useSelected } from "../utils/store";
+import { useFlag, useGlobalState, useSelected } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import { updateGroups, updateRules } from "../utils/storage";
 
 export default function DetailEditor(props: { width: number }) {
-  const { type, selected, refresh } = useGroupsAndRules();
+  const { type, selected, refresh } = useGlobalState();
   const { isSaved, setIsSaved } = useFlag();
   const editor = useRef<monaco.editor.IStandaloneCodeEditor>();
   const currentContent = useRef(selected);
