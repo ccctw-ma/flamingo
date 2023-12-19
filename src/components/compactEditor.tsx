@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { Rule, TYPE } from "../utils/types";
-import { Form, Select, Input, Divider } from "antd";
-import { RULE_CONTAINER_HEIGHT } from "../utils/constants";
+import { Rule } from "../utils/types";
+import { Form, Select, Input, Divider, Button, Space } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 
 interface Porps {
   rule: Rule;
@@ -10,7 +10,10 @@ interface Porps {
 export default function CompactEditor(props: Porps) {
   const { rule, onChange } = props;
   const [form] = Form.useForm();
+  const selectedType = Form.useWatch((v) => v.type, form);
+
   const handleValueChange = (_: any, values: any) => {
+    console.log(values);
     const newRule: Rule = {
       ...rule,
       action: {
@@ -29,6 +32,7 @@ export default function CompactEditor(props: Porps) {
     };
     onChange(newRule);
   };
+
   useEffect(() => {
     //TODO 处理不同类型的Rule
     if (rule) {
@@ -50,7 +54,7 @@ export default function CompactEditor(props: Porps) {
         wrapperCol={{ span: 16 }}
         onValuesChange={handleValueChange}
       >
-        <Form.Item label="Action Type" name="type">
+        <Form.Item label="ActionType" name="type">
           <Select
             defaultValue={chrome.declarativeNetRequest.RuleActionType.REDIRECT}
             options={[
@@ -74,11 +78,158 @@ export default function CompactEditor(props: Porps) {
         <Form.Item label="Condition" name="regexFilter">
           <Input.TextArea autoSize />
         </Form.Item>
-        <Form.Item label="Redirect" name="regexSubstitution">
-          <Input.TextArea autoSize />
-        </Form.Item>
+        {selectedType ===
+          chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
+          <Form.Item label="Redirect" name="regexSubstitution">
+            <Input.TextArea autoSize />
+          </Form.Item>
+        )}
+
+        {selectedType ===
+          chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
+          <>
+            <Form.Item label="Request">
+              <Form.List name={"requestHeaders"}>
+                {(subFields, subOpt) => (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      rowGap: 16,
+                    }}
+                  >
+                    {subFields.map((subField) => (
+                      <Space key={subField.key}>
+                        <Form.Item noStyle name={[subField.name, "operation"]}>
+                          <Select
+                            style={{ minWidth: 80 }}
+                            defaultValue={
+                              chrome.declarativeNetRequest.HeaderOperation.SET
+                            }
+                            options={[
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .SET,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .SET,
+                              },
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .APPEND,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .APPEND,
+                              },
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .REMOVE,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .REMOVE,
+                              },
+                            ]}
+                          />
+                        </Form.Item>
+                        <Form.Item noStyle name={[subField.name, "header"]}>
+                          <Input placeholder="header" />
+                        </Form.Item>
+                        <Form.Item noStyle name={[subField.name, "value"]}>
+                          <Input placeholder="value" />
+                        </Form.Item>
+                        <CloseOutlined
+                          onClick={() => {
+                            subOpt.remove(subField.name);
+                          }}
+                        />
+                      </Space>
+                    ))}
+                    <Button type="dashed" onClick={() => subOpt.add()} block>
+                      + Add Header Operation Item
+                    </Button>
+                  </div>
+                )}
+              </Form.List>
+            </Form.Item>
+            <Form.Item label="Response">
+              <Form.List name={"responseHeaders"}>
+                {(subFields, subOpt) => (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      rowGap: 16,
+                    }}
+                  >
+                    {subFields.map((subField) => (
+                      <Space key={subField.key}>
+                        <Form.Item noStyle name={[subField.name, "operation"]}>
+                          <Select
+                            style={{ minWidth: 80 }}
+                            defaultValue={
+                              chrome.declarativeNetRequest.HeaderOperation.SET
+                            }
+                            options={[
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .SET,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .SET,
+                              },
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .APPEND,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .APPEND,
+                              },
+                              {
+                                value:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .REMOVE,
+
+                                label:
+                                  chrome.declarativeNetRequest.HeaderOperation
+                                    .REMOVE,
+                              },
+                            ]}
+                          />
+                        </Form.Item>
+                        <Form.Item noStyle name={[subField.name, "header"]}>
+                          <Input placeholder="header" />
+                        </Form.Item>
+                        <Form.Item noStyle name={[subField.name, "value"]}>
+                          <Input placeholder="value" />
+                        </Form.Item>
+                        <CloseOutlined
+                          onClick={() => {
+                            subOpt.remove(subField.name);
+                          }}
+                        />
+                      </Space>
+                    ))}
+                    <Button type="dashed" onClick={() => subOpt.add()} block>
+                      + Add Header Operation Item
+                    </Button>
+                  </div>
+                )}
+              </Form.List>
+            </Form.Item>
+          </>
+        )}
       </Form>
-      
+
       <Divider style={{ margin: 0 }} />
     </div>
   );

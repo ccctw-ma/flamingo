@@ -8,6 +8,8 @@
   <body>
     <button id="btn1">test common redirect</button>
     <button id="btn2">test redirect transform</button>
+    <button id="btn3">test block</button>
+
     <div id="container"></div>
   </body>
 
@@ -24,12 +26,17 @@
       });
     });
     document.getElementById("btn2").addEventListener("click", () => {
-      fetch("https://jsonplaceholder.typicode.com/posts/2?ans=1").then((res) => {
-        res.json().then((v) => {
-          console.log(v);
-          container.innerText = JSON.stringify(v);
-        });
-      });
+      fetch("https://jsonplaceholder.typicode.com/posts/2?ans=1").then(
+        (res) => {
+          res.json().then((v) => {
+            console.log(v);
+            container.innerText = JSON.stringify(v);
+          });
+        }
+      );
+    });
+    document.getElementById("btn3").addEventListener("click", () => {
+      fetch("https://jsonplaceholder.typicode.com/posts/3").then();
     });
   </script>
 </html>

@@ -4,7 +4,7 @@
   "description": "chrome proxy extension",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --watch --mode development",
+    "dev": "webpack --watch --mode development --progress",
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

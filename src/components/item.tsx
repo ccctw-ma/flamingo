@@ -1,5 +1,11 @@
 import { Checkbox, Popconfirm } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   DEMO_GROUP,
   DEMO_RULE,
@@ -30,10 +36,10 @@ interface Props {
 export default function Item(props: Props) {
   const { item: current, type: curType } = props;
   const { type, selected, setType, setSelected, groups, rules, refresh } =
-  useGlobalState();
+    useGlobalState();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
-  const [label, setLabel] = useState(current.name);
+  const [name, setName] = useState(current.name);
   const [checked, setChecked] = useState(current.enable);
 
   const deleteItem = async (item: Group | Rule) => {
@@ -67,7 +73,12 @@ export default function Item(props: Props) {
   };
 
   useEffect(() => {
-    selected.id !== current.id && setIsEdit(false);
+    if (selected.id === current.id) {
+      setName(selected.name);
+      setChecked(selected.enable);
+    } else {
+      setIsEdit(false);
+    }
   }, [selected]);
 
   return (
@@ -94,7 +105,7 @@ export default function Item(props: Props) {
       />
       {isEdit ? (
         <Input
-          value={label}
+          value={name}
           style={{
             flex: "1 1 0%",
             marginLeft: "0.5rem",
@@ -102,27 +113,27 @@ export default function Item(props: Props) {
             borderColor: "#243c5a",
           }}
           onChange={(e) => {
-            setLabel(e.target.value);
+            setName(e.target.value);
           }}
           onPressEnter={() => {
-            setLabel(label);
-            updateItem({ ...current, name: label });
+            setName(name);
+            updateItem({ ...current, name });
             setIsEdit(false);
           }}
         />
       ) : (
         <span className="flex-1 inline-block ml-[17px] mr-[6px] text-clip overflow-clip whitespace-nowrap">
-          {label}
+          {name}
         </span>
       )}
       {isEdit ? (
         <div className={`flex justify-between transition-all space-x-2 `}>
           <CheckOutlined
             onClick={() => {
+              updateItem({ ...current, name });
               setIsEdit(false);
             }}
           />
-          <CloseOutlined onClick={() => setIsEdit(false)} />
         </div>
       ) : (
         <div

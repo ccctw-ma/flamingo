@@ -5,7 +5,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const CopyPlugin = require("copy-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { HotModuleReplacementPlugin } = require("webpack");
+const { HotModuleReplacementPlugin, ProgressPlugin } = require("webpack");
 const { webpack } = require("webpack");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const smp = new SpeedMeasurePlugin();
@@ -72,6 +72,7 @@ module.exports = wrapConfig({
   },
   plugins: [
     // new BundleAnalyzerPlugin(),
+    // new ProgressPlugin(),
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: pathResolve("./home.html"),

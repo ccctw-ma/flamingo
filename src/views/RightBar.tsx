@@ -32,6 +32,10 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
     })();
   }, [selected.id]);
 
+  useEffect(() => {
+    saveEdit();
+  }, [isDetail]);
+
   return (
     <div className="w-full h-full overflow-hidden">
       <div

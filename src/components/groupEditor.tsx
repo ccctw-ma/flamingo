@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Select, message } from "antd";
 import { DEMO_RULE, RIGHT_HEADER_HEIGHT } from "../utils/constants";
+import { addRule } from "../utils/storage";
 
 export default function GroupEditor() {
   const { selected, rules, setEdit, setEditType, saveEdit, edit } =
@@ -51,7 +52,6 @@ export default function GroupEditor() {
         },
       ],
     };
-    console.log(edit, newGroup);
     saveEdit(newGroup);
   };
 
@@ -61,15 +61,30 @@ export default function GroupEditor() {
       update: Date.now(),
       rules: (edit as Group).rules.filter((rule) => rule.id !== ruleId),
     };
-    console.log(edit, newGroup);
     saveEdit(newGroup);
   };
 
   const handleExportRule = async (ruleId: number) => {
-    messageApi.open({
-      type: "success",
-      content: "This is a success message",
-    });
+    try {
+      const rule = (edit as Group).rules.find((rule) => rule.id === ruleId)!;
+      const exportRule: Rule = {
+        ...rule,
+        id: generateId(),
+        name: `rule from ${edit.name}`,
+        update: Date.now(),
+      };
+      await addRule(exportRule);
+      await saveEdit(edit);
+      messageApi.open({
+        type: "success",
+        content: "export successful",
+      });
+    } catch {
+      messageApi.open({
+        type: "error",
+        content: "export failed",
+      });
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-console.log("hello this is background scripts");
+console.log("welcome to flamingo, a proxy extension");
 
 async function getNewRules(): Promise<
   Array<chrome.declarativeNetRequest.Rule>
@@ -11,8 +11,7 @@ async function getNewRules(): Promise<
         type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
         redirect: {
           // url: "https://jsonplaceholder.typicode.com/posts/2",
-          regexSubstitution:
-            "https://jsonplaceholder.typicode.com/posts/\\2",
+          regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
         },
       },
       condition: {
@@ -26,7 +25,7 @@ async function getNewRules(): Promise<
     },
     {
       id: 2,
-      priority: 1,
+      priority: 200,
       action: {
         type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
         requestHeaders: [
@@ -41,13 +40,23 @@ async function getNewRules(): Promise<
         regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
       },
     },
+    {
+      id: 3,
+      priority: 200,
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+      },
+      condition: {
+        regexFilter: "https://jsonplaceholder.typicode.com/posts/3",
+      },
+    },
   ];
 }
 async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    // console.log(JSON.stringify(newRules));
+    console.log(JSON.stringify(newRules));
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: newRules,

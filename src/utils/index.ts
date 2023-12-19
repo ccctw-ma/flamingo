@@ -51,3 +51,7 @@ export function loop(condition: () => any, action: () => void, time: number) {
 
   fn();
 }
+
+export const obj2str = (x: any) => JSON.stringify(x, null, "\t");
+
+export const str2obj = (x: string) => JSON.parse(x);
