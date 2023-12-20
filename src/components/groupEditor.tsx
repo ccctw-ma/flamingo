@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useFlag, useGlobalState } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
-import { generateId } from "../utils";
+import { generateId, noop } from "../utils";
 import {
   DeleteOutlined,
   ExportOutlined,
@@ -95,7 +95,11 @@ export default function GroupEditor() {
       {contextHolder}
       {(selected as Group).rules.map((rule) => (
         <div className="group w-full flex" key={rule.id}>
-          <CompactEditor rule={rule} onChange={handleGroupChange} />
+          <CompactEditor
+            rule={rule}
+            onChange={handleGroupChange}
+            handleError={noop}
+          />
           <div className="w-8 mt-4 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
             <ExportOutlined
               style={{ fontSize: "14px", cursor: "pointer" }}

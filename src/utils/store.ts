@@ -9,6 +9,7 @@ import {
   updateRules,
 } from "./storage";
 import { useState } from "react";
+import { message } from "antd";
 
 type GroupStore = {
   groups: Array<Group>;
@@ -46,6 +47,8 @@ type SelecedStore = {
   setEdit: (val: Rule | Group) => void;
   editType: TYPE;
   setEditType: (val: TYPE) => void;
+  hasError: boolean;
+  setHasError: (val: boolean) => void;
 };
 
 export const useSelected = create<SelecedStore>()((set) => ({
@@ -57,13 +60,16 @@ export const useSelected = create<SelecedStore>()((set) => ({
   setEdit: (val: Rule | Group) => set((state: any) => ({ edit: val })),
   editType: TYPE.Group,
   setEditType: (val: TYPE) => set((state: any) => ({ editType: val })),
+  hasError: false,
+  setHasError: (val: boolean) => set((state: any) => ({ hasError: val })),
 }));
 
 export function useGlobalState() {
   const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
-  const { edit, editType, setEdit, setEditType } = useSelected();
+  const { edit, editType, setEdit, setEditType, hasError, setHasError } =
+    useSelected();
   const [loaded, setIsLoaded] = useState(false);
   const { isSaved, setIsSaved } = useFlag();
   const refresh = async () => {
@@ -116,6 +122,7 @@ export function useGlobalState() {
     setEdit,
     setEditType,
     saveEdit,
+    setHasError,
   };
 }
 

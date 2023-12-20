@@ -27,7 +27,7 @@ export const HOME_HEIGHT = HOME_WIDTH / ASPECT_RATIO;
 
 export const LEFT_BAR_WIDTH_KEY = "left_bar_with";
 export const LEFT_BAR_WIDTH_MIN_RATIO = 1 / 4;
-export const LEFT_BAR_WIDTH_MAX_RATIO = 2 / 3;
+export const LEFT_BAR_WIDTH_MAX_RATIO = 1 / 2;
 
 export const LEFT_TAB_BAR_HEIGHT = 40;
 export const LEFT_TAB_ITEM_HEIGHT = 40;
