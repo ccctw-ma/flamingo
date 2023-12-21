@@ -15,11 +15,11 @@ import {
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import Item from "../components/item";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { generateId } from "../utils";
 import { ACTION, STATUS, TYPE } from "../utils/types";
-import { useSelected, useGlobalState } from "../utils/store";
-import { addGroup, addRule, getLocalSelected } from "../utils/storage";
+import { addGroup, addRule } from "../utils/storage";
+import { useGlobalState } from "../utils/hooks";
 
 const actionView = {
   [ACTION.Add]: { label: "add", icon: <PlusCircleOutlined /> },

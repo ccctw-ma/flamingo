@@ -22,7 +22,7 @@ import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
 import { CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
-import { useFlag, useGlobalState } from "./utils/store";
+import { useGlobalState } from "./utils/hooks";
 
 export const Home = () => {
   /**

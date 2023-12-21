@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useFlag, useGlobalState, useSelected } from "../utils/store";
+import { useFlag } from "../utils/store";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import RuleEditor from "../components/ruleEditor";
 import { Breadcrumb, Divider } from "antd";
@@ -13,6 +13,7 @@ import {
 import { TYPE } from "../utils/types";
 import GroupEditor from "../components/groupEditor";
 import DetailEditor from "../components/detailEditor";
+import { useGlobalState } from "../utils/hooks";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const [containerWidth, setContainerWidth] = useState<number>(props.width);

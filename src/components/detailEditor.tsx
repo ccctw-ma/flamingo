@@ -2,7 +2,8 @@ import React, { useRef } from "react";
 import MonacoEditor, { monaco } from "react-monaco-editor";
 import { RIGHT_HEADER_HEIGHT } from "../utils/constants";
 import { obj2str, str2obj } from "../utils";
-import { useFlag, useGlobalState } from "../utils/store";
+import { useFlag } from "../utils/store";
+import { useGlobalState } from "../utils/hooks";
 
 export default function DetailEditor(props: { width: number }) {
   const { type, setEdit, edit, setEditType } = useGlobalState();

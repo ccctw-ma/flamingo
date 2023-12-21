@@ -1,24 +1,12 @@
 import { Checkbox, Popconfirm } from "antd";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import {
   DEMO_GROUP,
   DEMO_RULE,
   LEFT_TAB_ITEM_HEIGHT,
 } from "../utils/constants";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
-import { useGroup, useGlobalState, useSelected } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import {
   deleteGroup,
@@ -27,6 +15,7 @@ import {
   updateGroups,
   updateRules,
 } from "../utils/storage";
+import { useGlobalState } from "../utils/hooks";
 
 interface Props {
   item: Group | Rule;

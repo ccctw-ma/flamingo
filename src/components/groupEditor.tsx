@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useFlag, useGlobalState } from "../utils/store";
+import { useFlag } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
 import { generateId, noop } from "../utils";
@@ -11,6 +11,7 @@ import {
 import { Button, Select, message } from "antd";
 import { DEMO_RULE, RIGHT_HEADER_HEIGHT } from "../utils/constants";
 import { addRule } from "../utils/storage";
+import { useGlobalState } from "../utils/hooks";
 
 export default function GroupEditor() {
   const { selected, rules, setEdit, setEditType, saveEdit, edit } =

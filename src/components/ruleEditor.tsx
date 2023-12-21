@@ -1,11 +1,12 @@
 import React from "react";
-import { useFlag, useGlobalState } from "../utils/store";
+import { useFlag } from "../utils/store";
 import { Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
 import { noop } from "../utils";
+import { useGlobalState } from "../utils/hooks";
 
 export default function RuleEditor() {
-  const { selected, setEdit, setEditType, setHasError } = useGlobalState();
+  const { selected, setEdit, setEditType } = useGlobalState();
   const { setIsSaved } = useFlag();
 
   const handleRuleChange = async (rule: Rule) => {
