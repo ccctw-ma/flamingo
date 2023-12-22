@@ -161,17 +161,12 @@ function CompactEditor(props: Porps) {
   >([]);
 
   if (hasChange) {
-    let newRule: Rule = {
-      ...rule,
-      condition: {
-        ...rule.condition,
-        regexFilter,
-      },
-      update: Date.now(),
-    };
+    let newRule: Rule = { ...rule };
+    newRule.condition.regexFilter = regexFilter;
+    newRule.update = Date.now();
     if (type === chrome.declarativeNetRequest.RuleActionType.REDIRECT) {
       newRule.action = {
-        ...rule.action,
+        type,
         redirect: {
           ...rule.action.redirect,
           regexSubstitution,
@@ -181,10 +176,12 @@ function CompactEditor(props: Porps) {
       type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS
     ) {
       newRule.action = {
-        ...rule.action,
+        type,
         requestHeaders,
         responseHeaders,
       };
+    } else {
+      newRule.action = { type };
     }
     onChange(newRule);
     setHasChange(false);

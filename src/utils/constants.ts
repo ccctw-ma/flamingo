@@ -66,7 +66,7 @@ export const EMPTY_RULE: Rule = {
   update: Date.now(),
   enable: false,
   action: {
-    type: chrome.declarativeNetRequest.RuleActionType.ALLOW,
+    type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
   },
   condition: {
     regexFilter: "",

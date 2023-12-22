@@ -49,6 +49,7 @@ export default function GroupEditor() {
         ...(edit as Group).rules,
         {
           ...addRule,
+          name: "",
           id: generateId(),
         },
       ],

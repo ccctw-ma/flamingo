@@ -16,9 +16,9 @@ import DetailEditor from "../components/detailEditor";
 import { useGlobalState } from "../utils/hooks";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
+  const { type, selected, saveEdit, setEdit, setEditType } = useGlobalState();
+  const { isSaved } = useFlag();
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
-  const { type, selected, saveEdit, refresh, edit, setEdit } = useGlobalState();
-  const { isSaved, setIsSaved } = useFlag();
   const [isDetail, setIsDetail] = useState(false);
   const [isWorking, setIsWorking] = useState(true);
 
@@ -30,6 +30,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
     (async () => {
       await saveEdit();
       setEdit(selected);
+      setEditType("rules" in selected ? TYPE.Group : TYPE.Rule);
     })();
   }, [selected.id]);
 
