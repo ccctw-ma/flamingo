@@ -188,13 +188,11 @@ function CompactEditor(props: Porps) {
   }
 
   useLayoutEffect(() => {
-    if (rule) {
-      setType(rule.action.type);
-      setRegexFilter(rule.condition.regexFilter || "");
-      setRegexSubstitution(rule.action.redirect?.regexSubstitution || "");
-      setRequestHeaders(rule.action.requestHeaders || []);
-      setResponseHeaders(rule.action.responseHeaders || []);
-    }
+    setType(rule?.action?.type);
+    setRegexFilter(rule?.condition.regexFilter || "");
+    setRegexSubstitution(rule?.action?.redirect?.regexSubstitution || "");
+    setRequestHeaders(rule?.action?.requestHeaders || []);
+    setResponseHeaders(rule?.action?.responseHeaders || []);
   }, [rule]);
 
   return (

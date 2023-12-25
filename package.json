@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack --watch --mode development --progress",
     "build": "webpack --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "ts-patch install && typia patch"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +38,9 @@
     "tailwindcss": "^3.3.6",
     "terser-webpack-plugin": "^5.3.9",
     "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.1",
+    "typescript": "5.3.2",
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
@@ -48,6 +52,7 @@
     "monaco-editor": "^0.44.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "react-monaco-editor": "^0.54.0",
+    "typia": "^5.3.5",
     "zustand": "^4.4.7"
   }
 }

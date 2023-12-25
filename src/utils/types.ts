@@ -35,11 +35,6 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
 
   /** Determin whether this rule is working*/
   enable: boolean;
-
-  /**  Determine whether this rule is global
-   *   todo! not sure whether need this key
-   */
-  isGlobal?: number;
 }
 
 export interface Group {
