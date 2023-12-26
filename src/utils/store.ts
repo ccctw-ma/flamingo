@@ -67,7 +67,7 @@ type FalgStore = {
 export const useFlag = create<FalgStore>()((set) => ({
   isSaved: true,
   setIsSaved: (val: boolean) => set((state: any) => ({ isSaved: val })),
-  isDetail: false,
+  isDetail: true,
   setIsDetail: (val: boolean) => set((state: any) => ({ isDetail: val })),
   isWorking: true,
   setIsWorking: (val: boolean) => set((state: any) => ({ isWorking: val })),

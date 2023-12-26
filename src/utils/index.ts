@@ -1,5 +1,3 @@
-import typia from "typia";
-
 export function throttle(fn: any, delay = 10) {
   let f = false;
   return (...rest: any) => {
@@ -64,10 +62,10 @@ export function deepClone(obj: any, hash = new WeakMap()) {
   if (obj instanceof RegExp) return new RegExp(obj);
   if (typeof obj !== "object") return obj;
 
-  // 解决循环依赖问题
+  // Solving circular dependency issues
   if (hash.get(obj)) return hash.get(obj);
 
-  let newObj: any = {};
+  let newObj: any = Array.isArray(obj) ? [] : {};
   hash.set(obj, newObj);
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {

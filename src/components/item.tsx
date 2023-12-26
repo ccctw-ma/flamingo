@@ -24,8 +24,18 @@ interface Props {
 
 export default function Item(props: Props) {
   const { item: current, type: curType } = props;
-  const { type, selected, setType, setSelected, groups, rules, refresh } =
-    useGlobalState();
+  const {
+    type,
+    selected,
+    setType,
+    setSelected,
+    groups,
+    rules,
+    refresh,
+    saveEdit,
+    setEdit,
+    setEditType,
+  } = useGlobalState();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState(current.name);
@@ -77,9 +87,9 @@ export default function Item(props: Props) {
         selected.id === current.id && curType === type && "bg-slate-200"
       }`}
       onClick={() => {
-        setSelected(current);
-        setType(curType);
         setLocalSelected(curType, current);
+        setType(curType);
+        setSelected(current);
       }}
     >
       <Checkbox
