@@ -1,114 +1,78 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import * as monaco from "monaco-editor";
 import { editor } from "monaco-editor";
-import { RIGHT_HEADER_HEIGHT, jsonSchema } from "../utils/constants";
-import {
-  addKeys,
-  deepClone,
-  generateId,
-  obj2str,
-  removeKeys,
-  str2obj,
-} from "../utils";
+import { addKeys, generateId, str2obj } from "../utils";
 import { useFlag } from "../utils/store";
 import { useGlobalState } from "../utils/hooks";
 import { Group, Rule, TYPE } from "../utils/types";
-import Editor, { loader, Monaco } from "@monaco-editor/react";
+import { loader } from "@monaco-editor/react";
 loader.config({ monaco });
-// import typia from "typia";
-// const typeCheckRes = typia.validate<Group | Rule>(newEdit);
-//       if (!typeCheckRes.success) {
-//         throw typeCheckRes.errors;
-//       }
+import typia from "typia";
+import MonacoEditor from "./monacoEditor";
 
 export default function DetailEditor(props: { width: number }) {
-  const { type, setEdit, edit, setEditType, setHasError } = useGlobalState();
+  const { selected, type, setEdit, edit, setHasError } = useGlobalState();
   const { setIsSaved } = useFlag();
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<Monaco | null>(null);
 
-  const filterEditContent = (edit: any) => {
-    let filterEdit = deepClone(edit);
-    if (type === TYPE.Rule) {
-      removeKeys(filterEdit);
-    } else {
-      (filterEdit as Group).rules?.forEach((rule) => removeKeys(rule));
-      filterEdit = filterEdit.rules;
-    }
-    return filterEdit;
-  };
-
-  const addRemoveKeys = (o: any, cur: any) => {
-    if (type === TYPE.Rule) {
-      addKeys(o, cur);
-    } else {
-      let newGroup: any = {};
-      addKeys(o, cur);
-      o.forEach((rule: any) => {
-        rule.id = generateId();
-        rule.name = "";
-        rule.create = Date.now();
-        rule.update = Date.now();
-        rule.enable = true;
-      });
-      newGroup.rules = o;
-    }
-    return o;
-  };
-
-  const handleChange = (value: string | undefined = "", _e: any) => {
-    let newEdit;
+  const restoreEdit = (editString: string): [boolean, Group | Rule] => {
+    let jsonParseError = false,
+      typeCheckError = false,
+      newEdit: any = {};
+    let editObj: any = {};
     try {
-      const obj = str2obj(value);
-      newEdit = addRemoveKeys(obj, edit);
-      setEdit(newEdit);
-      
-      // TODO handle 
-    } catch (err) {
-      console.log(err);
-      setHasError(!!err);
-    } finally {
-      setIsSaved(false);
+      editObj = str2obj(editString);
+    } catch {
+      jsonParseError = true;
     }
+    if (!jsonParseError) {
+      if (type === TYPE.Rule) {
+        addKeys(editObj, edit);
+      } else {
+        let newGroup: any = {};
+        addKeys(newGroup, edit);
+        editObj.forEach((rule: any) => {
+          rule.id = generateId();
+          rule.name = "";
+          rule.create = Date.now();
+          rule.update = Date.now();
+          rule.enable = true;
+        });
+        newGroup.rules = editObj;
+        editObj = newGroup;
+      }
+      const validated = typia.validate<Group | Rule>(editObj);
+      if (validated.success) {
+        newEdit = editObj;
+      } else {
+        typeCheckError = true;
+      }
+    }
+    if (jsonParseError || typeCheckError) {
+      newEdit = { ...edit };
+    }
+    newEdit.update = Date.now();
+    return [jsonParseError || typeCheckError, newEdit];
   };
 
-  function handleValidate(makers: editor.IMarker[]) {
-    console.log(makers);
-    setHasError(makers.length > 0);
-  }
+  const handleChange = (value: string) => {
+    const [hasError, newEdit] = restoreEdit(value);
+    setIsSaved(false);
+    setHasError(hasError);
+    setEdit(newEdit);
+  };
 
-  useEffect(() => {
-    loader
-      .init()
-      .then((monaco) => {
-        monaco.languages.json.jsonDefaults.setDiagnosticsOptions(jsonSchema);
-      })
-      .catch((err) => {
-        console.warn("Error setting json schema");
-        console.error(err);
-      });
-  }, []);
+  const handleError = (error: editor.IMarker[]) => {
+    console.error(error);
+    // setHasError(error.length > 0);
+  };
 
   return (
-    <Editor
-      height={`calc(100% - ${RIGHT_HEADER_HEIGHT + 1}px)`}
+    <MonacoEditor
       width={props.width}
-      language="json"
-      theme={"vs-light"}
-      value={obj2str(filterEditContent(edit))}
+      type={type}
       onChange={handleChange}
-      onMount={(editor, monaco) => {
-        editorRef.current = editor;
-        monacoRef.current = monaco;
-        editorRef.current.focus();
-      }}
-      onValidate={handleValidate}
-      options={{
-        minimap: {
-          enabled: false,
-        },
-        scrollBeyondLastLine: false,
-      }}
+      onError={handleError}
+      selected={selected}
     />
   );
 }

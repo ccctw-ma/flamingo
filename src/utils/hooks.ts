@@ -8,6 +8,7 @@ import {
 } from "./storage";
 import { useGroup, useRule, useSelected, useFlag } from "./store";
 import { Group, Rule, TYPE } from "./types";
+import { message } from "antd";
 
 export function useGlobalState() {
   const { groups, setGroups } = useGroup();
@@ -40,6 +41,12 @@ export function useGlobalState() {
   const saveEdit = async (newEdit?: Rule | Group) => {
     if (isSaved && !newEdit) {
       return;
+    }
+    if (hasError) {
+      setHasError(false);
+      message.error(
+        "The edited rule or group has errors and has been restored to a state without errors"
+      );
     }
     const updateEdit = newEdit || edit;
     if (editType === TYPE.Group) {
@@ -76,8 +83,8 @@ export const useChange = () => {
 
   const wrapChange = (setState: any) => {
     return (...rest: any) => {
-      setHasChange(true);
       setState(...rest);
+      setHasChange(true);
     };
   };
   return { hasChange, setHasChange, wrapChange };

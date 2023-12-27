@@ -1,3 +1,5 @@
+import { Group, TYPE } from "./types";
+
 export function throttle(fn: any, delay = 10) {
   let f = false;
   return (...rest: any) => {
@@ -52,7 +54,7 @@ export function loop(condition: () => any, action: () => void, time: number) {
   fn();
 }
 
-export const obj2str = (x: any) => JSON.stringify(x, null, "\t");
+export const obj2str = (x: any) => JSON.stringify(x, null, 2);
 
 export const str2obj = (x: string) => JSON.parse(x);
 
@@ -85,6 +87,21 @@ export const removeKeys = (o: any) => {
 
 export const addKeys = (o: any, cur: any) => {
   for (let key of unDisplayKeys) {
-    o[key] = cur[key];
+    if (key === "update") {
+      o[key] = Date.now();
+    } else {
+      o[key] = cur[key];
+    }
   }
+};
+
+export const filterEditContent = (edit: any, type: TYPE) => {
+  let filterEdit = deepClone(edit);
+  if (type === TYPE.Rule) {
+    removeKeys(filterEdit);
+  } else {
+    (filterEdit as Group).rules?.forEach((rule) => removeKeys(rule));
+    filterEdit = filterEdit.rules;
+  }
+  return filterEdit;
 };
