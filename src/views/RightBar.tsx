@@ -19,7 +19,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
   const { type, selected, saveEdit, setEdit, setEditType } = useGlobalState();
   const { isSaved } = useFlag();
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
-  const [isDetail, setIsDetail] = useState(true);
+  const [isDetail, setIsDetail] = useState(false);
   const [isWorking, setIsWorking] = useState(true);
 
   useImperativeHandle(ref, () => ({

@@ -1,91 +1,129 @@
-console.log("welcome to flamingo, a proxy extension");
+import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY } from "./utils/constants";
+import { getLocalGroups, getLocalRules } from "./utils/storage";
+import { Group, Rule } from "./utils/types";
 
-async function getNewRules(): Promise<
-  Array<chrome.declarativeNetRequest.Rule>
-> {
-  return [
-    {
-      id: 1,
-      priority: 200,
-      action: {
-        type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-        redirect: {
-          // url: "https://jsonplaceholder.typicode.com/posts/2",
-          regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
+const demoRules = [
+  {
+    id: 1,
+    priority: 200,
+    action: {
+      type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+      redirect: {
+        // url: "https://jsonplaceholder.typicode.com/posts/2",
+        regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
+      },
+    },
+    condition: {
+      // urlFilter: "bilibili",
+      // domains: ["www.bilibili.com"],
+      regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
+      // resourceTypes: [
+      //   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+      // ],
+    },
+  },
+  {
+    id: 2,
+    priority: 200,
+    action: {
+      type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+      requestHeaders: [
+        {
+          header: "hello",
+          operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+          value: "world",
         },
-      },
-      condition: {
-        // urlFilter: "bilibili",
-        // domains: ["www.bilibili.com"],
-        regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
-        // resourceTypes: [
-        //   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
-        // ],
-      },
+      ],
     },
-    {
-      id: 2,
-      priority: 200,
-      action: {
-        type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-        requestHeaders: [
-          {
-            header: "hello",
-            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-            value: "world",
-          },
-        ],
-      },
-      condition: {
-        regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
-      },
+    condition: {
+      regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
     },
-    {
-      id: 3,
-      priority: 200,
-      action: {
-        type: chrome.declarativeNetRequest.RuleActionType.BLOCK,
-      },
-      condition: {
-        regexFilter: "https://jsonplaceholder.typicode.com/posts/3",
-      },
+  },
+  {
+    id: 3,
+    priority: 200,
+    action: {
+      type: chrome.declarativeNetRequest.RuleActionType.BLOCK,
     },
-  ];
+    condition: {
+      regexFilter: "https://jsonplaceholder.typicode.com/posts/3",
+    },
+  },
+];
+
+async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> {
+  const groups: Group[] = await getLocalGroups();
+  const rules: Rule[] = await getLocalRules();
+  const enableRules: Rule[] = [];
+  groups.forEach((group) => {
+    if (group.enable) {
+      enableRules.push(...group.rules);
+    }
+  });
+  rules.forEach((rule) => {
+    if (rule.enable) {
+      enableRules.push(rule);
+    }
+  });
+  const availableRules: chrome.declarativeNetRequest.Rule[] = enableRules.map((rule) => ({
+    action: rule.action,
+    condition: rule.condition,
+    id: rule.id,
+    priority: rule.priority,
+  }));
+  console.log(availableRules);
+  return availableRules;
 }
+
 async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    // console.log(JSON.stringify(newRules));
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: newRules,
       removeRuleIds: removeIds,
     });
-  } catch {
-    console.log("error");
+  } catch (err) {
+    console.log("error", err);
   }
 }
+
 async function getCurrentDynamicRules() {
-  const rules = await chrome.declarativeNetRequest.getDynamicRules();
-  return rules;
+  return await chrome.declarativeNetRequest.getDynamicRules();
 }
 
-function addRuleMatchedDebugListener() {
-  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
-    console.log(info);
-  });
-}
+const handleRuleMatched = (info: chrome.declarativeNetRequest.MatchedRuleInfoDebug) => {
+  console.log(info);
+};
 
-function addChromeStorageListener() {
-  chrome.storage.onChanged.addListener((changes, area) => {
-    // console.log(changes);
-    // console.log(area);
-  });
-}
+const handleStorageChange = (
+  changes: { [key: string]: chrome.storage.StorageChange },
+  area: "sync" | "local" | "managed" | "session"
+) => {
+  const changeKeys = Object.keys(changes);
+  if (changeKeys.includes(GROUPS_STORAGE_KEY) || changeKeys.includes(RULES_STORAGE_KEY)) {
+    setRules();
+  }
+  console.log(changes);
+};
 
-(() => {
-  addRuleMatchedDebugListener();
-  addChromeStorageListener();
+function init() {
+  console.log("welcome to flamingo, a proxy extension");
+  if (chrome.storage.onChanged.hasListener(handleStorageChange)) {
+    chrome.storage.onChanged.removeListener(handleStorageChange);
+  }
+  if (chrome.declarativeNetRequest.onRuleMatchedDebug.hasListener(handleRuleMatched)) {
+    chrome.declarativeNetRequest.onRuleMatchedDebug.removeListener(handleRuleMatched);
+  }
+  chrome.storage.onChanged.addListener(handleStorageChange);
+  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(handleRuleMatched);
+
+  // chrome.webRequest.onBeforeRequest.addListener(detail=> {
+  //   console.log(detail);
+  // },
+  // { urls: ["<all_urls>"] },)
   setRules();
-})();
+}
+
+init();

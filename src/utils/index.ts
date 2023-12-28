@@ -26,7 +26,7 @@ const Count = (() => {
  * here use timeStamp
  */
 export function generateId() {
-  return Date.now() + Count();
+  return (Date.now() % (10 ** 9 + 7)) + Count();
 }
 
 // no operation just for placeholder

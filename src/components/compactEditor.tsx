@@ -78,10 +78,7 @@ const ModifyHeader: React.FC<{
             </Col>
             <Col
               span={
-                header.operation ===
-                chrome.declarativeNetRequest.HeaderOperation.REMOVE
-                  ? 14
-                  : 7
+                header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE ? 14 : 7
               }
             >
               <Input
@@ -96,10 +93,7 @@ const ModifyHeader: React.FC<{
             </Col>
             <Col
               span={
-                header.operation ===
-                chrome.declarativeNetRequest.HeaderOperation.REMOVE
-                  ? 0
-                  : 7
+                header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE ? 0 : 7
               }
             >
               <Input
@@ -147,9 +141,7 @@ const ModifyHeader: React.FC<{
 function CompactEditor(props: Porps) {
   const { rule, onChange, handleError } = props;
   const { hasChange, setHasChange, wrapChange } = useChange();
-  const [type, setType] = useState(
-    chrome.declarativeNetRequest.RuleActionType.REDIRECT
-  );
+  const [type, setType] = useState(chrome.declarativeNetRequest.RuleActionType.REDIRECT);
   const [regexFilter, setRegexFilter] = useState("");
   const [regexSubstitution, setRegexSubstitution] = useState("");
 
@@ -172,9 +164,7 @@ function CompactEditor(props: Porps) {
           regexSubstitution,
         },
       };
-    } else if (
-      type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS
-    ) {
+    } else if (type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS) {
       newRule.action = {
         type,
         requestHeaders,
@@ -197,10 +187,7 @@ function CompactEditor(props: Porps) {
 
   return (
     <div className="w-full mt-4 flex flex-col items-center text-base">
-      <div
-        style={{ width: "90%" }}
-        className="flex flex-col gap-4 justify-between"
-      >
+      <div style={{ width: "90%" }} className="flex flex-col gap-4 justify-between">
         <Cell label="ActionType">
           <Select
             style={{ width: "100%" }}
@@ -211,14 +198,27 @@ function CompactEditor(props: Porps) {
                 label: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
               },
               {
-                value:
-                  chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-                label:
-                  chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                value: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                label: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
               },
               {
                 value: chrome.declarativeNetRequest.RuleActionType.BLOCK,
                 label: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+              },
+              {
+                value: chrome.declarativeNetRequest.RuleActionType.ALLOW,
+                label: chrome.declarativeNetRequest.RuleActionType.ALLOW,
+                disabled: true,
+              },
+              {
+                value: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                label: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                disabled: true,
+              },
+              {
+                value: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
+                label: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
+                disabled: true,
               },
             ]}
             onChange={wrapChange(setType)}
@@ -240,14 +240,10 @@ function CompactEditor(props: Porps) {
             />
           </Cell>
         )}
-        {type ===
-          chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
+        {type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
           <>
             <Cell label="requestHeaders">
-              <ModifyHeader
-                headerInfos={requestHeaders}
-                onChange={wrapChange(setRequestHeaders)}
-              />
+              <ModifyHeader headerInfos={requestHeaders} onChange={wrapChange(setRequestHeaders)} />
             </Cell>
             <Cell label="responseHeaders">
               <ModifyHeader

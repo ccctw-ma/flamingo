@@ -44,7 +44,7 @@ export const RULE_CONTAINER_HEIGHT = 200;
  */
 
 export const DEMO_RULE: Rule = {
-  id: -1,
+  id: 1,
   name: "demo-rule",
   create: Date.now(),
   update: Date.now(),
@@ -61,7 +61,7 @@ export const DEMO_RULE: Rule = {
 };
 
 export const EMPTY_RULE: Rule = {
-  id: -2,
+  id: 2,
   name: "",
   create: Date.now(),
   update: Date.now(),
@@ -75,7 +75,7 @@ export const EMPTY_RULE: Rule = {
 };
 
 export const DEMO_GROUP: Group = {
-  id: -3,
+  id: 3,
   name: "demo-group",
   enable: false,
   create: Date.now(),
@@ -84,7 +84,7 @@ export const DEMO_GROUP: Group = {
 };
 
 export const EMPTY_GROUP: Group = {
-  id: -4,
+  id: 4,
   name: "",
   enable: false,
   create: Date.now(),
