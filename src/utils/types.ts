@@ -58,3 +58,8 @@ export interface Group {
   /** All of rules of this group*/
   rules: Rule[];
 }
+
+export interface Config {
+  isWorking: boolean;
+  isDetail: boolean;
+}

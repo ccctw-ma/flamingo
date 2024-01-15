@@ -12,8 +12,7 @@ export const useGroup = create<GroupStore>()((set) => ({
   groups: [],
   selectedGroup: EMPTY_GROUP,
   setGroups: (val: Array<Group>) => set((state: any) => ({ groups: val })),
-  setSelectedGroup: (val: Group) =>
-    set((state: any) => ({ selectedGroup: val })),
+  setSelectedGroup: (val: Group) => set((state: any) => ({ selectedGroup: val })),
 }));
 
 type RuleStore = {
@@ -58,16 +57,22 @@ export const useSelected = create<SelecedStore>()((set) => ({
 type FalgStore = {
   isSaved: boolean;
   setIsSaved: (val: boolean) => void;
+};
+
+export const useFlag = create<FalgStore>()((set) => ({
+  isSaved: true,
+  setIsSaved: (val: boolean) => set((state: any) => ({ isSaved: val })),
+}));
+
+type ConfigStore = {
   isDetail: boolean;
   setIsDetail: (val: boolean) => void;
   isWorking: boolean;
   setIsWorking: (val: boolean) => void;
 };
 
-export const useFlag = create<FalgStore>()((set) => ({
-  isSaved: true,
-  setIsSaved: (val: boolean) => set((state: any) => ({ isSaved: val })),
-  isDetail: true,
+export const useConfigStore = create<ConfigStore>()((set) => ({
+  isDetail: false,
   setIsDetail: (val: boolean) => set((state: any) => ({ isDetail: val })),
   isWorking: true,
   setIsWorking: (val: boolean) => set((state: any) => ({ isWorking: val })),

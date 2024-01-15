@@ -35,12 +35,15 @@ export async function localGetBySingleKey(key: string) {
   return (await localGet(key))[key];
 }
 
+export async function localSetBySingleKey(key: string, val: any) {
+  return await localSet({ [key]: val });
+}
+
 /**
  * groups add delete update query
  */
 export async function getLocalGroups() {
-  let localGroups =
-    (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [];
+  let localGroups = (await localGet(GROUPS_STORAGE_KEY))[GROUPS_STORAGE_KEY] || [];
   if (localGroups.length === 0) {
     localGroups = [DEMO_GROUP];
   }
@@ -126,9 +129,7 @@ export async function deleteRule(rule: Rule) {
  * selelcted  update query
  */
 export async function getLocalSelected() {
-  return (
-    (await localGet(SELECTED_KEY))[SELECTED_KEY] || [TYPE.Group, DEMO_GROUP]
-  );
+  return (await localGet(SELECTED_KEY))[SELECTED_KEY] || [TYPE.Group, DEMO_GROUP];
 }
 
 export async function setLocalSelected(type: TYPE, selected: Rule | Group) {

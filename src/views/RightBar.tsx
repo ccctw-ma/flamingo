@@ -13,14 +13,13 @@ import {
 import { TYPE } from "../utils/types";
 import GroupEditor from "../components/groupEditor";
 import DetailEditor from "../components/detailEditor";
-import { useGlobalState } from "../utils/hooks";
+import { useConfig, useGlobalState } from "../utils/hooks";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const { type, selected, saveEdit, setEdit, setEditType } = useGlobalState();
+  const { isDetail, setIsDetail, isWorking, setIsWorking } = useConfig();
   const { isSaved } = useFlag();
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
-  const [isDetail, setIsDetail] = useState(false);
-  const [isWorking, setIsWorking] = useState(true);
 
   useImperativeHandle(ref, () => ({
     setContainerWidth,
@@ -59,9 +58,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
         />
 
         <Divider type="vertical" />
-        <p
-          className={`text-base ${isSaved ? "text-green-400" : "text-red-400"}`}
-        >
+        <p className={`text-base ${isSaved ? "text-green-400" : "text-red-400"}`}>
           {isSaved ? "saved" : "not saved"}
         </p>
         <div className="flex-1" />
@@ -87,7 +84,7 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
           className="transition-all"
           style={{ color: `${isWorking ? "red" : ""}`, fontSize: "16px" }}
           title={`${isWorking ? "Off" : "On"}`}
-          onClick={() => setIsWorking((v) => !v)}
+          onClick={() => setIsWorking(isWorking ? false : true)}
         />
       </div>
       <Divider style={{ marginTop: 0, marginBottom: 0 }} />

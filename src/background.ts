@@ -1,5 +1,5 @@
-import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY } from "./utils/constants";
-import { getLocalGroups, getLocalRules } from "./utils/storage";
+import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY, WORKING_KEY } from "./utils/constants";
+import { getLocalGroups, getLocalRules, localGetBySingleKey } from "./utils/storage";
 import { Group, Rule } from "./utils/types";
 
 const demoRules = [
@@ -71,7 +71,7 @@ async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> 
     id: rule.id,
     priority: rule.priority,
   }));
-  console.log(availableRules);
+  console.log("availableRules", availableRules);
   return availableRules;
 }
 
@@ -79,9 +79,12 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
+    const isWorking = (await await localGetBySingleKey(WORKING_KEY)) ?? true;
+    const workingRules = isWorking ? newRules : [];
+    console.log("workingRules", workingRules);
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
-      addRules: newRules,
+      addRules: workingRules,
       removeRuleIds: removeIds,
     });
   } catch (err) {
@@ -102,7 +105,11 @@ const handleStorageChange = (
   area: "sync" | "local" | "managed" | "session"
 ) => {
   const changeKeys = Object.keys(changes);
-  if (changeKeys.includes(GROUPS_STORAGE_KEY) || changeKeys.includes(RULES_STORAGE_KEY)) {
+  if (
+    changeKeys.includes(GROUPS_STORAGE_KEY) ||
+    changeKeys.includes(RULES_STORAGE_KEY) ||
+    changeKeys.includes(WORKING_KEY)
+  ) {
     setRules();
   }
   console.log(changes);

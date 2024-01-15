@@ -39,6 +39,9 @@ export const DIVIDER_WIDTH = 2;
 export const RIGHT_HEADER_HEIGHT = 40;
 export const RULE_CONTAINER_HEIGHT = 200;
 
+export const DETAIL_KEY = "detail";
+export const WORKING_KEY = "working";
+
 /**
  * demo
  */
@@ -105,8 +108,7 @@ const definitions = {
         description: "The condition under which this rule is triggered.",
       },
       priority: {
-        description:
-          "Rule priority.\nDefaults to 1.\nWhen specified, should be >= 1.",
+        description: "Rule priority.\nDefaults to 1.\nWhen specified, should be >= 1.",
         type: "number",
       },
     },
@@ -147,8 +149,7 @@ const definitions = {
     type: "object",
     properties: {
       extensionPath: {
-        description:
-          "Path relative to the extension directory.\nShould start with '/'.",
+        description: "Path relative to the extension directory.\nShould start with '/'.",
         type: "string",
       },
       regexSubstitution: {
@@ -161,8 +162,7 @@ const definitions = {
         $ref: "#/definitions/URLTransform",
       },
       url: {
-        description:
-          "The redirect url.\nRedirects to JavaScript urls are not allowed.",
+        description: "The redirect url.\nRedirects to JavaScript urls are not allowed.",
         type: "string",
       },
     },
@@ -184,13 +184,11 @@ const definitions = {
         type: "string",
       },
       path: {
-        description:
-          "The new path for the request.\nIf empty, the existing path is cleared.",
+        description: "The new path for the request.\nIf empty, the existing path is cleared.",
         type: "string",
       },
       port: {
-        description:
-          "The new port for the request.\nIf empty, the existing port is cleared.",
+        description: "The new port for the request.\nIf empty, the existing port is cleared.",
         type: "string",
       },
       query: {
@@ -217,8 +215,7 @@ const definitions = {
     type: "object",
     properties: {
       addOrReplaceParams: {
-        description:
-          "The list of query key-value pairs to be added or replaced.",
+        description: "The list of query key-value pairs to be added or replaced.",
         type: "array",
         items: {
           $ref: "#/definitions/QueryKeyValue",
@@ -265,23 +262,14 @@ const definitions = {
     required: ["header", "operation"],
   },
   HeaderOperation: {
-    description:
-      'This describes the possible operations for a "modifyHeaders" rule.',
+    description: 'This describes the possible operations for a "modifyHeaders" rule.',
     type: "string",
     enum: ["append", "set", "remove"],
   },
   RuleActionType: {
-    description:
-      "Describes the kind of action to take if a given RuleCondition matches.",
+    description: "Describes the kind of action to take if a given RuleCondition matches.",
     type: "string",
-    enum: [
-      "block",
-      "redirect",
-      "allow",
-      "upgradeScheme",
-      "modifyHeaders",
-      "allowAllRequests",
-    ],
+    enum: ["block", "redirect", "allow", "upgradeScheme", "modifyHeaders", "allowAllRequests"],
   },
   RuleCondition: {
     type: "object",
@@ -404,16 +392,7 @@ const definitions = {
   RequestMethod: {
     description: "This describes the HTTP request method of a network request.",
     type: "string",
-    enum: [
-      "connect",
-      "delete",
-      "get",
-      "head",
-      "options",
-      "patch",
-      "post",
-      "put",
-    ],
+    enum: ["connect", "delete", "get", "head", "options", "patch", "post", "put"],
   },
   ResourceType: {
     description: "This describes the resource type of the network request.",

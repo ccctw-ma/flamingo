@@ -3,19 +3,21 @@ import {
   getLocalGroups,
   getLocalRules,
   getLocalSelected,
+  localGetBySingleKey,
+  localSetBySingleKey,
   updateGroups,
   updateRules,
 } from "./storage";
-import { useGroup, useRule, useSelected, useFlag } from "./store";
+import { useGroup, useRule, useSelected, useFlag, useConfigStore } from "./store";
 import { Group, Rule, TYPE } from "./types";
 import { message } from "antd";
+import { DETAIL_KEY, WORKING_KEY } from "./constants";
 
 export function useGlobalState() {
   const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
-  const { edit, editType, setEdit, setEditType, hasError, setHasError } =
-    useSelected();
+  const { edit, editType, setEdit, setEditType, hasError, setHasError } = useSelected();
   const [loaded, setIsLoaded] = useState(false);
   const { isSaved, setIsSaved } = useFlag();
   const refresh = async () => {
@@ -88,4 +90,36 @@ export const useChange = () => {
     };
   };
   return { hasChange, setHasChange, wrapChange };
+};
+
+export const useConfig = () => {
+  const {
+    isDetail,
+    setIsDetail: setDetail,
+    isWorking,
+    setIsWorking: setWorking,
+  } = useConfigStore();
+  const setIsDetail = (val: boolean) => {
+    localSetBySingleKey(DETAIL_KEY, val);
+    setDetail(val);
+  };
+  const setIsWorking = (val: boolean) => {
+    localSetBySingleKey(WORKING_KEY, val);
+    setWorking(val);
+  };
+
+  const initConfig = async () => {
+    const isDetailLocal = (await localGetBySingleKey(DETAIL_KEY)) ?? false;
+    const isWorkingLocal = (await localGetBySingleKey(WORKING_KEY)) ?? true;
+    setDetail(isDetailLocal);
+    setWorking(isWorkingLocal);
+  };
+
+  return {
+    isDetail,
+    setIsDetail,
+    isWorking,
+    setIsWorking,
+    initConfig,
+  };
 };

@@ -14,7 +14,7 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   localGetBySingleKey,
-  localSet,
+  localSetBySingleKey,
   setLocalGroups,
   setLocalRules,
 } from "./utils/storage";
@@ -22,7 +22,7 @@ import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
 import { CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
-import { useGlobalState } from "./utils/hooks";
+import { useConfig, useGlobalState } from "./utils/hooks";
 
 export const Home = () => {
   /**
@@ -32,11 +32,10 @@ export const Home = () => {
    */
   const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
   const { loaded, refresh, saveEdit } = useGlobalState();
+  const { initConfig } = useConfig();
   const container = useRef<HTMLDivElement>(null);
   const rightBar = useRef<any>();
-  const [leftBarSize, setLeftBarSize] = useState<number>(
-    HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO
-  );
+  const [leftBarSize, setLeftBarSize] = useState<number>(HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO);
 
   const [_, sa] = useState({});
   /**
@@ -47,9 +46,7 @@ export const Home = () => {
    */
   const redraw = () => {
     sa({});
-    rightBar.current.setContainerWidth(
-      document.body.scrollWidth - leftBarSize - DIVIDER_WIDTH
-    );
+    rightBar.current.setContainerWidth(document.body.scrollWidth - leftBarSize - DIVIDER_WIDTH);
   };
 
   function handleChangeSize() {
@@ -72,25 +69,18 @@ export const Home = () => {
       tempLeftBarSize = newSize;
       leftBarContainer.style.width = `${newSize}px`;
       middleDivder.style.left = `${newSize}px`;
-      rightBarContainer.style.width = `${
-        containerWidth - newSize - DIVIDER_WIDTH
-      }px`;
-      rightBar.current!.setContainerWidth(
-        containerWidth - newSize - DIVIDER_WIDTH
-      );
+      rightBarContainer.style.width = `${containerWidth - newSize - DIVIDER_WIDTH}px`;
+      rightBar.current!.setContainerWidth(containerWidth - newSize - DIVIDER_WIDTH);
     });
 
     const handleMouseUp = () => {
-      container.current!.removeEventListener(
-        "mousemove",
-        throttleHandleMouseMove
-      );
+      container.current!.removeEventListener("mousemove", throttleHandleMouseMove);
 
       /**
        * storing data and synchronizing state
        */
       setLeftBarSize(tempLeftBarSize);
-      localSet({ [LEFT_BAR_WIDTH_KEY]: tempLeftBarSize });
+      localSetBySingleKey(LEFT_BAR_WIDTH_KEY, tempLeftBarSize);
     };
 
     container.current!.addEventListener("mousemove", throttleHandleMouseMove);
@@ -106,19 +96,21 @@ export const Home = () => {
     }
   }
 
+  async function initView() {
+    const localVal: number =
+      (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ?? HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
+    setLeftBarSize(localVal);
+    rightBar.current!.setContainerWidth(containerWidth - localVal - DIVIDER_WIDTH);
+  }
+
   /**
    * try to avoid container flickering as much as possible
    */
   useLayoutEffect(() => {
     (async () => {
+      await initConfig();
       await refresh();
-      const localVal: number =
-        (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ||
-        HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
-      setLeftBarSize(localVal);
-      rightBar.current!.setContainerWidth(
-        containerWidth - localVal - DIVIDER_WIDTH
-      );
+      await initView();
     })();
 
     /**
@@ -151,9 +143,7 @@ export const Home = () => {
     >
       {loaded && (
         <div className="w-full h-full relative" ref={container}>
-          <div
-            style={{ width: leftBarSize, height: "100%", position: "absolute" }}
-          >
+          <div style={{ width: leftBarSize, height: "100%", position: "absolute" }}>
             <LeftBar />
           </div>
           <div
@@ -178,10 +168,7 @@ export const Home = () => {
               top: 0,
             }}
           >
-            <RightBar
-              width={containerWidth - leftBarSize - DIVIDER_WIDTH}
-              ref={rightBar}
-            />
+            <RightBar width={containerWidth - leftBarSize - DIVIDER_WIDTH} ref={rightBar} />
           </div>
         </div>
       )}
@@ -189,9 +176,7 @@ export const Home = () => {
       <FloatButton.Group trigger="click" icon={<MenuOutlined />}>
         <FloatButton
           icon={<CodeOutlined title="open in new tab" />}
-          onClick={() =>
-            chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })
-          }
+          onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })}
         />
         <FloatButton
           icon={<SettingOutlined title="open setting page" />}
