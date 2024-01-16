@@ -71,7 +71,7 @@ async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> 
     id: rule.id,
     priority: rule.priority,
   }));
-  console.log("availableRules", availableRules);
+  // console.log("availableRules", availableRules);
   return availableRules;
 }
 
@@ -81,7 +81,7 @@ async function setRules() {
     const oldRules = await getCurrentDynamicRules();
     const isWorking = (await await localGetBySingleKey(WORKING_KEY)) ?? true;
     const workingRules = isWorking ? newRules : [];
-    console.log("workingRules", workingRules);
+    // console.log("workingRules", workingRules);
     const removeIds = oldRules.map((r) => r.id);
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: workingRules,
@@ -112,7 +112,12 @@ const handleStorageChange = (
   ) {
     setRules();
   }
-  console.log(changes);
+  if (changeKeys.includes(WORKING_KEY)) {
+    const isWorking = changes[WORKING_KEY].newValue;
+    chrome.action.setIcon({
+      path: isWorking ? "../images/flamingo_red_48.png" : "../images/flamingo_grey_48.png",
+    });
+  }
 };
 
 function init() {

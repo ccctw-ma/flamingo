@@ -32,9 +32,6 @@ export default function Item(props: Props) {
     groups,
     rules,
     refresh,
-    saveEdit,
-    setEdit,
-    setEditType,
   } = useGlobalState();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);

@@ -1,16 +1,16 @@
 {
     "manifest_version": 3,
-    "name": "msc's chrome extensions",
+    "name": "flamingo",
     "version": "1.0.0",
-    "description": "我来学习写 chrome 插件了",
+    "description": "chrome extension for proxy",
     "icons": {
-        "16": "images/blue_128.png",
-        "48": "images/blue_128.png",
-        "128": "images/blue_128.png"
+        "16": "images/flamingo_red_16.png",
+        "48": "images/flamingo_red_48.png",
+        "128": "images/flamingo_red_128.png"
     },
     "action": {
-        "default_icon": "images/blue_128.png",
-        "default_title": "Hello msc",
+        "default_icon": "images/flamingo_red_48.png",
+        "default_title": "Hello Flamingo",
         "default_popup": "./src/index.html"
     },
     "permissions": [

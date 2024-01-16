@@ -80,14 +80,14 @@ module.exports = wrapConfig({
     new CleanWebpackPlugin(),
     new CopyPlugin({
       patterns: [
-        // { from: "images", to: "images" },
+        { from: "images", to: "../images" },
         // { from: "lib", to: "lib" },
         { from: "manifest.json", to: "../" },
-        { from: "rules.json", to: "../" }
+        // { from: "rules.json", to: "../" }
       ]
     }),
     new MonacoWebpackPlugin({
-      languages: ['json', 'typescript']
+      languages: ['json']
     })
   ],
   externals: {
