@@ -42,6 +42,9 @@ export const RULE_CONTAINER_HEIGHT = 200;
 export const DETAIL_KEY = "detail";
 export const WORKING_KEY = "working";
 
+export const MATCHED_RULE_CONTENT_WIDTH = 300;
+export const MATCHED_RULE_TIME_MINUTE_SPAN = 5;
+
 /**
  * demo
  */
@@ -74,6 +77,43 @@ export const EMPTY_RULE: Rule = {
   },
   condition: {
     regexFilter: "",
+  },
+};
+
+export const CROS_RULE: Rule = {
+  id: 520,
+  name: "cros",
+  create: Date.now(),
+  update: Date.now(),
+  enable: true,
+  action: {
+    responseHeaders: [
+      {
+        header: "access-control-allow-methods",
+        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+        value: "*",
+      },
+      {
+        header: "access-control-allow-credentials",
+        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+        value: "true",
+      },
+      {
+        header: "access-control-allow-origin",
+        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+        value: "*",
+      },
+      {
+        header: "access-control-allow-headers",
+        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+        value:
+          "Content-Type, access-control-allow-headers, Authorization, X-Requested-With, X-Referer",
+      },
+    ],
+    type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+  },
+  condition: {
+    regexFilter: "http://*",
   },
 };
 

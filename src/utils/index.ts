@@ -53,6 +53,9 @@ export function loop(condition: () => any, action: () => void, time: number) {
 
   fn();
 }
+export function padZero(number: number) {
+  return number < 10 ? `0${number}` : `${number}`;
+}
 
 export const obj2str = (x: any) => JSON.stringify(x, null, 2);
 

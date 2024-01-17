@@ -47,7 +47,7 @@ const ModifyHeader: React.FC<{
       {headers.map((header, idx) => {
         return (
           <Row justify="space-between">
-            <Col span={7}>
+            <Col span={5}>
               <Select
                 style={{ width: "100%" }}
                 defaultValue={chrome.declarativeNetRequest.HeaderOperation.SET}
@@ -84,6 +84,7 @@ const ModifyHeader: React.FC<{
               <Input
                 placeholder="header"
                 value={header.header}
+                title={header.header}
                 onChange={(e) => {
                   const newHeaders = [...headers];
                   newHeaders[idx].header = e.target.value;
@@ -104,6 +105,7 @@ const ModifyHeader: React.FC<{
                   newHeaders[idx].value = e.target.value;
                   wrapChange(setHeaders)(newHeaders);
                 }}
+                title={header.value}
               />
             </Col>
             <Col span={1} className="self-center">
@@ -170,6 +172,8 @@ function CompactEditor(props: Porps) {
         requestHeaders,
         responseHeaders,
       };
+      requestHeaders.length === 0 && delete newRule.action.requestHeaders;
+      responseHeaders.length === 0 && delete newRule.action.responseHeaders;
     } else {
       newRule.action = { type };
     }

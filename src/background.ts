@@ -1,4 +1,4 @@
-import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY, WORKING_KEY } from "./utils/constants";
+import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY, WORKING_KEY, ruleSchema } from "./utils/constants";
 import { getLocalGroups, getLocalRules, localGetBySingleKey } from "./utils/storage";
 import { Group, Rule } from "./utils/types";
 
@@ -71,7 +71,6 @@ async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> 
     id: rule.id,
     priority: rule.priority,
   }));
-  // console.log("availableRules", availableRules);
   return availableRules;
 }
 
@@ -81,9 +80,10 @@ async function setRules() {
     const oldRules = await getCurrentDynamicRules();
     const isWorking = (await await localGetBySingleKey(WORKING_KEY)) ?? true;
     const workingRules = isWorking ? newRules : [];
-    // console.log("workingRules", workingRules);
+    // console.log("newRules", newRules);
+    // console.log("oldRules", oldRules);
     const removeIds = oldRules.map((r) => r.id);
-    chrome.declarativeNetRequest.updateDynamicRules({
+    await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: workingRules,
       removeRuleIds: removeIds,
     });
@@ -136,6 +136,9 @@ function init() {
   // },
   // { urls: ["<all_urls>"] },)
   setRules();
+
+  
+  chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
 }
 
 init();
