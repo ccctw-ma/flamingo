@@ -20,8 +20,8 @@ module.exports = wrapConfig({
     main: "./src/index.tsx",
     bg: "./src/background.ts",
   },
-  devtool: "inline-source-map",
-  // devtool: false,
+  // devtool: "inline-source-map",
+  devtool: false,
   output: {
     path: pathResolve("build/src"),
     filename: "[name].js",
@@ -71,8 +71,6 @@ module.exports = wrapConfig({
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
-    // new BundleAnalyzerPlugin(),
-    // new ProgressPlugin(),
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: pathResolve("./home.html"),
