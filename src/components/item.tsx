@@ -32,6 +32,7 @@ export default function Item(props: Props) {
     groups,
     rules,
     refresh,
+    saveEdit
   } = useGlobalState();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
@@ -39,6 +40,7 @@ export default function Item(props: Props) {
   const [checked, setChecked] = useState(current.enable);
 
   const deleteItem = async (item: Group | Rule) => {
+    await saveEdit();
     if (curType === TYPE.Group) {
       await deleteGroup(item as Group);
       await setLocalSelected(
@@ -56,6 +58,7 @@ export default function Item(props: Props) {
   };
 
   const updateItem = async (item: Group | Rule) => {
+    await saveEdit();
     if (curType === TYPE.Group) {
       await updateGroups({ ...item, update: Date.now() } as Group);
     } else {

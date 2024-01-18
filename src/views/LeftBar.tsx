@@ -50,7 +50,7 @@ function generatePlaceHolder(tab: TYPE, action: ACTION): string {
 }
 
 export default function LeftBar() {
-  const { type, rules, groups, refresh } = useGlobalState();
+  const { type, rules, groups, refresh, saveEdit } = useGlobalState();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
@@ -65,6 +65,7 @@ export default function LeftBar() {
         }, 1000);
         return;
       }
+      await saveEdit();
       if (tabType === TYPE.Group) {
         await addGroup({
           ...EMPTY_GROUP,

@@ -148,7 +148,7 @@ export const Home = () => {
           </div>
           <div
             // todo! ensure a theme color
-            className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-pink-600 hover:scale-x-150 "
+            className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-red-500 hover:scale-x-150 "
             onMouseDown={handleChangeSize}
             style={{
               width: DIVIDER_WIDTH,

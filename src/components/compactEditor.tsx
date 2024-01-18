@@ -231,13 +231,25 @@ function CompactEditor(props: Porps) {
         <Cell label="Condition">
           <Input.TextArea
             autoSize
+            status={!!regexFilter ? "" : "error"}
             value={regexFilter}
-            onChange={(e) => wrapChange(setRegexFilter)(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              chrome.declarativeNetRequest.isRegexSupported({ regex: value }, (res) => {
+                if (!res.isSupported) {
+                  console.error(res.reason);
+                }
+              });
+
+              wrapChange(setRegexFilter)(e.target.value);
+            }}
+            required
           />
         </Cell>
         {type === chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
           <Cell label="Redirect">
             <Input.TextArea
+              status={!!regexSubstitution ? "" : "error"}
               autoSize
               value={regexSubstitution}
               onChange={(e) => wrapChange(setRegexSubstitution)(e.target.value)}
