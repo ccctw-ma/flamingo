@@ -1,12 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as monaco from "monaco-editor";
 import { editor } from "monaco-editor";
-import {
-  RIGHT_HEADER_HEIGHT,
-  groupSchema,
-  ruleSchema,
-} from "../utils/constants";
-import { useChange } from "../utils/hooks";
+import { groupSchema, ruleSchema } from "../utils/constants";
+import { useChange, useConfig } from "../utils/hooks";
 import Editor, { loader, Monaco } from "@monaco-editor/react";
 import { Group, Rule, TYPE } from "../utils/types";
 import { filterEditContent, obj2str } from "../utils";
@@ -22,6 +18,7 @@ interface Props {
 
 export default function MonacoEditor(props: Props) {
   const { width, type, onChange, selected, onError } = props;
+  const { RIGHT_HEADER_HEIGHT } = useConfig();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const { hasChange, setHasChange, wrapChange } = useChange();

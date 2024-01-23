@@ -1,3 +1,5 @@
+import { CONFIG_OBJECT } from "./constants";
+
 /**
  * enum
  */
@@ -59,7 +61,43 @@ export interface Group {
   rules: Rule[];
 }
 
-export interface Config {
-  isWorking: boolean;
-  isDetail: boolean;
-}
+export type GroupStore = {
+  groups: Array<Group>;
+  selectedGroup: Group;
+  setGroups: (val: Array<Group>) => void;
+  setSelectedGroup: (val: Group) => void;
+};
+
+export type RuleStore = {
+  rules: Array<Rule>;
+  selectedRule: Rule;
+  setRules: (val: Array<Rule>) => void;
+  setSelectedRule: (val: Rule) => void;
+};
+
+export type SelecedStore = {
+  type: TYPE;
+  selected: Rule | Group;
+  setSelected: (val: Rule | Group) => void;
+  setType: (val: TYPE) => void;
+  edit: Rule | Group;
+  setEdit: (val: Rule | Group) => void;
+  editType: TYPE;
+  setEditType: (val: TYPE) => void;
+  hasError: boolean;
+  setHasError: (val: boolean) => void;
+};
+
+export type FalgStore = {
+  isSaved: boolean;
+  setIsSaved: (val: boolean) => void;
+};
+
+export type configType = typeof CONFIG_OBJECT;
+export type configKeyType = keyof configType;
+export type ConfigKeySetType = {
+  [key in configKeyType]: string;
+};
+export type ConfigStore = configType & {
+  setConfig: (key: configKeyType, value: configType[configKeyType]) => void;
+};

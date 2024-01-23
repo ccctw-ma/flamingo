@@ -1,9 +1,8 @@
 import { languages } from "monaco-editor";
-import { generateId } from ".";
-import { Group, Rule } from "./types";
+import { ConfigKeySetType, Group, Rule } from "./types";
 
 /**
- * infos
+ * base info constants
  */
 export const FLAMINGO = "flamingo";
 export const VERSION = "0.0.1";
@@ -19,34 +18,44 @@ export const RULES_STORAGE_KEY = "rules_storage_key";
 export const SELECTED_KEY = "selected_storage_key";
 
 /**
- * view config
+ * config and default values
  */
+export const CONFIG_OBJECT = {
+  // view
+  ASPECT_RATIO: 1.618,
+  HOME_WIDTH: 800,
+  HOME_HEIGHT: 494,
+  LEFT_BAR_WIDTH: 200,
+  LEFT_BAR_WIDTH_MIN_RATIO: 0.25,
+  LEFT_BAR_WIDTH_MAX_RATIO: 0.5,
 
-export const ASPECT_RATIO = 1.618;
-export const HOME_WIDTH = 800;
-export const HOME_HEIGHT = HOME_WIDTH / ASPECT_RATIO;
+  LEFT_TAB_BAR_HEIGHT: 40,
+  LEFT_TAB_ITEM_HEIGHT: 40,
+  LEFT_TAB_ACTION_HEIGHT: 40,
 
-export const LEFT_BAR_WIDTH_KEY = "left_bar_with";
-export const LEFT_BAR_WIDTH_MIN_RATIO = 1 / 4;
-export const LEFT_BAR_WIDTH_MAX_RATIO = 1 / 2;
+  DIVIDER_WIDTH: 2,
 
-export const LEFT_TAB_BAR_HEIGHT = 40;
-export const LEFT_TAB_ITEM_HEIGHT = 40;
-export const LEFT_TAB_ACTION_HEIGHT = 40;
+  RIGHT_HEADER_HEIGHT: 40,
+  RULE_CONTAINER_HEIGHT: 200,
 
-export const DIVIDER_WIDTH = 2;
+  MATCHED_RULE_CONTENT_WIDTH: 300,
+  MATCHED_RULE_TIME_MINUTE_SPAN: 5,
 
-export const RIGHT_HEADER_HEIGHT = 40;
-export const RULE_CONTAINER_HEIGHT = 200;
+  // flag
+  DETAIL: false,
+  WORKING: true,
+};
 
-export const DETAIL_KEY = "detail";
-export const WORKING_KEY = "working";
+export const CONFIG_KEYSET = Object.keys(CONFIG_OBJECT).reduce((pre, cur) => {
+  return {
+    ...pre,
+    [cur]: `${cur}`,
+  };
+}, {}) as ConfigKeySetType;
 
-export const MATCHED_RULE_CONTENT_WIDTH = 300;
-export const MATCHED_RULE_TIME_MINUTE_SPAN = 5;
 
 /**
- * demo
+ * demo rules 
  */
 
 export const DEMO_RULE: Rule = {
@@ -135,6 +144,10 @@ export const EMPTY_GROUP: Group = {
   rules: [],
 };
 
+
+/**
+ * rule schemas
+ */
 const definitions = {
   Rule: {
     type: "object",

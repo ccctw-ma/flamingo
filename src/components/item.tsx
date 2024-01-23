@@ -1,10 +1,6 @@
 import { Checkbox, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  DEMO_GROUP,
-  DEMO_RULE,
-  LEFT_TAB_ITEM_HEIGHT,
-} from "../utils/constants";
+import { DEMO_GROUP, DEMO_RULE } from "../utils/constants";
 import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
 import { Group, Rule, TYPE } from "../utils/types";
@@ -15,7 +11,7 @@ import {
   updateGroups,
   updateRules,
 } from "../utils/storage";
-import { useGlobalState } from "../utils/hooks";
+import { useConfig, useGlobalState } from "../utils/hooks";
 
 interface Props {
   item: Group | Rule;
@@ -24,16 +20,9 @@ interface Props {
 
 export default function Item(props: Props) {
   const { item: current, type: curType } = props;
-  const {
-    type,
-    selected,
-    setType,
-    setSelected,
-    groups,
-    rules,
-    refresh,
-    saveEdit
-  } = useGlobalState();
+  const { type, selected, setType, setSelected, groups, rules, refresh, saveEdit } =
+    useGlobalState();
+  const { LEFT_TAB_ITEM_HEIGHT } = useConfig();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState(current.name);
@@ -43,16 +32,10 @@ export default function Item(props: Props) {
     await saveEdit();
     if (curType === TYPE.Group) {
       await deleteGroup(item as Group);
-      await setLocalSelected(
-        curType,
-        groups.find((g) => g.id === DEMO_GROUP.id)!
-      );
+      await setLocalSelected(curType, groups.find((g) => g.id === DEMO_GROUP.id)!);
     } else {
       await deleteRule(item as Rule);
-      await setLocalSelected(
-        curType,
-        rules.find((r) => r.id === DEMO_RULE.id)!
-      );
+      await setLocalSelected(curType, rules.find((r) => r.id === DEMO_RULE.id)!);
     }
     refresh();
   };

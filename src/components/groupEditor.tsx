@@ -3,20 +3,16 @@ import { useFlag } from "../utils/store";
 import { Group, Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
 import { generateId, noop } from "../utils";
-import {
-  DeleteOutlined,
-  ExportOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, ExportOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Select, message } from "antd";
-import { DEMO_RULE, RIGHT_HEADER_HEIGHT } from "../utils/constants";
+import { DEMO_RULE } from "../utils/constants";
 import { addRule } from "../utils/storage";
-import { useGlobalState } from "../utils/hooks";
+import { useConfig, useGlobalState } from "../utils/hooks";
 
 export default function GroupEditor() {
-  const { selected, rules, setEdit, setEditType, saveEdit, edit } =
-    useGlobalState();
+  const { selected, rules, setEdit, setEditType, saveEdit, edit } = useGlobalState();
   const { setIsSaved } = useFlag();
+  const { RIGHT_HEADER_HEIGHT } = useConfig();
   const [ruleAddId, setRuleAddId] = useState<number>(DEMO_RULE.id);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -97,11 +93,7 @@ export default function GroupEditor() {
       {contextHolder}
       {(selected as Group).rules.map((rule) => (
         <div className="group w-full flex" key={rule.id}>
-          <CompactEditor
-            rule={rule}
-            onChange={handleGroupChange}
-            handleError={noop}
-          />
+          <CompactEditor rule={rule} onChange={handleGroupChange} handleError={noop} />
           <div className="w-8 mt-4 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
             <ExportOutlined
               style={{ fontSize: "14px", cursor: "pointer" }}

@@ -3,21 +3,8 @@ import ReactDOM from "react-dom";
 import { throttle } from "./utils/index";
 import { StyleProvider } from "@ant-design/cssinjs";
 import "./index.css";
-import {
-  DIVIDER_WIDTH,
-  HOME_HEIGHT,
-  HOME_WIDTH,
-  LEFT_BAR_WIDTH_KEY,
-  LEFT_BAR_WIDTH_MAX_RATIO,
-  LEFT_BAR_WIDTH_MIN_RATIO,
-} from "./utils/constants";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  localGetBySingleKey,
-  localSetBySingleKey,
-  setLocalGroups,
-  setLocalRules,
-} from "./utils/storage";
+import { setLocalGroups, setLocalRules } from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
@@ -25,6 +12,16 @@ import { CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
 import { useConfig, useGlobalState } from "./utils/hooks";
 
 export const Home = () => {
+  const {
+    DIVIDER_WIDTH,
+    HOME_HEIGHT,
+    HOME_WIDTH,
+    LEFT_BAR_WIDTH,
+    LEFT_BAR_WIDTH_MAX_RATIO,
+    LEFT_BAR_WIDTH_MIN_RATIO,
+    initConfig,
+    setConfig,
+  } = useConfig();
   /**
    * Because we don't know if there will be a scrolling axis when
    * executing this code, but we have defined the minimum width,
@@ -32,7 +29,7 @@ export const Home = () => {
    */
   const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
   const { loaded, refresh, saveEdit } = useGlobalState();
-  const { initConfig } = useConfig();
+
   const container = useRef<HTMLDivElement>(null);
   const rightBar = useRef<any>();
   const [leftBarSize, setLeftBarSize] = useState<number>(HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO);
@@ -80,7 +77,8 @@ export const Home = () => {
        * storing data and synchronizing state
        */
       setLeftBarSize(tempLeftBarSize);
-      localSetBySingleKey(LEFT_BAR_WIDTH_KEY, tempLeftBarSize);
+      // localSetBySingleKey(LEFT_BAR_WIDTH_KEY, tempLeftBarSize);
+      setConfig("LEFT_BAR_WIDTH", tempLeftBarSize);
     };
 
     container.current!.addEventListener("mousemove", throttleHandleMouseMove);
@@ -97,10 +95,8 @@ export const Home = () => {
   }
 
   async function initView() {
-    const localVal: number =
-      (await localGetBySingleKey(LEFT_BAR_WIDTH_KEY)) ?? HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO;
-    setLeftBarSize(localVal);
-    rightBar.current!.setContainerWidth(containerWidth - localVal - DIVIDER_WIDTH);
+    setLeftBarSize(LEFT_BAR_WIDTH);
+    rightBar.current!.setContainerWidth(containerWidth - LEFT_BAR_WIDTH - DIVIDER_WIDTH);
   }
 
   /**
@@ -124,6 +120,7 @@ export const Home = () => {
     };
   }, []);
 
+  // TODO! optimize
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {

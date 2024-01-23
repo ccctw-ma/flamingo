@@ -1,11 +1,6 @@
 import { Button, Input, Popover, Tabs, Tooltip } from "antd";
 import * as React from "react";
-import {
-  EMPTY_GROUP,
-  EMPTY_RULE,
-  LEFT_TAB_ACTION_HEIGHT,
-  LEFT_TAB_BAR_HEIGHT,
-} from "../utils/constants";
+import { EMPTY_GROUP, EMPTY_RULE } from "../utils/constants";
 
 import {
   SearchOutlined,
@@ -19,7 +14,7 @@ import { useEffect, useState } from "react";
 import { generateId } from "../utils";
 import { ACTION, STATUS, TYPE } from "../utils/types";
 import { addGroup, addRule } from "../utils/storage";
-import { useGlobalState } from "../utils/hooks";
+import { useConfig, useGlobalState } from "../utils/hooks";
 
 const actionView = {
   [ACTION.Add]: { label: "add", icon: <PlusCircleOutlined /> },
@@ -51,6 +46,7 @@ function generatePlaceHolder(tab: TYPE, action: ACTION): string {
 
 export default function LeftBar() {
   const { type, rules, groups, refresh, saveEdit } = useGlobalState();
+  const { LEFT_TAB_BAR_HEIGHT, LEFT_TAB_ACTION_HEIGHT } = useConfig();
   const [action, setAction] = useState<ACTION>(ACTION.Add);
   const [input, setInput] = useState<string>("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);

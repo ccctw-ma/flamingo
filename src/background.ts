@@ -1,4 +1,4 @@
-import { GROUPS_STORAGE_KEY, RULES_STORAGE_KEY, WORKING_KEY, ruleSchema } from "./utils/constants";
+import { CONFIG_KEYSET, GROUPS_STORAGE_KEY, RULES_STORAGE_KEY } from "./utils/constants";
 import { getLocalGroups, getLocalRules, localGetBySingleKey } from "./utils/storage";
 import { Group, Rule } from "./utils/types";
 
@@ -78,7 +78,7 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    const isWorking = (await await localGetBySingleKey(WORKING_KEY)) ?? true;
+    const isWorking = (await localGetBySingleKey(CONFIG_KEYSET.WORKING)) ?? true;
     const workingRules = isWorking ? newRules : [];
     // console.log("newRules", newRules);
     // console.log("oldRules", oldRules);
@@ -104,16 +104,17 @@ const handleStorageChange = (
   changes: { [key: string]: chrome.storage.StorageChange },
   area: "sync" | "local" | "managed" | "session"
 ) => {
+  console.log(changes);
   const changeKeys = Object.keys(changes);
   if (
     changeKeys.includes(GROUPS_STORAGE_KEY) ||
     changeKeys.includes(RULES_STORAGE_KEY) ||
-    changeKeys.includes(WORKING_KEY)
+    changeKeys.includes(CONFIG_KEYSET.WORKING)
   ) {
     setRules();
   }
-  if (changeKeys.includes(WORKING_KEY)) {
-    const isWorking = changes[WORKING_KEY].newValue;
+  if (changeKeys.includes(CONFIG_KEYSET.WORKING)) {
+    const isWorking = changes[CONFIG_KEYSET.WORKING].newValue;
     chrome.action.setIcon({
       path: isWorking ? "../images/flamingo_red_48.png" : "../images/flamingo_grey_48.png",
     });
@@ -134,10 +135,8 @@ function init() {
   // chrome.webRequest.onBeforeRequest.addListener(detail=> {
   //   console.log(detail);
   // },
-  // { urls: ["<all_urls>"] },)
   setRules();
 
-  
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
 }
 

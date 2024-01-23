@@ -3,11 +3,7 @@ import { useFlag } from "../utils/store";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import RuleEditor from "../components/ruleEditor";
 import { Breadcrumb, Divider, Popover, Table } from "antd";
-import {
-  MATCHED_RULE_CONTENT_WIDTH,
-  MATCHED_RULE_TIME_MINUTE_SPAN,
-  RIGHT_HEADER_HEIGHT,
-} from "../utils/constants";
+
 import {
   ArrowsAltOutlined,
   FundOutlined,
@@ -22,7 +18,7 @@ import { padZero } from "../utils";
 
 const RightBar = forwardRef((props: { width: number }, ref) => {
   const { type, selected, saveEdit, setEdit, setEditType } = useGlobalState();
-  const { isDetail } = useConfig();
+  const { DETAIL } = useConfig();
   const [containerWidth, setContainerWidth] = useState<number>(props.width);
 
   useImperativeHandle(ref, () => ({
@@ -39,13 +35,13 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
 
   useEffect(() => {
     saveEdit();
-  }, [isDetail]);
+  }, [DETAIL]);
 
   return (
     <div className="w-full h-full overflow-hidden">
       <ActionBar />
       <Divider style={{ marginTop: 0, marginBottom: 0 }} />
-      {isDetail ? (
+      {DETAIL ? (
         <DetailEditor width={containerWidth} />
       ) : type === TYPE.Group ? (
         <GroupEditor />
@@ -58,7 +54,14 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
 
 const ActionBar = () => {
   const { type, selected, saveEdit, groups, rules } = useGlobalState();
-  const { isDetail, setIsDetail, isWorking, setIsWorking } = useConfig();
+  const {
+    DETAIL,
+    WORKING,
+    MATCHED_RULE_CONTENT_WIDTH,
+    RIGHT_HEADER_HEIGHT,
+    MATCHED_RULE_TIME_MINUTE_SPAN,
+    setConfig,
+  } = useConfig();
   const { isSaved } = useFlag();
   const [rulesMatchedInfo, setRulesMatchedInfo] = useState<
     chrome.declarativeNetRequest.MatchedRuleInfo[]
@@ -163,24 +166,24 @@ const ActionBar = () => {
           style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer", color: "#1890ff" }}
         />
       </Popover>
-      {isDetail ? (
+      {DETAIL ? (
         <ArrowsAltOutlined
           style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
           title="Detail Mode"
-          onClick={() => setIsDetail(false)}
+          onClick={() => setConfig("DETAIL", false)}
         />
       ) : (
         <ShrinkOutlined
           style={{ marginRight: "16px", fontSize: "16px", cursor: "pointer" }}
           title="Compact Mode"
-          onClick={() => setIsDetail(true)}
+          onClick={() => setConfig("DETAIL", true)}
         />
       )}
       <PoweroffOutlined
         className="transition-all"
-        style={{ color: `${isWorking ? "red" : ""}`, fontSize: "16px" }}
-        title={`${isWorking ? "Off" : "On"}`}
-        onClick={() => setIsWorking(isWorking ? false : true)}
+        style={{ color: `${WORKING ? "red" : ""}`, fontSize: "16px" }}
+        title={`${WORKING ? "Off" : "On"}`}
+        onClick={() => setConfig("WORKING", WORKING ? false : true)}
       />
     </div>
   );

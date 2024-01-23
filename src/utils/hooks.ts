@@ -3,15 +3,14 @@ import {
   getLocalGroups,
   getLocalRules,
   getLocalSelected,
-  localGetBySingleKey,
-  localSetBySingleKey,
+  localGet,
   updateGroups,
   updateRules,
 } from "./storage";
 import { useGroup, useRule, useSelected, useFlag, useConfigStore } from "./store";
-import { Group, Rule, TYPE } from "./types";
+import { Group, Rule, TYPE, configKeyType } from "./types";
 import { message } from "antd";
-import { DETAIL_KEY, WORKING_KEY } from "./constants";
+import { CONFIG_OBJECT } from "./constants";
 
 export function useGlobalState() {
   const { groups, setGroups } = useGroup();
@@ -93,33 +92,18 @@ export const useChange = () => {
 };
 
 export const useConfig = () => {
-  const {
-    isDetail,
-    setIsDetail: setDetail,
-    isWorking,
-    setIsWorking: setWorking,
-  } = useConfigStore();
-  const setIsDetail = (val: boolean) => {
-    localSetBySingleKey(DETAIL_KEY, val);
-    setDetail(val);
-  };
-  const setIsWorking = (val: boolean) => {
-    localSetBySingleKey(WORKING_KEY, val);
-    setWorking(val);
-  };
-
+  const configStore = useConfigStore();
+  const setConfig = configStore.setConfig;
   const initConfig = async () => {
-    const isDetailLocal = (await localGetBySingleKey(DETAIL_KEY)) ?? false;
-    const isWorkingLocal = (await localGetBySingleKey(WORKING_KEY)) ?? true;
-    setDetail(isDetailLocal);
-    setWorking(isWorkingLocal);
+    const configKeys = Object.keys(CONFIG_OBJECT);
+    const res = await localGet(configKeys);
+    for (const [key, val] of Object.entries(res)) {
+      setConfig(key as configKeyType, val);
+    }
   };
 
   return {
-    isDetail,
-    setIsDetail,
-    isWorking,
-    setIsWorking,
+    ...configStore,
     initConfig,
   };
 };
