@@ -1,4 +1,5 @@
 import {
+  CROS_RULE,
   DEMO_GROUP,
   DEMO_RULE,
   GROUPS_STORAGE_KEY,
@@ -88,7 +89,7 @@ export async function deleteGroup(group: Group) {
 export async function getLocalRules() {
   let localRules = (await localGet(RULES_STORAGE_KEY))[RULES_STORAGE_KEY] || [];
   if (localRules.length === 0) {
-    localRules = [DEMO_RULE];
+    localRules = [DEMO_RULE, CROS_RULE];
   }
   return localRules;
 }

@@ -1,6 +1,6 @@
 import { Checkbox, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
-import { DEMO_GROUP, DEMO_RULE } from "../utils/constants";
+import { CROS_RULE, DEMO_GROUP, DEMO_RULE } from "../utils/constants";
 import { EditOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
 import Input from "antd/es/input/Input";
 import { Group, Rule, TYPE } from "../utils/types";
@@ -51,7 +51,7 @@ export default function Item(props: Props) {
   };
 
   const isDemo = (item: Group | Rule) => {
-    return item.id === DEMO_GROUP.id || item.id === DEMO_RULE.id;
+    return item.id === DEMO_GROUP.id || item.id === DEMO_RULE.id || item.id === CROS_RULE.id;
   };
 
   useEffect(() => {

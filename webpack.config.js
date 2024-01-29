@@ -79,9 +79,8 @@ module.exports = wrapConfig({
     new CopyPlugin({
       patterns: [
         { from: "images", to: "../images" },
-        // { from: "lib", to: "lib" },
         { from: "manifest.json", to: "../" },
-        // { from: "rules.json", to: "../" }
+        // { from: "lib", to: "lib" },
       ]
     }),
     new MonacoWebpackPlugin({

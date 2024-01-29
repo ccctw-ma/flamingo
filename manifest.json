@@ -16,12 +16,11 @@
     "permissions": [
         "webRequest",
         "storage",
-        "webRequestBlocking",
         "browsingData",
+        "tabs",
         "declarativeNetRequest",
         "declarativeNetRequestWithHostAccess",
-        "declarativeNetRequestFeedback",
-        "<all_urls>"
+        "declarativeNetRequestFeedback"
     ],
     "host_permissions": [
         "https://*/*",

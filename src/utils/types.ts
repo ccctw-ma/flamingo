@@ -91,6 +91,8 @@ export type SelecedStore = {
 export type FalgStore = {
   isSaved: boolean;
   setIsSaved: (val: boolean) => void;
+  loaded: boolean;
+  setIsLoaded: (val: boolean) => void;
 };
 
 export type configType = typeof CONFIG_OBJECT;

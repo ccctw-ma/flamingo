@@ -17,8 +17,7 @@ export function useGlobalState() {
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
   const { edit, editType, setEdit, setEditType, hasError, setHasError } = useSelected();
-  const [loaded, setIsLoaded] = useState(false);
-  const { isSaved, setIsSaved } = useFlag();
+  const { isSaved, setIsSaved, loaded, setIsLoaded } = useFlag();
   const refresh = async () => {
     const localGroups: Group[] = await getLocalGroups();
     const localRules: Rule[] = await getLocalRules();

@@ -80,8 +80,6 @@ async function setRules() {
     const oldRules = await getCurrentDynamicRules();
     const isWorking = (await localGetBySingleKey(CONFIG_KEYSET.WORKING)) ?? true;
     const workingRules = isWorking ? newRules : [];
-    // console.log("newRules", newRules);
-    // console.log("oldRules", oldRules);
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: workingRules,
@@ -131,13 +129,8 @@ function init() {
   }
   chrome.storage.onChanged.addListener(handleStorageChange);
   chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(handleRuleMatched);
-
-  // chrome.webRequest.onBeforeRequest.addListener(detail=> {
-  //   console.log(detail);
-  // },
-  setRules();
-
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
+  setRules();
 }
 
 init();

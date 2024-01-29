@@ -38,12 +38,12 @@ export const CONFIG_OBJECT = {
   RIGHT_HEADER_HEIGHT: 40,
   RULE_CONTAINER_HEIGHT: 200,
 
-  MATCHED_RULE_CONTENT_WIDTH: 300,
   MATCHED_RULE_TIME_MINUTE_SPAN: 5,
 
   // flag
   DETAIL: false,
   WORKING: true,
+  MATCH: false,
 };
 
 export const CONFIG_KEYSET = Object.keys(CONFIG_OBJECT).reduce((pre, cur) => {
@@ -94,7 +94,7 @@ export const CROS_RULE: Rule = {
   name: "cros",
   create: Date.now(),
   update: Date.now(),
-  enable: true,
+  enable: false,
   action: {
     responseHeaders: [
       {
