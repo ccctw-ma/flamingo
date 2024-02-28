@@ -1,12 +1,9 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const CopyPlugin = require("copy-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { HotModuleReplacementPlugin, ProgressPlugin } = require("webpack");
-const { webpack } = require("webpack");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const smp = new SpeedMeasurePlugin();
 const pathResolve = p => path.resolve(__dirname, p);

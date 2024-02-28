@@ -8,7 +8,7 @@ import { setLocalGroups, setLocalRules } from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 import { FloatButton } from "antd";
-import { CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
+import { ClearOutlined, CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
 import { useConfig, useGlobalState } from "./utils/hooks";
 
 export const Home = () => {
@@ -176,7 +176,7 @@ export const Home = () => {
           onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })}
         />
         <FloatButton
-          icon={<SettingOutlined title="open setting page" />}
+          icon={<ClearOutlined title="clear all groups and rules" />}
           onClick={() => {
             /**just for clean localstorage */
             setLocalRules([]);

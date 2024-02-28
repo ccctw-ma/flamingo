@@ -14,9 +14,7 @@
         "default_popup": "./src/index.html"
     },
     "permissions": [
-        "webRequest",
         "storage",
-        "browsingData",
         "tabs",
         "declarativeNetRequest",
         "declarativeNetRequestWithHostAccess",
