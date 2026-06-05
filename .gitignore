@@ -3,6 +3,6 @@ node_modules
 *.log
 .DS_Store
 coverage
-.env%
+.env
 playwright-report
 test-results
