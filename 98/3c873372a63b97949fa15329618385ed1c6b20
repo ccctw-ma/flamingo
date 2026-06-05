@@ -1,0 +1,125 @@
+.github/workflows/deploy.yml
+  6574eb1504d542eb 26-32 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a22514d05cb1433dde469a1","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[26,32]}]}]}
+.github/workflows/release.yml
+  6574eb1504d542eb 25-31 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a22514d05cb1433dde469a1","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[25,31]}]}]}
+.github/workflows/ci.yml
+  6574eb1504d542eb 23-29 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a22514d05cb1433dde469a1","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[23,29]}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "983c873372a63b97949fa15329618385ed1c6b20",
+  "prompts": {
+    "6574eb1504d542eb": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a216b4c05cb1433dde457a8",
+        "model": "gpt-5.4__dev"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>",
+      "messages": [],
+      "total_additions": 21,
+      "total_deletions": 3,
+      "accepted_lines": 322,
+      "overriden_lines": 0
+    }
+  },
+  "attestation_metadata": {
+    ".github/workflows/ci.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              23,
+              29
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a22514d05cb1433dde469a1",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  23,
+                  29
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".github/workflows/deploy.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              26,
+              32
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a22514d05cb1433dde469a1",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  26,
+                  32
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".github/workflows/release.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              25,
+              31
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a22514d05cb1433dde469a1",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  25,
+                  31
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "6574eb1504d542eb": {
+      "tool": "trae",
+      "conversation_id": "6a216b4c05cb1433dde457a8",
+      "session_id": "6a216b4c05cb1433dde457a8",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
