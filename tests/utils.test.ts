@@ -10,7 +10,7 @@ import {
   str2obj,
   throttle,
 } from "../src/utils";
-import { TYPE, type Group, type Rule } from "../src/utils/types";
+import type { Rule } from "../src/utils/types";
 
 describe("padZero", () => {
   test("pads single digit numbers", () => {
@@ -111,26 +111,11 @@ describe("filterEditContent", () => {
   };
 
   test("removes meta fields from a rule but keeps original intact", () => {
-    const filtered = filterEditContent(baseRule, TYPE.Rule) as Record<string, unknown>;
+    const filtered = filterEditContent(baseRule) as Record<string, unknown>;
     expect(filtered).not.toHaveProperty("id");
     expect(filtered).not.toHaveProperty("name");
     expect(filtered).toHaveProperty("action");
     expect(baseRule.id).toBe(1);
-  });
-
-  test("returns the cleaned rules array for a group", () => {
-    const group: Group = {
-      id: 2,
-      name: "group",
-      enable: true,
-      create: 1,
-      update: 1,
-      rules: [baseRule],
-    };
-    const filtered = filterEditContent(group, TYPE.Group) as Array<Record<string, unknown>>;
-    expect(Array.isArray(filtered)).toBe(true);
-    expect(filtered[0]).not.toHaveProperty("id");
-    expect(filtered[0]).toHaveProperty("condition");
   });
 });
 

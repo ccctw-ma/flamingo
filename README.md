@@ -2,6 +2,10 @@
 
 Flamingo 是一个基于 Manifest V3 的 Chrome 代理 / 网络请求改写扩展，使用 Chrome 的 `declarativeNetRequest` 能力，提供可视化的规则（Rule）与规则组（Group）管理界面，支持重定向、修改请求/响应头、拦截请求，并内置 Monaco JSON 编辑器进行高级编辑。
 
+
+https://chrome.google.com/webstore/devconsole/2c9cd477-df87-4544-84f2-eae6a49ed026
+
+
 ## 功能特性
 
 - **规则与规则组管理**：在左侧栏增删改查规则和规则组，支持启用/禁用。

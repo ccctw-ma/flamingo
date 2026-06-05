@@ -1,23 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
-import { groupSchema, ruleSchema } from "../utils/constants";
+import { ruleSchema } from "../utils/constants";
 import { useChange, useConfig } from "../utils/hooks";
 import Editor, { loader, Monaco } from "@monaco-editor/react";
-import { Group, Rule, TYPE } from "../utils/types";
+import { Rule } from "../utils/types";
 import { filterEditContent, obj2str } from "../utils";
 import { monaco } from "../utils/monaco";
 loader.config({ monaco });
 
 interface Props {
   width: number;
-  type: TYPE;
   onChange: (value: string) => void;
-  selected: Group | Rule;
+  selected: Rule;
   onError: (error: editor.IMarker[]) => void;
 }
 
 export default function MonacoEditor(props: Props) {
-  const { width, type, onChange, selected, onError } = props;
+  const { width, onChange, selected, onError } = props;
   const { RIGHT_HEADER_HEIGHT } = useConfig();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
@@ -36,27 +35,25 @@ export default function MonacoEditor(props: Props) {
     loader
       .init()
       .then((monaco) => {
-        monaco.languages.json.jsonDefaults.setDiagnosticsOptions(
-          type === TYPE.Rule ? ruleSchema : groupSchema
-        );
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions(ruleSchema);
       })
       .catch((err) => {
         console.warn("Error setting json schema");
         console.error(err);
       });
-  }, [type]);
+  }, []);
 
-    useEffect(() => {
-    const filteredStr = obj2str(filterEditContent(selected, type));
+  useEffect(() => {
+    const filteredStr = obj2str(filterEditContent(selected));
     setEditContent(filteredStr);
-    }, [selected, type]);
+  }, [selected]);
 
   return (
     <Editor
-      height={`calc(100% - ${RIGHT_HEADER_HEIGHT + 1}px)`}
+      height={`calc(100% - ${RIGHT_HEADER_HEIGHT}px)`}
       width={width}
       language="json"
-      theme={"vs-light"}
+      theme="vs"
       value={editContent}
       /**
        * The onChange event here is an asynchronous event,
@@ -71,9 +68,21 @@ export default function MonacoEditor(props: Props) {
       }}
       onValidate={(makers) => makers.length > 0 && onError(makers)}
       options={{
+        automaticLayout: true,
+        fontSize: 12,
+        lineHeight: 18,
+        fontFamily:
+          'ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+        padding: {
+          top: 16,
+          bottom: 16,
+        },
         minimap: {
           enabled: false,
         },
+        lineNumbersMinChars: 3,
+        roundedSelection: false,
+        renderLineHighlight: "line",
         scrollBeyondLastLine: false,
       }}
     />

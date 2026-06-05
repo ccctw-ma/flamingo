@@ -1,58 +1,43 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import {
-  getLocalGroups,
-  getLocalRules,
-  getLocalSelected,
-  localGet,
-  updateGroups,
-  updateRules,
-} from "./storage";
-import { useGroup, useRule, useSelected, useFlag, useConfigStore } from "./store";
-import { Group, Rule, TYPE, configKeyType } from "./types";
+import { getConfigValues, getRules, getSelected, switchStorageMode, updateRules } from "./storage";
+import { useRule, useSelected, useFlag, useConfigStore } from "./store";
+import { Rule, TYPE, configKeyType } from "./types";
 import { message } from "antd";
 import { CONFIG_OBJECT } from "./constants";
 
 export function useGlobalState() {
-  const { groups, setGroups } = useGroup();
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
   const { edit, editType, setEdit, setEditType, hasError, setHasError } = useSelected();
   const { isSaved, setIsSaved, loaded, setIsLoaded } = useFlag();
   const refresh = async () => {
-    const localGroups: Group[] = await getLocalGroups();
-    const localRules: Rule[] = await getLocalRules();
-    const [localSelectedType, localSelected] = await getLocalSelected();
-    setGroups(localGroups);
+    const localRules: Rule[] = await getRules();
+    const [localSelectedType, localSelected] = await getSelected();
     setRules(localRules);
-    /**
-     * It is necessary to keep the selected rule or group
-     * synchronized with the database storage
-     */
     const currentSelected =
-      localSelectedType === TYPE.Group
-        ? localGroups.find((g) => g.id === localSelected.id)!
-        : localRules.find((r) => r.id === localSelected.id)!;
-    setSelected(currentSelected || localGroups[0]);
-    setType(currentSelected ? localSelectedType : TYPE.Group);
+      localSelectedType === TYPE.Rule && localSelected
+        ? localRules.find((r) => r.id === localSelected.id)
+        : undefined;
+    const fallbackRule = currentSelected || localRules[0] || null;
+    setSelected(fallbackRule);
+    setType(TYPE.Rule);
     if (!loaded) setIsLoaded(true);
-    return { localGroups, localRules, currentSelected };
+    return { localRules, currentSelected: fallbackRule };
   };
-  const saveEdit = async (newEdit?: Rule | Group) => {
+  const saveEdit = async (newEdit?: Rule) => {
     if (isSaved && !newEdit) {
       return;
     }
     if (hasError) {
       setHasError(false);
-      message.error(
-        "The edited rule or group has errors and has been restored to a state without errors"
-      );
+      message.error("The edited rule has errors and has been restored to a state without errors");
     }
     const updateEdit = newEdit || edit;
-    if (editType === TYPE.Group) {
-      await updateGroups(updateEdit as Group);
-    } else {
-      await updateRules(updateEdit as Rule);
+    if (!updateEdit) {
+      setIsSaved(true);
+      return;
     }
+    await updateRules(updateEdit);
     setIsSaved(true);
     setEdit(updateEdit);
     return await refresh();
@@ -61,11 +46,9 @@ export function useGlobalState() {
     loaded,
     type,
     selected,
-    groups,
     rules,
     edit,
     editType,
-    setGroups,
     setRules,
     setSelected,
     setType,
@@ -94,14 +77,15 @@ export const useConfig = () => {
   const setConfig = configStore.setConfig;
   const initConfig = async () => {
     const configKeys = Object.keys(CONFIG_OBJECT);
-    const res = await localGet(configKeys);
+    const res = await getConfigValues(configKeys as configKeyType[]);
     for (const [key, val] of Object.entries(res)) {
-      setConfig(key as configKeyType, val);
+      setConfig(key as configKeyType, val as (typeof CONFIG_OBJECT)[configKeyType]);
     }
   };
 
   return {
     ...configStore,
     initConfig,
+    switchStorageMode,
   };
 };

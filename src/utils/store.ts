@@ -1,39 +1,62 @@
 import { create } from "zustand";
-import {
-  ConfigStore,
-  FalgStore,
-  Group,
-  GroupStore,
-  Rule,
-  RuleStore,
-  SelecedStore,
-  TYPE,
-} from "./types";
-import { CONFIG_OBJECT, DEMO_GROUP, EMPTY_GROUP, EMPTY_RULE } from "./constants";
-import { localSetBySingleKey } from "./storage";
+import { ConfigStore, FalgStore, Rule, RuleStore, SelecedStore, TYPE } from "./types";
+import { CONFIG_OBJECT } from "./constants";
+import { setConfigValue } from "./storage";
 
-export const useGroup = create<GroupStore>()((set) => ({
-  groups: [],
-  selectedGroup: EMPTY_GROUP,
-  setGroups: (val: Array<Group>) => set({ groups: val }),
-  setSelectedGroup: (val: Group) => set({ selectedGroup: val }),
-}));
+const POPUP_WIDTH_STORAGE_KEY = "flamingo:popup-width";
+const POPUP_HEIGHT_STORAGE_KEY = "flamingo:popup-height";
+
+function getBootstrapDimension(
+  key: typeof POPUP_WIDTH_STORAGE_KEY | typeof POPUP_HEIGHT_STORAGE_KEY,
+  fallback: number,
+  min: number,
+  max: number
+) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  const value = Number(window.localStorage.getItem(key));
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+function getBootstrapConfig() {
+  return {
+    ...CONFIG_OBJECT,
+    HOME_WIDTH: getBootstrapDimension(
+      POPUP_WIDTH_STORAGE_KEY,
+      CONFIG_OBJECT.HOME_WIDTH,
+      640,
+      800
+    ),
+    HOME_HEIGHT: getBootstrapDimension(
+      POPUP_HEIGHT_STORAGE_KEY,
+      CONFIG_OBJECT.HOME_HEIGHT,
+      420,
+      600
+    ),
+  };
+}
 
 export const useRule = create<RuleStore>()((set) => ({
   rules: [],
-  selectedRule: EMPTY_RULE,
+  selectedRule: null,
   setRules: (val: Array<Rule>) => set({ rules: val }),
-  setSelectedRule: (val: Rule) => set({ selectedRule: val }),
+  setSelectedRule: (val: Rule | null) => set({ selectedRule: val }),
 }));
 
 export const useSelected = create<SelecedStore>()((set) => ({
-  type: TYPE.Group,
+  type: TYPE.Rule,
   setType: (val: TYPE) => set({ type: val }),
-  selected: DEMO_GROUP,
-  setSelected: (val: Rule | Group) => set({ selected: val }),
-  edit: DEMO_GROUP,
-  setEdit: (val: Rule | Group) => set({ edit: val }),
-  editType: TYPE.Group,
+  selected: null,
+  setSelected: (val: Rule | null) => set({ selected: val }),
+  edit: null,
+  setEdit: (val: Rule | null) => set({ edit: val }),
+  editType: TYPE.Rule,
   setEditType: (val: TYPE) => set({ editType: val }),
   hasError: false,
   setHasError: (val: boolean) => set({ hasError: val }),
@@ -47,10 +70,10 @@ export const useFlag = create<FalgStore>()((set) => ({
 }));
 
 export const useConfigStore = create<ConfigStore>()((set) => ({
-  ...CONFIG_OBJECT,
+  ...getBootstrapConfig(),
   setConfig: (key, val) =>
-      set(() => {
-      localSetBySingleKey(key, val);
+    set(() => {
+      void setConfigValue(key, val);
       return { [key]: val };
     }),
 }));

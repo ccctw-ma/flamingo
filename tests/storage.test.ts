@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 
 // In-memory chrome.storage.local mock installed before importing the module under test.
-const store = new Map<string, unknown>();
+const localStore = new Map<string, unknown>();
+const syncStore = new Map<string, unknown>();
 
-function readKeys(keys: string | string[] | Record<string, unknown>) {
+function readKeys(
+  store: Map<string, unknown>,
+  keys: string | string[] | Record<string, unknown>
+) {
   const result: Record<string, unknown> = {};
   if (typeof keys === "string") {
     if (store.has(keys)) result[keys] = store.get(keys);
@@ -37,11 +41,21 @@ function readKeys(keys: string | string[] | Record<string, unknown>) {
   storage: {
     local: {
       async get(keys: string | string[] | Record<string, unknown>) {
-        return readKeys(keys);
+        return readKeys(localStore, keys);
       },
       async set(obj: Record<string, unknown>) {
         for (const [key, value] of Object.entries(obj)) {
-          store.set(key, value);
+          localStore.set(key, value);
+        }
+      },
+    },
+    sync: {
+      async get(keys: string | string[] | Record<string, unknown>) {
+        return readKeys(syncStore, keys);
+      },
+      async set(obj: Record<string, unknown>) {
+        for (const [key, value] of Object.entries(obj)) {
+          syncStore.set(key, value);
         }
       },
     },
@@ -49,15 +63,12 @@ function readKeys(keys: string | string[] | Record<string, unknown>) {
 };
 
 const {
-  GROUPS_STORAGE_KEY,
   RULES_STORAGE_KEY,
   SELECTED_KEY,
-  DEMO_GROUP,
-  DEMO_RULE,
 } = await import("../src/utils/constants");
 const storage = await import("../src/utils/storage");
 const { TYPE } = await import("../src/utils/types");
-import type { Group, Rule } from "../src/utils/types";
+import type { Rule } from "../src/utils/types";
 
 function makeRule(id: number, name: string): Rule {
   return {
@@ -71,12 +82,9 @@ function makeRule(id: number, name: string): Rule {
   };
 }
 
-function makeGroup(id: number, name: string): Group {
-  return { id, name, enable: false, create: 1, update: 1, rules: [] };
-}
-
 beforeEach(() => {
-  store.clear();
+  localStore.clear();
+  syncStore.clear();
 });
 
 describe("local key/value helpers", () => {
@@ -86,45 +94,10 @@ describe("local key/value helpers", () => {
   });
 });
 
-describe("groups CRUD", () => {
-  test("returns the demo group when storage is empty", async () => {
-    const groups = await storage.getLocalGroups();
-    expect(groups).toEqual([DEMO_GROUP]);
-  });
-
-  test("addGroup appends to existing groups", async () => {
-    await storage.setLocalGroups([makeGroup(1, "a")]);
-    await storage.addGroup(makeGroup(2, "b"));
-    const groups = await storage.getLocalGroups();
-    expect(groups.map((g: Group) => g.id)).toEqual([1, 2]);
-  });
-
-  test("updateGroups overrides only the matching group", async () => {
-    await storage.setLocalGroups([makeGroup(1, "a"), makeGroup(2, "b")]);
-    await storage.updateGroups({ ...makeGroup(2, "b"), name: "renamed" });
-    const groups = await storage.getLocalGroups();
-    expect(groups.find((g: Group) => g.id === 2)?.name).toBe("renamed");
-    expect(groups.find((g: Group) => g.id === 1)?.name).toBe("a");
-  });
-
-  test("deleteGroup removes by id", async () => {
-    await storage.setLocalGroups([makeGroup(1, "a"), makeGroup(2, "b")]);
-    await storage.deleteGroup(makeGroup(1, "a"));
-    const groups = await storage.getLocalGroups();
-    expect(groups.map((g: Group) => g.id)).toEqual([2]);
-  });
-
-  test("persists under the expected storage key", async () => {
-    await storage.setLocalGroups([makeGroup(9, "x")]);
-    expect(store.has(GROUPS_STORAGE_KEY)).toBe(true);
-  });
-});
-
 describe("rules CRUD", () => {
-  test("returns demo rules when storage is empty", async () => {
+  test("returns an empty list when storage is empty", async () => {
     const rules = await storage.getLocalRules();
-    expect(rules[0].id).toBe(DEMO_RULE.id);
-    expect(rules.length).toBeGreaterThanOrEqual(1);
+    expect(rules).toEqual([]);
   });
 
   test("addRule appends and updateRules overrides", async () => {
@@ -145,15 +118,15 @@ describe("rules CRUD", () => {
 
   test("persists under the expected storage key", async () => {
     await storage.setLocalRules([makeRule(3, "c")]);
-    expect(store.has(RULES_STORAGE_KEY)).toBe(true);
+    expect(localStore.has(RULES_STORAGE_KEY)).toBe(true);
   });
 });
 
 describe("selected state", () => {
-  test("defaults to the demo group selection", async () => {
+  test("defaults to no selection", async () => {
     const [type, selected] = await storage.getLocalSelected();
-    expect(type).toBe(TYPE.Group);
-    expect(selected).toEqual(DEMO_GROUP);
+    expect(type).toBe(TYPE.Rule);
+    expect(selected).toBeNull();
   });
 
   test("round-trips a selection", async () => {
@@ -162,6 +135,29 @@ describe("selected state", () => {
     const [type, selected] = await storage.getLocalSelected();
     expect(type).toBe(TYPE.Rule);
     expect(selected).toEqual(rule);
-    expect(store.has(SELECTED_KEY)).toBe(true);
+    expect(localStore.has(SELECTED_KEY)).toBe(true);
+  });
+});
+
+describe("storage mode", () => {
+  test("defaults to local mode", async () => {
+    expect(await storage.getStorageMode()).toBe("local");
+  });
+
+  test("switchStorageMode copies current data into sync storage", async () => {
+    const rule = makeRule(21, "sync-rule");
+
+    await storage.setLocalRules([rule]);
+    await storage.setLocalSelected(TYPE.Rule, rule);
+    await storage.setConfigValue("WORKING", false);
+    await storage.setConfigValue("LOCALE", "en");
+
+    await storage.switchStorageMode("sync");
+
+    expect(await storage.getStorageMode()).toBe("sync");
+    expect(syncStore.get(RULES_STORAGE_KEY)).toEqual([rule]);
+    expect(syncStore.get(SELECTED_KEY)).toEqual([TYPE.Rule, rule]);
+    expect(syncStore.get("WORKING")).toBe(false);
+    expect(syncStore.get("LOCALE")).toBe("en");
   });
 });

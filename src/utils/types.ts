@@ -12,7 +12,6 @@ export enum ACTION {
 }
 
 export enum TYPE {
-  Group = "Group",
   Rule = "Rule",
 }
 
@@ -39,49 +38,20 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
   enable: boolean;
 }
 
-export interface Group {
-  /** An id which uniquely identifies a group
-   *  its creation timestamp can be used as its id
-   */
-  id: number;
-
-  /** The name of this group*/
-  name: string;
-
-  /** Determin whether this group is working*/
-  enable: boolean;
-
-  /** The timestamp when this group is created */
-  create: number;
-
-  /** The timestamp when this group is modified */
-  update: number;
-
-  /** All of rules of this group*/
-  rules: Rule[];
-}
-
-export type GroupStore = {
-  groups: Array<Group>;
-  selectedGroup: Group;
-  setGroups: (val: Array<Group>) => void;
-  setSelectedGroup: (val: Group) => void;
-};
-
 export type RuleStore = {
   rules: Array<Rule>;
-  selectedRule: Rule;
+  selectedRule: Rule | null;
   setRules: (val: Array<Rule>) => void;
-  setSelectedRule: (val: Rule) => void;
+  setSelectedRule: (val: Rule | null) => void;
 };
 
 export type SelecedStore = {
   type: TYPE;
-  selected: Rule | Group;
-  setSelected: (val: Rule | Group) => void;
+  selected: Rule | null;
+  setSelected: (val: Rule | null) => void;
   setType: (val: TYPE) => void;
-  edit: Rule | Group;
-  setEdit: (val: Rule | Group) => void;
+  edit: Rule | null;
+  setEdit: (val: Rule | null) => void;
   editType: TYPE;
   setEditType: (val: TYPE) => void;
   hasError: boolean;

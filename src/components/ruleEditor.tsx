@@ -1,4 +1,3 @@
-import React from "react";
 import { useFlag } from "../utils/store";
 import { Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
@@ -15,9 +14,13 @@ export default function RuleEditor() {
     setEditType(TYPE.Rule);
   };
 
+  if (!selected) {
+    return null;
+  }
+
   return (
     <CompactEditor
-      rule={selected as Rule}
+      rule={selected}
       onChange={handleRuleChange}
       handleError={noop}
     />

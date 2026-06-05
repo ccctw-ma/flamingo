@@ -1,11 +1,13 @@
 import { Table } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../utils/i18n";
 import { padZero } from "../utils";
 import { useConfig, useGlobalState } from "../utils/hooks";
 
 export default function MatchedRules() {
-  const { rules, groups } = useGlobalState();
-  const { MATCHED_RULE_TIME_MINUTE_SPAN, RIGHT_HEADER_HEIGHT } = useConfig();
+  const { rules } = useGlobalState();
+  const { MATCHED_RULE_TIME_MINUTE_SPAN } = useConfig();
+  const { t } = useI18n();
   const [rulesMatchedInfo, setRulesMatchedInfo] = useState<
     chrome.declarativeNetRequest.MatchedRuleInfo[]
   >([]);
@@ -14,9 +16,8 @@ export default function MatchedRules() {
   const id2nameMap = useMemo(() => {
     const map: Record<number, string> = {};
     rules.forEach((rule) => (map[rule.id] = rule.name));
-    groups.forEach((group) => group.rules.forEach((rule) => (map[rule.id] = group.name)));
     return map;
-  }, [rules, groups]);
+  }, [rules]);
 
   const tabId2InfoMap = tabs.reduce<Record<number, chrome.tabs.Tab>>((pre, cur) => {
     pre[cur.id ?? chrome.tabs.TAB_ID_NONE] = cur;
@@ -50,42 +51,50 @@ export default function MatchedRules() {
       const details = await chrome.declarativeNetRequest.getMatchedRules({
         minTimeStamp: Date.now() - MATCHED_RULE_TIME_MINUTE_SPAN * 60 * 1000,
       });
-      console.log(allTabs, details);
       setTabs(allTabs);
       setRulesMatchedInfo(details.rulesMatchedInfo || []);
     })();
-  }, []);
+  }, [MATCHED_RULE_TIME_MINUTE_SPAN]);
   return (
-    <div className="w-full flex justify-center items-center">
-      <Table
-        style={{ height: `calc(100vh - ${RIGHT_HEADER_HEIGHT + 1}px)` }}
-        className="w-full h-full"
+    <div className="h-full w-full">
+      <div className="data-panel">
+        <Table
+          className="w-full"
+          scroll={{ y: "calc(100vh - 128px)" }}
+          dataSource={ruleMatchedInfoContent}
+          pagination={false}
+          size="small"
+          bordered
+          title={() => (
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700">{t("recentMatchedRules")}</span>
+              <span className="text-slate-400">
+                {t("itemsCount", { count: ruleMatchedInfoContent.length })}
+              </span>
+            </div>
+          )}
         columns={[
           {
-            title: "tab",
+            title: t("tab"),
             dataIndex: "tabTitle",
           },
           {
-            title: "tabUrl",
+            title: t("tabUrl"),
             dataIndex: "tabUrl",
           },
           {
-            title: "rule",
+            title: t("rule"),
             dataIndex: "name",
           },
           {
-            title: "time",
+            title: t("time"),
             dataIndex: "formateTime",
             defaultSortOrder: "descend",
             sorter: (a, b) => a.timeStamp - b.timeStamp,
           },
         ]}
-        scroll={{ y: `calc(100vh - ${RIGHT_HEADER_HEIGHT * 2 + 1}px)` }}
-        dataSource={ruleMatchedInfoContent}
-        pagination={false}
-        size="small"
-        bordered
-      />
+        />
+      </div>
     </div>
   );
 }

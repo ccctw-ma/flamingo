@@ -1,5 +1,5 @@
 import type { languages } from "monaco-editor/esm/vs/editor/editor.api";
-import { ConfigKeySetType, Group, Rule } from "./types";
+import { ConfigKeySetType, Rule } from "./types";
 
 /**
  * base info constants
@@ -13,7 +13,6 @@ export const GITHUB = "https://github.com/ccctw-ma";
 
 export const ALL_URLS = "<all_urls>";
 
-export const GROUPS_STORAGE_KEY = "groups_storage_key";
 export const RULES_STORAGE_KEY = "rules_storage_key";
 export const SELECTED_KEY = "selected_storage_key";
 
@@ -44,6 +43,8 @@ export const CONFIG_OBJECT = {
   DETAIL: false,
   WORKING: true,
   MATCH: false,
+  LOCALE: "zh-CN",
+  STORAGE_MODE: "local",
 };
 
 export const CONFIG_KEYSET = Object.keys(CONFIG_OBJECT).reduce((pre, cur) => {
@@ -55,25 +56,8 @@ export const CONFIG_KEYSET = Object.keys(CONFIG_OBJECT).reduce((pre, cur) => {
 
 
 /**
- * demo rules 
+ * rule template for creating a new rule
  */
-
-export const DEMO_RULE: Rule = {
-  id: 1,
-  name: "demo-rule",
-  create: Date.now(),
-  update: Date.now(),
-  enable: false,
-  action: {
-    type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-    redirect: {
-      regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
-    },
-  },
-  condition: {
-    regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
-  },
-};
 
 export const EMPTY_RULE: Rule = {
   id: 2,
@@ -88,62 +72,6 @@ export const EMPTY_RULE: Rule = {
     regexFilter: "",
   },
 };
-
-export const CROS_RULE: Rule = {
-  id: 520,
-  name: "cros",
-  create: Date.now(),
-  update: Date.now(),
-  enable: false,
-  action: {
-    responseHeaders: [
-      {
-        header: "access-control-allow-methods",
-        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-        value: "*",
-      },
-      {
-        header: "access-control-allow-credentials",
-        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-        value: "true",
-      },
-      {
-        header: "access-control-allow-origin",
-        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-        value: "*",
-      },
-      {
-        header: "access-control-allow-headers",
-        operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-        value:
-          "Content-Type, access-control-allow-headers, Authorization, X-Requested-With, X-Referer",
-      },
-    ],
-    type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-  },
-  condition: {
-    regexFilter: "http://*",
-  },
-};
-
-export const DEMO_GROUP: Group = {
-  id: 3,
-  name: "demo-group",
-  enable: false,
-  create: Date.now(),
-  update: Date.now(),
-  rules: [],
-};
-
-export const EMPTY_GROUP: Group = {
-  id: 4,
-  name: "",
-  enable: false,
-  create: Date.now(),
-  update: Date.now(),
-  rules: [],
-};
-
 
 /**
  * rule schemas
@@ -466,23 +394,6 @@ const definitions = {
       "other",
     ],
   },
-};
-
-export const groupSchema: languages.json.DiagnosticsOptions = {
-  validate: true,
-  schemas: [
-    {
-      uri: "http://myserver/group-schema.json",
-      fileMatch: ["*"],
-      schema: {
-        type: "array",
-        items: {
-          $ref: "#/definitions/Rule",
-        },
-        definitions: definitions,
-      },
-    },
-  ],
 };
 
 export const ruleSchema: languages.json.DiagnosticsOptions = {

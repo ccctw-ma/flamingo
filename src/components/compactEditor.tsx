@@ -1,8 +1,9 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { Rule } from "../utils/types";
-import { Select, Divider, Input, Col, Row, Button } from "antd";
+import { Select, Divider, Input, Button } from "antd";
 
 import { CloseOutlined } from "@ant-design/icons";
+import { useI18n } from "../utils/i18n";
 import { useChange } from "../utils/hooks";
 
 interface Porps {
@@ -13,120 +14,118 @@ interface Porps {
 
 const Cell: React.FC<{ label: string; children?: ReactNode }> = (props) => {
   return (
-    <Row>
-      <Col span={5} className="text-end">
-        <label className="relative inline-flex items-center max-w-full h-[32px] text-center text-sm">
-          {props.label}:
-        </label>
-      </Col>
-      <Col span={16} offset={1}>
+    <div className="editor-grid">
+      <label className="field-label">{props.label}</label>
+      <div className="min-w-0">
         {props.children}
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 };
 
 const ModifyHeader: React.FC<{
   headerInfos: chrome.declarativeNetRequest.ModifyHeaderInfo[];
-    onChange: (headers: chrome.declarativeNetRequest.ModifyHeaderInfo[]) => void;
+  onChange: (headers: chrome.declarativeNetRequest.ModifyHeaderInfo[]) => void;
 }> = ({ headerInfos, onChange }) => {
   const [headers, setHeaders] = useState(headerInfos);
   const { hasChange, setHasChange, wrapChange } = useChange();
+  const { t } = useI18n();
 
-    useEffect(() => {
-      if (!hasChange) {
-        return;
-      }
-      onChange(headers);
-      setHasChange(false);
-    }, [hasChange, headers, onChange, setHasChange]);
+  useEffect(() => {
+    if (!hasChange) {
+      return;
+    }
+    onChange(headers);
+    setHasChange(false);
+  }, [hasChange, headers, onChange, setHasChange]);
 
-    useEffect(() => {
+  useEffect(() => {
     setHeaders(headerInfos);
   }, [headerInfos]);
 
-    const operationOptions = useMemo(
-      () => [
-        {
-          value: chrome.declarativeNetRequest.HeaderOperation.SET,
-          label: chrome.declarativeNetRequest.HeaderOperation.SET,
-        },
-        {
-          value: chrome.declarativeNetRequest.HeaderOperation.APPEND,
-          label: chrome.declarativeNetRequest.HeaderOperation.APPEND,
-        },
-        {
-          value: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
-          label: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
-        },
-      ],
-      []
-    );
+  const operationOptions = useMemo(
+    () => [
+      {
+        value: chrome.declarativeNetRequest.HeaderOperation.SET,
+        label: t("headerOpSet"),
+      },
+      {
+        value: chrome.declarativeNetRequest.HeaderOperation.APPEND,
+        label: t("headerOpAppend"),
+      },
+      {
+        value: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+        label: t("headerOpRemove"),
+      },
+    ],
+    [t]
+  );
 
   return (
-    <div className="flex flex-col gap-4 justify-between">
+    <div className="flex flex-col gap-3">
       {headers.map((header, idx) => {
+        const isRemove = header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE;
         return (
-            <Row justify="space-between" key={`${header.header}-${idx}`}>
-            <Col span={5}>
+          <div
+            key={`${header.header}-${idx}`}
+            className="grid grid-cols-[88px_minmax(0,1fr)_minmax(0,1fr)_24px] gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2"
+          >
+            <div>
               <Select
-                style={{ width: "100%" }}
-                defaultValue={chrome.declarativeNetRequest.HeaderOperation.SET}
+                className="w-full"
                 value={header.operation}
-                  options={operationOptions}
+                options={operationOptions}
                 onChange={(val) => {
-                    const newHeaders = headers.map((item, index) =>
-                      index === idx ? { ...item, operation: val } : item
-                    );
+                  const newHeaders = headers.map((item, index) =>
+                    index === idx ? { ...item, operation: val } : item
+                  );
                   wrapChange(setHeaders)(newHeaders);
                 }}
               />
-            </Col>
-            <Col
-              span={
-                header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE ? 14 : 7
-              }
-            >
+            </div>
+            <div className={isRemove ? "col-span-2" : ""}>
               <Input
                 placeholder="header"
                 value={header.header}
                 title={header.header}
+                variant="filled"
                 onChange={(e) => {
-                    const newHeaders = headers.map((item, index) =>
-                      index === idx ? { ...item, header: e.target.value } : item
-                    );
+                  const newHeaders = headers.map((item, index) =>
+                    index === idx ? { ...item, header: e.target.value } : item
+                  );
                   wrapChange(setHeaders)(newHeaders);
                 }}
               />
-            </Col>
-            <Col
-              span={
-                header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE ? 0 : 7
-              }
-            >
-              <Input
-                placeholder="value"
-                value={header.value}
-                onChange={(e) => {
+            </div>
+            {!isRemove && (
+              <div>
+                <Input
+                  placeholder="value"
+                  value={header.value}
+                  variant="filled"
+                  onChange={(e) => {
                     const newHeaders = headers.map((item, index) =>
                       index === idx ? { ...item, value: e.target.value } : item
                     );
-                  wrapChange(setHeaders)(newHeaders);
-                }}
-                title={header.value}
-              />
-            </Col>
-            <Col span={1} className="self-center">
-              <CloseOutlined
-                onClick={() => {
-                  const newHeaders = [...headers];
-                  newHeaders.splice(idx, 1);
-                  wrapChange(setHeaders)(newHeaders);
-                }}
-                title="delete this item"
-              />
-            </Col>
-          </Row>
+                    wrapChange(setHeaders)(newHeaders);
+                  }}
+                  title={header.value}
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              className="mt-1 text-slate-400 transition-colors hover:text-red-500"
+              onClick={() => {
+                const newHeaders = [...headers];
+                newHeaders.splice(idx, 1);
+                wrapChange(setHeaders)(newHeaders);
+              }}
+              title={t("deleteThisItem")}
+            >
+              <CloseOutlined />
+            </button>
+          </div>
         );
       })}
       <Button
@@ -142,15 +141,16 @@ const ModifyHeader: React.FC<{
         }}
         block
       >
-        + Add Header Operation Item
+        {t("addHeaderOperation")}
       </Button>
     </div>
   );
 };
 
 function CompactEditor(props: Porps) {
-    const { rule, onChange } = props;
+  const { rule, onChange } = props;
   const { hasChange, setHasChange, wrapChange } = useChange();
+  const { t } = useI18n();
   const [type, setType] = useState(chrome.declarativeNetRequest.RuleActionType.REDIRECT);
   const [regexFilter, setRegexFilter] = useState("");
   const [regexSubstitution, setRegexSubstitution] = useState("");
@@ -162,15 +162,15 @@ function CompactEditor(props: Porps) {
     chrome.declarativeNetRequest.ModifyHeaderInfo[]
   >([]);
 
-    useEffect(() => {
-      if (!hasChange) {
-        return;
-      }
+  useEffect(() => {
+    if (!hasChange) {
+      return;
+    }
     const newRule: Rule = { ...rule };
-      newRule.condition = {
-        ...newRule.condition,
-        regexFilter,
-      };
+    newRule.condition = {
+      ...newRule.condition,
+      regexFilter,
+    };
     newRule.update = Date.now();
     if (type === chrome.declarativeNetRequest.RuleActionType.REDIRECT) {
       newRule.action = {
@@ -193,19 +193,19 @@ function CompactEditor(props: Porps) {
     }
     onChange(newRule);
     setHasChange(false);
-    }, [
-      hasChange,
-      onChange,
-      regexFilter,
-      regexSubstitution,
-      requestHeaders,
-      responseHeaders,
-      rule,
-      setHasChange,
-      type,
-    ]);
+  }, [
+    hasChange,
+    onChange,
+    regexFilter,
+    regexSubstitution,
+    requestHeaders,
+    responseHeaders,
+    rule,
+    setHasChange,
+    type,
+  ]);
 
-    useEffect(() => {
+  useEffect(() => {
     setType(rule?.action?.type);
     setRegexFilter(rule?.condition.regexFilter || "");
     setRegexSubstitution(rule?.action?.redirect?.regexSubstitution || "");
@@ -213,50 +213,43 @@ function CompactEditor(props: Porps) {
     setResponseHeaders(rule?.action?.responseHeaders || []);
   }, [rule]);
 
+  const actionOptions = [
+    {
+      value: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+      label: t("actionRedirect"),
+    },
+    {
+      value: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+      label: t("actionModifyHeaders"),
+    },
+    {
+      value: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+      label: t("actionBlock"),
+    },
+    {
+      value: chrome.declarativeNetRequest.RuleActionType.ALLOW,
+      label: t("actionAllow"),
+      disabled: true,
+    },
+    {
+      value: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
+      label: t("actionAllowAllRequests"),
+      disabled: true,
+    },
+  ];
+
   return (
-    <div className="w-full mt-4 flex flex-col items-center text-base">
-      <div style={{ width: "90%" }} className="flex flex-col gap-4 justify-between">
-        <Cell label="ActionType">
-          <Select
-            style={{ width: "100%" }}
-            value={type}
-            options={[
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-                label: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-              },
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-                label: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-              },
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.BLOCK,
-                label: chrome.declarativeNetRequest.RuleActionType.BLOCK,
-              },
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.ALLOW,
-                label: chrome.declarativeNetRequest.RuleActionType.ALLOW,
-                disabled: true,
-              },
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-                label: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-                disabled: true,
-              },
-              {
-                value: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
-                label: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
-                disabled: true,
-              },
-            ]}
-            onChange={wrapChange(setType)}
-          />
+    <div className="editor-card">
+      <div className="editor-stack">
+        <Cell label={t("actionType")}>
+          <Select className="w-full" value={type} options={actionOptions} onChange={wrapChange(setType)} />
         </Cell>
-        <Cell label="Condition">
+        <Cell label={t("condition")}>
           <Input.TextArea
-            autoSize
+            autoSize={{ minRows: 3 }}
             status={regexFilter ? "" : "error"}
             value={regexFilter}
+            variant="filled"
             onChange={(e) => {
               const value = e.target.value;
               chrome.declarativeNetRequest.isRegexSupported({ regex: value }, (res) => {
@@ -271,21 +264,22 @@ function CompactEditor(props: Porps) {
           />
         </Cell>
         {type === chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
-          <Cell label="Redirect">
+          <Cell label={t("redirect")}>
             <Input.TextArea
               status={regexSubstitution ? "" : "error"}
-              autoSize
+              autoSize={{ minRows: 3 }}
               value={regexSubstitution}
+              variant="filled"
               onChange={(e) => wrapChange(setRegexSubstitution)(e.target.value)}
             />
           </Cell>
         )}
         {type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
           <>
-            <Cell label="requestHeaders">
+            <Cell label={t("requestHeaders")}>
               <ModifyHeader headerInfos={requestHeaders} onChange={wrapChange(setRequestHeaders)} />
             </Cell>
-            <Cell label="responseHeaders">
+            <Cell label={t("responseHeaders")}>
               <ModifyHeader
                 headerInfos={responseHeaders}
                 onChange={wrapChange(setResponseHeaders)}
@@ -294,8 +288,9 @@ function CompactEditor(props: Porps) {
           </>
         )}
       </div>
-      <Divider />
+      <Divider style={{ margin: "14px 0 0" }} />
     </div>
   );
 }
+
 export default React.memo(CompactEditor);

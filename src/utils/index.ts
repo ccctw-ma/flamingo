@@ -1,4 +1,4 @@
-import { Group, Rule, TYPE } from "./types";
+import { Rule } from "./types";
 
 /**
  * Throttle a function so it runs at most once per `delay` ms.
@@ -26,7 +26,7 @@ const nextCount = (() => {
 })();
 
 /**
- * Generate a (best-effort) unique id for a rule or group based on the timestamp.
+ * Generate a (best-effort) unique id for a rule based on the timestamp.
  */
 export function generateId(): number {
   return (Date.now() % (10 ** 9 + 7)) + nextCount();
@@ -77,12 +77,8 @@ export const addKeys = (target: Record<string, unknown>, source: Record<string, 
   }
 };
 
-export const filterEditContent = (edit: Group | Rule, type: TYPE): unknown => {
+export const filterEditContent = (edit: Rule): unknown => {
   const cloned = deepClone(edit);
-  if (type === TYPE.Rule) {
-    removeKeys(cloned as unknown as Record<string, unknown>);
-    return cloned;
-  }
-  (cloned as Group).rules?.forEach((rule) => removeKeys(rule as unknown as Record<string, unknown>));
-  return (cloned as Group).rules;
+  removeKeys(cloned as unknown as Record<string, unknown>);
+  return cloned;
 };

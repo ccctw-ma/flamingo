@@ -1,21 +1,10 @@
-import { CONFIG_KEYSET, GROUPS_STORAGE_KEY, RULES_STORAGE_KEY } from "./utils/constants";
-import { getLocalGroups, getLocalRules, localGetBySingleKey } from "./utils/storage";
-import { Group, Rule } from "./utils/types";
+import { CONFIG_KEYSET, RULES_STORAGE_KEY } from "./utils/constants";
+import { getConfigValue, getRules } from "./utils/storage";
+import { Rule } from "./utils/types";
 
 async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> {
-  const groups: Group[] = await getLocalGroups();
-  const rules: Rule[] = await getLocalRules();
-  const enableRules: Rule[] = [];
-  groups.forEach((group) => {
-    if (group.enable) {
-      enableRules.push(...group.rules);
-    }
-  });
-  rules.forEach((rule) => {
-    if (rule.enable) {
-      enableRules.push(rule);
-    }
-  });
+  const rules: Rule[] = await getRules();
+  const enableRules = rules.filter((rule) => rule.enable);
   const availableRules: chrome.declarativeNetRequest.Rule[] = enableRules.map((rule) => ({
     action: rule.action,
     condition: rule.condition,
@@ -29,7 +18,7 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    const isWorking = (await localGetBySingleKey(CONFIG_KEYSET.WORKING)) ?? true;
+    const isWorking = (await getConfigValue(CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT)) ?? true;
     const workingRules = isWorking ? newRules : [];
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
@@ -37,8 +26,20 @@ async function setRules() {
       removeRuleIds: removeIds,
     });
   } catch (err) {
-    console.log("error", err);
+    console.log("error: setRules", err);
   }
+}
+
+async function syncExtensionIcon() {
+  const isWorking = (await getConfigValue(CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT)) ?? true;
+  const iconPrefix = isWorking ? "flamingo" : "flamingo_grey";
+  chrome.action.setIcon({
+    path: {
+      16: `images/${iconPrefix}_16.png`,
+      32: `images/${iconPrefix}_32.png`,
+      48: `images/${iconPrefix}_48.png`,
+    },
+  });
 }
 
 async function getCurrentDynamicRules() {
@@ -55,17 +56,14 @@ const handleStorageChange = (
 ) => {
   const changeKeys = Object.keys(changes);
   if (
-    changeKeys.includes(GROUPS_STORAGE_KEY) ||
     changeKeys.includes(RULES_STORAGE_KEY) ||
-    changeKeys.includes(CONFIG_KEYSET.WORKING)
+    changeKeys.includes(CONFIG_KEYSET.WORKING) ||
+    changeKeys.includes(CONFIG_KEYSET.STORAGE_MODE)
   ) {
     setRules();
   }
-  if (changeKeys.includes(CONFIG_KEYSET.WORKING)) {
-    const isWorking = changes[CONFIG_KEYSET.WORKING].newValue;
-    chrome.action.setIcon({
-        path: isWorking ? "images/flamingo_48.png" : "images/flamingo_grey_48.png",
-    });
+  if (changeKeys.includes(CONFIG_KEYSET.WORKING) || changeKeys.includes(CONFIG_KEYSET.STORAGE_MODE)) {
+    syncExtensionIcon();
   }
 };
 
@@ -80,6 +78,7 @@ function init() {
   chrome.storage.onChanged.addListener(handleStorageChange);
   chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(handleRuleMatched);
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
+  syncExtensionIcon();
   setRules();
 }
 

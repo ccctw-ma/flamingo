@@ -1,185 +1,217 @@
-import { Button, Input, Popover, Tabs, Tooltip } from "antd";
-import { EMPTY_GROUP, EMPTY_RULE } from "../utils/constants";
-
-import {
-  SearchOutlined,
-  SortAscendingOutlined,
-  CloudSyncOutlined,
-  CloudUploadOutlined,
-  PlusCircleOutlined,
-} from "@ant-design/icons";
+import { Button, Empty, Input } from "antd";
+import { CheckOutlined, CloseOutlined, SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import Item from "../components/item";
-import { useEffect, useState } from "react";
+import Hint from "../components/hint";
+import { DragEvent, useEffect, useMemo, useState } from "react";
 import { generateId } from "../utils";
-import { ACTION, STATUS, TYPE } from "../utils/types";
-import { addGroup, addRule } from "../utils/storage";
-import { useConfig, useGlobalState } from "../utils/hooks";
+import { useI18n } from "../utils/i18n";
+import { STATUS, Rule } from "../utils/types";
+import { addRule, setRules as persistRules } from "../utils/storage";
+import { EMPTY_RULE } from "../utils/constants";
+import { useGlobalState } from "../utils/hooks";
 
-const actionView = {
-  [ACTION.Add]: { label: "add", icon: <PlusCircleOutlined /> },
-  [ACTION.Search]: {
-    label: "search",
-    icon: <SearchOutlined />,
-  },
-  [ACTION.OrderByName]: {
-    label: "order by name",
-    icon: <SortAscendingOutlined />,
-  },
-  [ACTION.OrderByCreateTime]: {
-    label: "order by create",
-    icon: <CloudUploadOutlined />,
-  },
-  [ACTION.OrderByUpdateTime]: {
-    label: "order by update",
-    icon: <CloudSyncOutlined />,
-  },
-};
-
-function generatePlaceHolder(tab: TYPE, action: ACTION): string {
-  if (action === ACTION.Add || action === ACTION.Search) {
-    return `${actionView[action].label} a ${tab.toLowerCase()}`;
-  } else {
-    return `${actionView[action].label}`;
-  }
-}
+type SidebarMode = "idle" | "add" | "search";
 
 export default function LeftBar() {
-  const { type, rules, groups, refresh, saveEdit } = useGlobalState();
-  const { LEFT_TAB_BAR_HEIGHT, LEFT_TAB_ACTION_HEIGHT } = useConfig();
-  const [action, setAction] = useState<ACTION>(ACTION.Add);
-  const [input, setInput] = useState<string>("");
+  const { rules, refresh, saveEdit, setRules } = useGlobalState();
+  const { t } = useI18n();
+  const [mode, setMode] = useState<SidebarMode>("idle");
+  const [draftName, setDraftName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
-  const [tabType, setTabType] = useState<TYPE>(type);
+  const [draggingId, setDraggingId] = useState<number | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<number | null>(null);
 
-  function handleAction() {
-    const addItem = async (input: string) => {
-      if (!input) {
-        setStatus(STATUS.ERROR);
-        setTimeout(() => {
-          setStatus(STATUS.NONE);
-        }, 1000);
-        return;
-      }
-      await saveEdit();
-      if (tabType === TYPE.Group) {
-        await addGroup({
-          ...EMPTY_GROUP,
-          name: input,
-          id: generateId(),
-          create: Date.now(),
-          update: Date.now(),
-        });
-      } else {
-        await addRule({
-          ...EMPTY_RULE,
-          name: input,
-          id: generateId(),
-          create: Date.now(),
-          update: Date.now(),
-        });
-      }
-      setInput("");
-      await refresh();
-    };
-    const searchItem = (_input: string) => {};
-    const orderItemsByName = () => {};
-    const orderItemsByCreateTime = () => {};
-    const orderItemsByUpdateTime = () => {};
-    const actionOper = {
-      [ACTION.Add]: addItem,
-      [ACTION.Search]: searchItem,
-      [ACTION.OrderByName]: orderItemsByName,
-      [ACTION.OrderByCreateTime]: orderItemsByCreateTime,
-      [ACTION.OrderByUpdateTime]: orderItemsByUpdateTime,
-    };
-    actionOper[action](input);
+  const activeItems = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return normalizedQuery
+      ? rules.filter((item) => item.name.toLowerCase().includes(normalizedQuery))
+      : rules;
+  }, [rules, searchQuery]);
+
+  async function handleAdd() {
+    const nextName = draftName.trim();
+    if (!nextName) {
+      setStatus(STATUS.ERROR);
+      setTimeout(() => {
+        setStatus(STATUS.NONE);
+      }, 1000);
+      return;
+    }
+
+    await saveEdit();
+    await addRule({
+      ...EMPTY_RULE,
+      name: nextName,
+      id: generateId(),
+      create: Date.now(),
+      update: Date.now(),
+    });
+    setDraftName("");
+    setMode("idle");
+    await refresh();
   }
 
   useEffect(() => {
-    setTabType(type);
-  }, [type]);
+    if (mode !== "search") {
+      setSearchQuery("");
+    }
+    if (mode !== "add") {
+      setDraftName("");
+    }
+    setStatus(STATUS.NONE);
+  }, [mode]);
+
+  const currentInput = mode === "add" ? draftName : searchQuery;
+  const isSearchMode = searchQuery.trim().length > 0;
+
+  const moveRule = async (draggedId: number, targetId: number) => {
+    if (draggedId === targetId) {
+      return;
+    }
+
+    const fromIndex = rules.findIndex((rule) => rule.id === draggedId);
+    const toIndex = rules.findIndex((rule) => rule.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) {
+      return;
+    }
+
+    const nextRules = [...rules];
+    const [draggedRule] = nextRules.splice(fromIndex, 1);
+    nextRules.splice(toIndex, 0, draggedRule);
+
+    await saveEdit();
+    await persistRules(nextRules);
+    setRules(nextRules);
+    setDropTargetId(null);
+    setDraggingId(null);
+    await refresh();
+  };
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <Tabs
-        activeKey={tabType}
-        items={[
-          {
-            key: TYPE.Group,
-            label: TYPE.Group,
-            children: (
-              <div
-                style={{
-                  height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
-                  paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="sidebar-pane">
+        <div className="sidebar-tools sidebar-tools-compact">
+          <div className="sidebar-icon-row">
+            <Hint title={t("add")} placement="bottom">
+              <Button
+                shape="circle"
+                type={mode === "add" ? "primary" : "text"}
+                icon={<PlusOutlined />}
+                aria-label={t("add")}
+                onClick={() => setMode(mode === "add" ? "idle" : "add")}
+              />
+            </Hint>
+            <Hint title={t("search")} placement="bottom">
+              <Button
+                shape="circle"
+                type={mode === "search" ? "primary" : "text"}
+                icon={<SearchOutlined />}
+                aria-label={t("search")}
+                onClick={() => setMode(mode === "search" ? "idle" : "search")}
+              />
+            </Hint>
+          </div>
+          {mode !== "idle" ? (
+            <div className="sidebar-command sidebar-command-compact">
+              <Input
+                placeholder={
+                  mode === "add"
+                    ? t("addEntityPlaceholder", { entity: t("rule") })
+                    : t("searchEntityPlaceholder", { entity: t("rule") })
+                }
+                onPressEnter={() => {
+                  if (mode === "add") {
+                    void handleAdd();
+                  }
                 }}
-                className="relative overflow-y-scroll no-scrollbar"
-              >
-                  {groups.map((val) => (
-                    <Item key={val.id} item={val} type={TYPE.Group} />
-                ))}
-              </div>
-            ),
-          },
-          {
-            key: TYPE.Rule,
-            label: TYPE.Rule,
-            children: (
-              <div
-                style={{
-                  height: `calc(100vh - ${LEFT_TAB_BAR_HEIGHT}px)`,
-                  paddingBottom: LEFT_TAB_ACTION_HEIGHT * 2,
+                value={currentInput}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setStatus(STATUS.NONE);
+                  if (mode === "add") {
+                    setDraftName(value);
+                  } else {
+                    setSearchQuery(value);
+                  }
                 }}
-                className="relative overflow-y-scroll no-scrollbar pb-4"
-              >
-                  {rules.map((val) => (
-                    <Item key={val.id} item={val} type={TYPE.Rule} />
-                ))}
-              </div>
-            ),
-          },
-        ]}
-          onChange={(v) => {
-            setTabType(v as TYPE);
-        }}
-        size="small"
-        centered
-        tabBarStyle={{ marginBottom: 0, height: LEFT_TAB_BAR_HEIGHT }}
-        style={{ height: "100%" }}
-      />
-      <div
-        style={{ height: LEFT_TAB_ACTION_HEIGHT }}
-        className="absolute flex items-center justify-center bottom-0 w-full bg-transparent px-6 gap-2"
-      >
-        <Input
-          placeholder={generatePlaceHolder(type, action)}
-          onPressEnter={handleAction}
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-          }}
-          status={status}
-        />
-        <Popover
-          content={
-            <div className="flex flex-col items-center">
-                {Object.entries(actionView).map(([key, { label, icon }]) => (
-                // todo add bg-color for tooltip
-                  <Tooltip key={key} placement="right" title={label}>
-                  <span
-                    className="block cursor-pointer"
-                    // Object key is string, but enum key is number so need str2num
-                    onClick={() => setAction(+key)}
-                  >
-                    {icon}
-                  </span>
-                </Tooltip>
-              ))}
+                status={status}
+                size="middle"
+                variant="filled"
+                autoFocus
+              />
+              {mode === "add" ? (
+                <Hint title={t("add")} placement="bottom">
+                  <Button
+                    shape="circle"
+                    type="primary"
+                    icon={<CheckOutlined />}
+                    aria-label={t("add")}
+                    onClick={() => void handleAdd()}
+                  />
+                </Hint>
+              ) : (
+                <Hint title={t("clear")} placement="bottom">
+                  <Button
+                    shape="circle"
+                    icon={<CloseOutlined />}
+                    aria-label={t("clear")}
+                    onClick={() => setMode("idle")}
+                  />
+                </Hint>
+              )}
             </div>
-          }
-        >
-          <Button icon={actionView[action].icon} onClick={handleAction} />
-        </Popover>
+          ) : null}
+        </div>
+        <div className="sidebar-list no-scrollbar">
+          {activeItems.length > 0 ? (
+            activeItems.map((val: Rule) => (
+              <Item
+                key={val.id}
+                item={val}
+                draggable={!isSearchMode}
+                isDragging={draggingId === val.id}
+                isDropTarget={dropTargetId === val.id && draggingId !== val.id}
+                onDragStart={(event: DragEvent<HTMLSpanElement>) => {
+                  if (isSearchMode) {
+                    event.preventDefault();
+                    return;
+                  }
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", String(val.id));
+                  setDraggingId(val.id);
+                }}
+                onDragOver={(event: DragEvent<HTMLDivElement>) => {
+                  if (isSearchMode || draggingId === null || draggingId === val.id) {
+                    return;
+                  }
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  setDropTargetId(val.id);
+                }}
+                onDrop={(event: DragEvent<HTMLDivElement>) => {
+                  event.preventDefault();
+                  const draggedId = Number(event.dataTransfer.getData("text/plain"));
+                  if (!Number.isFinite(draggedId)) {
+                    return;
+                  }
+                  void moveRule(draggedId, val.id);
+                }}
+                onDragEnd={() => {
+                  setDraggingId(null);
+                  setDropTargetId(null);
+                }}
+              />
+            ))
+          ) : (
+            <div className="sidebar-empty">
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={searchQuery ? t("noResults") : t("noItems")}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
