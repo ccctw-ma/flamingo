@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useLayoutEffect, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { Rule } from "../utils/types";
 import { Select, Divider, Input, Col, Row, Button } from "antd";
 
@@ -8,7 +8,7 @@ import { useChange } from "../utils/hooks";
 interface Porps {
   rule: Rule;
   onChange: (newRule: Rule) => void;
-  handleError: (err: any) => void;
+  handleError: (err: unknown) => void;
 }
 
 const Cell: React.FC<{ label: string; children?: ReactNode }> = (props) => {
@@ -28,50 +28,56 @@ const Cell: React.FC<{ label: string; children?: ReactNode }> = (props) => {
 
 const ModifyHeader: React.FC<{
   headerInfos: chrome.declarativeNetRequest.ModifyHeaderInfo[];
-  onChange: (args: any) => void;
+    onChange: (headers: chrome.declarativeNetRequest.ModifyHeaderInfo[]) => void;
 }> = ({ headerInfos, onChange }) => {
   const [headers, setHeaders] = useState(headerInfos);
   const { hasChange, setHasChange, wrapChange } = useChange();
 
-  if (hasChange) {
-    onChange(headers);
-    setHasChange(false);
-  }
+    useEffect(() => {
+      if (!hasChange) {
+        return;
+      }
+      onChange(headers);
+      setHasChange(false);
+    }, [hasChange, headers, onChange, setHasChange]);
 
-  useLayoutEffect(() => {
+    useEffect(() => {
     setHeaders(headerInfos);
   }, [headerInfos]);
+
+    const operationOptions = useMemo(
+      () => [
+        {
+          value: chrome.declarativeNetRequest.HeaderOperation.SET,
+          label: chrome.declarativeNetRequest.HeaderOperation.SET,
+        },
+        {
+          value: chrome.declarativeNetRequest.HeaderOperation.APPEND,
+          label: chrome.declarativeNetRequest.HeaderOperation.APPEND,
+        },
+        {
+          value: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+          label: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+        },
+      ],
+      []
+    );
 
   return (
     <div className="flex flex-col gap-4 justify-between">
       {headers.map((header, idx) => {
         return (
-          <Row justify="space-between">
+            <Row justify="space-between" key={`${header.header}-${idx}`}>
             <Col span={5}>
               <Select
                 style={{ width: "100%" }}
                 defaultValue={chrome.declarativeNetRequest.HeaderOperation.SET}
                 value={header.operation}
-                options={[
-                  {
-                    value: chrome.declarativeNetRequest.HeaderOperation.SET,
-
-                    label: chrome.declarativeNetRequest.HeaderOperation.SET,
-                  },
-                  {
-                    value: chrome.declarativeNetRequest.HeaderOperation.APPEND,
-
-                    label: chrome.declarativeNetRequest.HeaderOperation.APPEND,
-                  },
-                  {
-                    value: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
-
-                    label: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
-                  },
-                ]}
+                  options={operationOptions}
                 onChange={(val) => {
-                  const newHeaders = [...headers];
-                  newHeaders[idx].operation = val;
+                    const newHeaders = headers.map((item, index) =>
+                      index === idx ? { ...item, operation: val } : item
+                    );
                   wrapChange(setHeaders)(newHeaders);
                 }}
               />
@@ -86,8 +92,9 @@ const ModifyHeader: React.FC<{
                 value={header.header}
                 title={header.header}
                 onChange={(e) => {
-                  const newHeaders = [...headers];
-                  newHeaders[idx].header = e.target.value;
+                    const newHeaders = headers.map((item, index) =>
+                      index === idx ? { ...item, header: e.target.value } : item
+                    );
                   wrapChange(setHeaders)(newHeaders);
                 }}
               />
@@ -101,8 +108,9 @@ const ModifyHeader: React.FC<{
                 placeholder="value"
                 value={header.value}
                 onChange={(e) => {
-                  const newHeaders = [...headers];
-                  newHeaders[idx].value = e.target.value;
+                    const newHeaders = headers.map((item, index) =>
+                      index === idx ? { ...item, value: e.target.value } : item
+                    );
                   wrapChange(setHeaders)(newHeaders);
                 }}
                 title={header.value}
@@ -141,7 +149,7 @@ const ModifyHeader: React.FC<{
 };
 
 function CompactEditor(props: Porps) {
-  const { rule, onChange, handleError } = props;
+    const { rule, onChange } = props;
   const { hasChange, setHasChange, wrapChange } = useChange();
   const [type, setType] = useState(chrome.declarativeNetRequest.RuleActionType.REDIRECT);
   const [regexFilter, setRegexFilter] = useState("");
@@ -154,9 +162,15 @@ function CompactEditor(props: Porps) {
     chrome.declarativeNetRequest.ModifyHeaderInfo[]
   >([]);
 
-  if (hasChange) {
-    let newRule: Rule = { ...rule };
-    newRule.condition.regexFilter = regexFilter;
+    useEffect(() => {
+      if (!hasChange) {
+        return;
+      }
+    const newRule: Rule = { ...rule };
+      newRule.condition = {
+        ...newRule.condition,
+        regexFilter,
+      };
     newRule.update = Date.now();
     if (type === chrome.declarativeNetRequest.RuleActionType.REDIRECT) {
       newRule.action = {
@@ -172,16 +186,26 @@ function CompactEditor(props: Porps) {
         requestHeaders,
         responseHeaders,
       };
-      requestHeaders.length === 0 && delete newRule.action.requestHeaders;
-      responseHeaders.length === 0 && delete newRule.action.responseHeaders;
+      if (requestHeaders.length === 0) delete newRule.action.requestHeaders;
+      if (responseHeaders.length === 0) delete newRule.action.responseHeaders;
     } else {
       newRule.action = { type };
     }
     onChange(newRule);
     setHasChange(false);
-  }
+    }, [
+      hasChange,
+      onChange,
+      regexFilter,
+      regexSubstitution,
+      requestHeaders,
+      responseHeaders,
+      rule,
+      setHasChange,
+      type,
+    ]);
 
-  useLayoutEffect(() => {
+    useEffect(() => {
     setType(rule?.action?.type);
     setRegexFilter(rule?.condition.regexFilter || "");
     setRegexSubstitution(rule?.action?.redirect?.regexSubstitution || "");
@@ -231,7 +255,7 @@ function CompactEditor(props: Porps) {
         <Cell label="Condition">
           <Input.TextArea
             autoSize
-            status={!!regexFilter ? "" : "error"}
+            status={regexFilter ? "" : "error"}
             value={regexFilter}
             onChange={(e) => {
               const value = e.target.value;
@@ -249,7 +273,7 @@ function CompactEditor(props: Porps) {
         {type === chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
           <Cell label="Redirect">
             <Input.TextArea
-              status={!!regexSubstitution ? "" : "error"}
+              status={regexSubstitution ? "" : "error"}
               autoSize
               value={regexSubstitution}
               onChange={(e) => wrapChange(setRegexSubstitution)(e.target.value)}

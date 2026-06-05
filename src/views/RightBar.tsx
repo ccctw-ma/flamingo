@@ -1,31 +1,31 @@
-import * as React from "react";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import RuleEditor from "../components/ruleEditor";
 import { Divider } from "antd";
-
-import { TYPE } from "../utils/types";
-import GroupEditor from "../components/groupEditor";
-import DetailEditor from "../components/detailEditor";
-import { useChange, useConfig, useGlobalState } from "../utils/hooks";
+import { Suspense, lazy, useEffect } from "react";
 import ActionBar from "../components/actionBar";
+import GroupEditor from "../components/groupEditor";
 import MatchedRules from "../components/matchedRules";
+import RuleEditor from "../components/ruleEditor";
+import { useChange, useConfig, useGlobalState } from "../utils/hooks";
+import { TYPE } from "../utils/types";
 
-const RightBar = forwardRef((props: { width: number }, ref) => {
-  const { type, selected, saveEdit, setEdit, setEditType, loaded } = useGlobalState();
+const DetailEditor = lazy(() => import("../components/detailEditor"));
+
+interface RightBarProps {
+  width: number;
+}
+
+export default function RightBar({ width }: RightBarProps) {
+  const { type, selected, saveEdit, setEdit, setEditType } = useGlobalState();
   const { hasChange, setHasChange } = useChange();
   const { DETAIL, MATCH, setConfig } = useConfig();
-  const [containerWidth, setContainerWidth] = useState<number>(props.width);
-
-  useImperativeHandle(ref, () => ({
-    setContainerWidth,
-  }));
 
   useEffect(() => {
     (async () => {
       await saveEdit();
       setEdit(selected);
       setEditType("rules" in selected ? TYPE.Group : TYPE.Rule);
-      hasChange && setConfig("MATCH", false);
+      if (hasChange) {
+        setConfig("MATCH", false);
+      }
       setHasChange(true);
     })();
   }, [selected, DETAIL]);
@@ -37,7 +37,9 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
       {MATCH ? (
         <MatchedRules />
       ) : DETAIL ? (
-        <DetailEditor width={containerWidth} />
+        <Suspense fallback={null}>
+          <DetailEditor width={width} />
+        </Suspense>
       ) : type === TYPE.Group ? (
         <GroupEditor />
       ) : (
@@ -45,6 +47,4 @@ const RightBar = forwardRef((props: { width: number }, ref) => {
       )}
     </div>
   );
-});
-
-export default RightBar;
+}

@@ -9,11 +9,12 @@ import {
 import { Group, Rule, TYPE } from "./types";
 
 export type AreaName = "sync" | "local" | "managed" | "session";
-export type StorageKey = string | string[] | { [key: string]: any };
+export type StorageObject = { [key: string]: unknown };
+export type StorageKey = string | string[] | StorageObject;
 
 /** function currying*/
 function storageSet(areaName: AreaName) {
-  return async function (obj: { [key: string]: any }) {
+  return async function (obj: StorageObject) {
     await chrome.storage[areaName].set(obj);
   };
 }
@@ -24,7 +25,7 @@ function storageGet(archName: AreaName) {
   };
 }
 
-export async function localSet(obj: { [key: string]: any }) {
+export async function localSet(obj: StorageObject) {
   return await storageSet("local")(obj);
 }
 
@@ -36,7 +37,7 @@ export async function localGetBySingleKey(key: string) {
   return (await localGet(key))[key];
 }
 
-export async function localSetBySingleKey(key: string, val: any) {
+export async function localSetBySingleKey(key: string, val: unknown) {
   return await localSet({ [key]: val });
 }
 

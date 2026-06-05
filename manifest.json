@@ -4,14 +4,14 @@
     "version": "1.0.0",
     "description": "chrome extension for proxy",
     "icons": {
-        "16": "images/flamingo_red_16.png",
-        "48": "images/flamingo_red_48.png",
-        "128": "images/flamingo_red_128.png"
+        "16": "images/flamingo_16.png",
+        "48": "images/flamingo_48.png",
+        "128": "images/flamingo_128.png"
     },
     "action": {
-        "default_icon": "images/flamingo_red_48.png",
+        "default_icon": "images/flamingo_48.png",
         "default_title": "Hello Flamingo",
-        "default_popup": "./src/index.html"
+        "default_popup": "home.html"
     },
     "permissions": [
         "storage",
@@ -22,11 +22,10 @@
     ],
     "host_permissions": [
         "https://*/*",
-        "https://*/",
-        "http://*/*",
-        "http://*/"
+        "http://*/*"
     ],
     "background": {
-        "service_worker": "./src/bg.js"
+        "service_worker": "src/background.js",
+        "type": "module"
     }
 }

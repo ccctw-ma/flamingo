@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   getLocalGroups,
   getLocalRules,
@@ -34,8 +34,7 @@ export function useGlobalState() {
         : localRules.find((r) => r.id === localSelected.id)!;
     setSelected(currentSelected || localGroups[0]);
     setType(currentSelected ? localSelectedType : TYPE.Group);
-    !loaded && setIsLoaded(true);
-    console.log("refresh");
+    if (!loaded) setIsLoaded(true);
     return { localGroups, localRules, currentSelected };
   };
   const saveEdit = async (newEdit?: Rule | Group) => {
@@ -81,9 +80,9 @@ export function useGlobalState() {
 export const useChange = () => {
   const [hasChange, setHasChange] = useState(false);
 
-  const wrapChange = (setState: any) => {
-    return (...rest: any) => {
-      setState(...rest);
+  const wrapChange = <T>(setState: Dispatch<SetStateAction<T>>) => {
+    return (value: SetStateAction<T>) => {
+      setState(value);
       setHasChange(true);
     };
   };

@@ -1,5 +1,4 @@
 import { Button, Input, Popover, Tabs, Tooltip } from "antd";
-import * as React from "react";
 import { EMPTY_GROUP, EMPTY_RULE } from "../utils/constants";
 
 import {
@@ -82,7 +81,7 @@ export default function LeftBar() {
       setInput("");
       await refresh();
     };
-    const searchItem = (input: string) => {};
+    const searchItem = (_input: string) => {};
     const orderItemsByName = () => {};
     const orderItemsByCreateTime = () => {};
     const orderItemsByUpdateTime = () => {};
@@ -116,8 +115,8 @@ export default function LeftBar() {
                 }}
                 className="relative overflow-y-scroll no-scrollbar"
               >
-                {groups.map((val) => (
-                  <Item item={val} type={TYPE.Group} />
+                  {groups.map((val) => (
+                    <Item key={val.id} item={val} type={TYPE.Group} />
                 ))}
               </div>
             ),
@@ -133,15 +132,15 @@ export default function LeftBar() {
                 }}
                 className="relative overflow-y-scroll no-scrollbar pb-4"
               >
-                {rules.map((val) => (
-                  <Item item={val} type={TYPE.Rule} />
+                  {rules.map((val) => (
+                    <Item key={val.id} item={val} type={TYPE.Rule} />
                 ))}
               </div>
             ),
           },
         ]}
-        onChange={(v: any) => {
-          setTabType(v);
+          onChange={(v) => {
+            setTabType(v as TYPE);
         }}
         size="small"
         centered
@@ -164,9 +163,9 @@ export default function LeftBar() {
         <Popover
           content={
             <div className="flex flex-col items-center">
-              {Object.entries(actionView).map(([key, { label, icon }]) => (
+                {Object.entries(actionView).map(([key, { label, icon }]) => (
                 // todo add bg-color for tooltip
-                <Tooltip placement="right" title={label}>
+                  <Tooltip key={key} placement="right" title={label}>
                   <span
                     className="block cursor-pointer"
                     // Object key is string, but enum key is number so need str2num

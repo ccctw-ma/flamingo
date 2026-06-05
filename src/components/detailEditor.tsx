@@ -1,36 +1,61 @@
-import React from "react";
-import * as monaco from "monaco-editor";
-import { editor } from "monaco-editor";
+import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
 import { addKeys, generateId, str2obj } from "../utils";
 import { useFlag } from "../utils/store";
 import { useGlobalState } from "../utils/hooks";
 import { Group, Rule, TYPE } from "../utils/types";
-import { loader } from "@monaco-editor/react";
-loader.config({ monaco });
-import typia from "typia";
 import MonacoEditor from "./monacoEditor";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isRuleLike(value: unknown): value is Rule {
+  return (
+    isRecord(value) &&
+    typeof value.id === "number" &&
+    typeof value.name === "string" &&
+    typeof value.create === "number" &&
+    typeof value.update === "number" &&
+    typeof value.enable === "boolean" &&
+    isRecord(value.action) &&
+    isRecord(value.condition)
+  );
+}
+
+function isGroupLike(value: unknown): value is Group {
+  return (
+    isRecord(value) &&
+    typeof value.id === "number" &&
+    typeof value.name === "string" &&
+    typeof value.create === "number" &&
+    typeof value.update === "number" &&
+    typeof value.enable === "boolean" &&
+    Array.isArray(value.rules) &&
+    value.rules.every(isRuleLike)
+  );
+}
 
 export default function DetailEditor(props: { width: number }) {
   const { selected, type, setEdit, edit, setHasError } = useGlobalState();
   const { setIsSaved } = useFlag();
 
   const restoreEdit = (editString: string): [boolean, Group | Rule] => {
-    let jsonParseError = false,
-      typeCheckError = false,
-      newEdit: any = {};
-    let editObj: any = {};
+    let jsonParseError = false;
+    let typeCheckError = false;
+    let newEdit: Group | Rule = { ...edit };
+    let editObj: Record<string, unknown> = {};
     try {
-      editObj = str2obj(editString);
+      editObj = str2obj<Record<string, unknown>>(editString);
     } catch {
       jsonParseError = true;
     }
     if (!jsonParseError) {
       if (type === TYPE.Rule) {
-        addKeys(editObj, edit);
+        addKeys(editObj, edit as unknown as Record<string, unknown>);
       } else {
-        let newGroup: any = {};
-        addKeys(newGroup, edit);
-        editObj.forEach((rule: any) => {
+        const newGroup: Record<string, unknown> = {};
+        addKeys(newGroup, edit as unknown as Record<string, unknown>);
+        (editObj as unknown as Array<Record<string, unknown>>).forEach((rule) => {
           rule.id = generateId();
           rule.name = "";
           rule.create = Date.now();
@@ -40,9 +65,9 @@ export default function DetailEditor(props: { width: number }) {
         newGroup.rules = editObj;
         editObj = newGroup;
       }
-      const validated = typia.validate<Group | Rule>(editObj);
-      if (validated.success) {
-        newEdit = editObj;
+      const isValid = type === TYPE.Rule ? isRuleLike(editObj) : isGroupLike(editObj);
+      if (isValid) {
+        newEdit = editObj as unknown as Group | Rule;
       } else {
         typeCheckError = true;
       }
@@ -50,7 +75,7 @@ export default function DetailEditor(props: { width: number }) {
     if (jsonParseError || typeCheckError) {
       newEdit = { ...edit };
     }
-    newEdit.update = Date.now();
+    (newEdit as { update: number }).update = Date.now();
     return [jsonParseError || typeCheckError, newEdit];
   };
 

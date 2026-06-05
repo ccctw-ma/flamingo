@@ -2,55 +2,6 @@ import { CONFIG_KEYSET, GROUPS_STORAGE_KEY, RULES_STORAGE_KEY } from "./utils/co
 import { getLocalGroups, getLocalRules, localGetBySingleKey } from "./utils/storage";
 import { Group, Rule } from "./utils/types";
 
-const demoRules = [
-  {
-    id: 1,
-    priority: 200,
-    action: {
-      type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-      redirect: {
-        // url: "https://jsonplaceholder.typicode.com/posts/2",
-        regexSubstitution: "https://jsonplaceholder.typicode.com/posts/\\2",
-      },
-    },
-    condition: {
-      // urlFilter: "bilibili",
-      // domains: ["www.bilibili.com"],
-      regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
-      // resourceTypes: [
-      //   chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
-      // ],
-    },
-  },
-  {
-    id: 2,
-    priority: 200,
-    action: {
-      type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-      requestHeaders: [
-        {
-          header: "hello",
-          operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-          value: "world",
-        },
-      ],
-    },
-    condition: {
-      regexFilter: "https://(\\w*).typicode.com/posts/(\\d)",
-    },
-  },
-  {
-    id: 3,
-    priority: 200,
-    action: {
-      type: chrome.declarativeNetRequest.RuleActionType.BLOCK,
-    },
-    condition: {
-      regexFilter: "https://jsonplaceholder.typicode.com/posts/3",
-    },
-  },
-];
-
 async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> {
   const groups: Group[] = await getLocalGroups();
   const rules: Rule[] = await getLocalRules();
@@ -100,9 +51,8 @@ const handleRuleMatched = (info: chrome.declarativeNetRequest.MatchedRuleInfoDeb
 
 const handleStorageChange = (
   changes: { [key: string]: chrome.storage.StorageChange },
-  area: "sync" | "local" | "managed" | "session"
+  _area: "sync" | "local" | "managed" | "session"
 ) => {
-  console.log(changes);
   const changeKeys = Object.keys(changes);
   if (
     changeKeys.includes(GROUPS_STORAGE_KEY) ||
@@ -114,7 +64,7 @@ const handleStorageChange = (
   if (changeKeys.includes(CONFIG_KEYSET.WORKING)) {
     const isWorking = changes[CONFIG_KEYSET.WORKING].newValue;
     chrome.action.setIcon({
-      path: isWorking ? "../images/flamingo_red_48.png" : "../images/flamingo_grey_48.png",
+        path: isWorking ? "images/flamingo_48.png" : "images/flamingo_grey_48.png",
     });
   }
 };

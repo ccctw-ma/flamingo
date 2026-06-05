@@ -1,11 +1,11 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import * as monaco from "monaco-editor";
-import { editor } from "monaco-editor";
+import React, { useEffect, useRef, useState } from "react";
+import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
 import { groupSchema, ruleSchema } from "../utils/constants";
 import { useChange, useConfig } from "../utils/hooks";
 import Editor, { loader, Monaco } from "@monaco-editor/react";
 import { Group, Rule, TYPE } from "../utils/types";
 import { filterEditContent, obj2str } from "../utils";
+import { monaco } from "../utils/monaco";
 loader.config({ monaco });
 
 interface Props {
@@ -24,10 +24,13 @@ export default function MonacoEditor(props: Props) {
   const { hasChange, setHasChange, wrapChange } = useChange();
   const [editContent, setEditContent] = useState<string>("");
 
-  if (hasChange) {
-    onChange(editContent);
-    setHasChange(false);
-  }
+    useEffect(() => {
+      if (!hasChange) {
+        return;
+      }
+      onChange(editContent);
+      setHasChange(false);
+    }, [editContent, hasChange, onChange, setHasChange]);
 
   useEffect(() => {
     loader
@@ -43,10 +46,10 @@ export default function MonacoEditor(props: Props) {
       });
   }, [type]);
 
-  useLayoutEffect(() => {
+    useEffect(() => {
     const filteredStr = obj2str(filterEditContent(selected, type));
     setEditContent(filteredStr);
-  }, [selected]);
+    }, [selected, type]);
 
   return (
     <Editor
@@ -60,7 +63,7 @@ export default function MonacoEditor(props: Props) {
        * so setState will not merge
        * !!! amazing
        */
-      onChange={wrapChange(setEditContent)}
+      onChange={(value) => wrapChange(setEditContent)(value ?? "")}
       onMount={(editor, monaco) => {
         editorRef.current = editor;
         monacoRef.current = monaco;

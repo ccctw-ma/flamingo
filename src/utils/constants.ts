@@ -1,4 +1,4 @@
-import { languages } from "monaco-editor";
+import type { languages } from "monaco-editor/esm/vs/editor/editor.api";
 import { ConfigKeySetType, Group, Rule } from "./types";
 
 /**

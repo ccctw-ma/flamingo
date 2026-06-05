@@ -1,110 +1,88 @@
-import { Group, TYPE } from "./types";
+import { Group, Rule, TYPE } from "./types";
 
-export function throttle(fn: any, delay = 10) {
-  let f = false;
-  return (...rest: any) => {
-    if (f) {
+/**
+ * Throttle a function so it runs at most once per `delay` ms.
+ */
+export function throttle<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  delay = 10
+): (...args: Args) => void {
+  let locked = false;
+  return (...args: Args) => {
+    if (locked) {
       return;
     }
-    f = true;
-    fn.call(null, ...rest);
+    locked = true;
+    fn(...args);
     setTimeout(() => {
-      f = false;
+      locked = false;
     }, delay);
   };
 }
 
-const Count = (() => {
-  let c = 1;
-  return () => {
-    return c++;
-  };
+const nextCount = (() => {
+  let count = 1;
+  return () => count++;
 })();
 
 /**
- * generate unique id for rule
- * here use timeStamp
+ * Generate a (best-effort) unique id for a rule or group based on the timestamp.
  */
-export function generateId() {
-  return (Date.now() % (10 ** 9 + 7)) + Count();
+export function generateId(): number {
+  return (Date.now() % (10 ** 9 + 7)) + nextCount();
 }
 
-// no operation just for placeholder
-export function noop() {}
+/** No-op placeholder. */
+export function noop(): void {}
 
-/**
- * loop until the condition is readched,
- * action can be executed or time out
- *  */
-export function loop(condition: () => any, action: () => void, time: number) {
-  const start = Date.now();
-  const end = start + time;
-  const fn = () => {
-    console.log(condition());
-    if (condition()) {
-      action();
-      return;
-    }
-    if (Date.now() > end) {
-      return;
-    }
-    requestIdleCallback(fn);
-  };
-
-  fn();
-}
-export function padZero(number: number) {
-  return number < 10 ? `0${number}` : `${number}`;
+/** Left-pad a number to at least two digits. */
+export function padZero(value: number): string {
+  return value < 10 ? `0${value}` : `${value}`;
 }
 
-export const obj2str = (x: any) => JSON.stringify(x, null, 2);
+export const obj2str = (value: unknown): string => JSON.stringify(value, null, 2);
 
-export const str2obj = (x: string) => JSON.parse(x);
+export const str2obj = <T = unknown>(value: string): T => JSON.parse(value) as T;
 
-export function deepClone(obj: any, hash = new WeakMap()) {
+export function deepClone<T>(obj: T, hash = new WeakMap()): T {
   if (obj === null) return obj;
-  if (obj instanceof Date) return new Date(obj);
-  if (obj instanceof RegExp) return new RegExp(obj);
+  if (obj instanceof Date) return new Date(obj) as unknown as T;
+  if (obj instanceof RegExp) return new RegExp(obj) as unknown as T;
   if (typeof obj !== "object") return obj;
 
-  // Solving circular dependency issues
-  if (hash.get(obj)) return hash.get(obj);
+  // Solve circular references.
+  if (hash.has(obj as object)) return hash.get(obj as object);
 
-  let newObj: any = Array.isArray(obj) ? [] : {};
-  hash.set(obj, newObj);
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      newObj[key] = deepClone(obj[key], hash);
+  const newObj: Record<string, unknown> | unknown[] = Array.isArray(obj) ? [] : {};
+  hash.set(obj as object, newObj);
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      (newObj as Record<string, unknown>)[key] = deepClone((obj as Record<string, unknown>)[key], hash);
     }
   }
-  return newObj;
+  return newObj as T;
 }
 
-const unDisplayKeys = ["id", "name", "create", "update", "enable"];
+const unDisplayKeys = ["id", "name", "create", "update", "enable"] as const;
 
-export const removeKeys = (o: any) => {
-  for (let key of unDisplayKeys) {
-    delete o[key];
+export const removeKeys = (target: Record<string, unknown>): void => {
+  for (const key of unDisplayKeys) {
+    delete target[key];
   }
 };
 
-export const addKeys = (o: any, cur: any) => {
-  for (let key of unDisplayKeys) {
-    if (key === "update") {
-      o[key] = Date.now();
-    } else {
-      o[key] = cur[key];
-    }
+export const addKeys = (target: Record<string, unknown>, source: Record<string, unknown>): void => {
+  for (const key of unDisplayKeys) {
+    target[key] = key === "update" ? Date.now() : source[key];
   }
 };
 
-export const filterEditContent = (edit: any, type: TYPE) => {
-  let filterEdit = deepClone(edit);
+export const filterEditContent = (edit: Group | Rule, type: TYPE): unknown => {
+  const cloned = deepClone(edit);
   if (type === TYPE.Rule) {
-    removeKeys(filterEdit);
-  } else {
-    (filterEdit as Group).rules?.forEach((rule) => removeKeys(rule));
-    filterEdit = filterEdit.rules;
+    removeKeys(cloned as unknown as Record<string, unknown>);
+    return cloned;
   }
-  return filterEdit;
+  (cloned as Group).rules?.forEach((rule) => removeKeys(rule as unknown as Record<string, unknown>));
+  return (cloned as Group).rules;
 };

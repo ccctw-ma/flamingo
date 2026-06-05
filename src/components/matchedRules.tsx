@@ -12,17 +12,15 @@ export default function MatchedRules() {
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
 
   const id2nameMap = useMemo(() => {
-    const map: any = {};
+    const map: Record<number, string> = {};
     rules.forEach((rule) => (map[rule.id] = rule.name));
     groups.forEach((group) => group.rules.forEach((rule) => (map[rule.id] = group.name)));
     return map;
   }, [rules, groups]);
 
-  const tabId2InfoMap: any = tabs.reduce((pre, cur) => {
-    return {
-      ...pre,
-      [cur.id || chrome.tabs.TAB_ID_NONE]: cur,
-    };
+  const tabId2InfoMap = tabs.reduce<Record<number, chrome.tabs.Tab>>((pre, cur) => {
+    pre[cur.id ?? chrome.tabs.TAB_ID_NONE] = cur;
+    return pre;
   }, {});
 
   const ruleMatchedInfoContent = rulesMatchedInfo.map((info) => {
@@ -37,6 +35,7 @@ export default function MatchedRules() {
     const tabUrl = tabInfo?.url || "";
 
     return {
+        key: `${info.rule.ruleId}-${info.timeStamp}`,
       name,
       timeStamp,
       formateTime,

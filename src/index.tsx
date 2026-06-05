@@ -1,15 +1,13 @@
-import * as React from "react";
-import ReactDOM from "react-dom";
-import { throttle } from "./utils/index";
+import { ClearOutlined, CodeOutlined, MenuOutlined } from "@ant-design/icons";
 import { StyleProvider } from "@ant-design/cssinjs";
-import "./index.css";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FloatButton } from "antd";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { throttle } from "./utils";
+import { useConfig, useGlobalState } from "./utils/hooks";
 import { setLocalGroups, setLocalRules } from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
-import { FloatButton } from "antd";
-import { ClearOutlined, CodeOutlined, MenuOutlined, SettingOutlined } from "@ant-design/icons";
-import { useConfig, useGlobalState } from "./utils/hooks";
 
 export const Home = () => {
   const {
@@ -22,114 +20,80 @@ export const Home = () => {
     initConfig,
     setConfig,
   } = useConfig();
-  /**
-   * Because we don't know if there will be a scrolling axis when
-   * executing this code, but we have defined the minimum width,
-   * so special handling is needed here to avoid exceptions.
-   */
-  const containerWidth = Math.max(HOME_WIDTH, document.body.scrollWidth);
   const { loaded, refresh, saveEdit } = useGlobalState();
-
   const container = useRef<HTMLDivElement>(null);
-  const rightBar = useRef<any>();
-  const [leftBarSize, setLeftBarSize] = useState<number>(HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO);
+  const [containerWidth, setContainerWidth] = useState(() =>
+    Math.max(HOME_WIDTH, document.body.scrollWidth)
+  );
+  const [leftBarSize, setLeftBarSize] = useState(HOME_WIDTH * LEFT_BAR_WIDTH_MIN_RATIO);
 
-  const [_, sa] = useState({});
-  /**
-   * use empty object {} to refresh Home page, and the reason why containerWidth
-   * is not used here is that this function has only been registered once,
-   * so the containerWidth used will only be the containerWidth from the
-   * first registration and will not be updated.
-   */
-  const redraw = () => {
-    sa({});
-    rightBar.current.setContainerWidth(document.body.scrollWidth - leftBarSize - DIVIDER_WIDTH);
-  };
+  const rightBarWidth = useMemo(
+    () => Math.max(0, containerWidth - leftBarSize - DIVIDER_WIDTH),
+    [containerWidth, leftBarSize, DIVIDER_WIDTH]
+  );
 
-  function handleChangeSize() {
-    const [leftBarContainer, middleDivder, rightBarContainer] = Array.from(
-      container.current!.children
-    ) as Array<HTMLDivElement>;
+  const syncContainerWidth = useCallback(() => {
+    setContainerWidth(Math.max(HOME_WIDTH, document.body.scrollWidth));
+  }, [HOME_WIDTH]);
 
-    let tempLeftBarSize = +leftBarContainer.style.width.slice(0, -2);
-    const throttleHandleMouseMove = throttle((e: MouseEvent) => {
-      const maxSize = LEFT_BAR_WIDTH_MAX_RATIO * HOME_WIDTH;
-      const minSize = LEFT_BAR_WIDTH_MIN_RATIO * HOME_WIDTH;
-      const clientX = e.clientX;
-      const newSize =
-        clientX > maxSize
-          ? Math.min(maxSize, clientX)
-          : clientX < minSize
-            ? Math.max(minSize, clientX)
-            : clientX;
+  const handleChangeSize = useCallback(() => {
+    const startContainer = container.current;
+    if (!startContainer) {
+      return;
+    }
 
-      tempLeftBarSize = newSize;
-      leftBarContainer.style.width = `${newSize}px`;
-      middleDivder.style.left = `${newSize}px`;
-      rightBarContainer.style.width = `${containerWidth - newSize - DIVIDER_WIDTH}px`;
-      rightBar.current!.setContainerWidth(containerWidth - newSize - DIVIDER_WIDTH);
+    let nextLeftBarSize = leftBarSize;
+    const maxSize = LEFT_BAR_WIDTH_MAX_RATIO * HOME_WIDTH;
+    const minSize = LEFT_BAR_WIDTH_MIN_RATIO * HOME_WIDTH;
+
+    const handleMouseMove = throttle((event: MouseEvent) => {
+      nextLeftBarSize = Math.min(maxSize, Math.max(minSize, event.clientX));
+      setLeftBarSize(nextLeftBarSize);
     });
 
     const handleMouseUp = () => {
-      container.current!.removeEventListener("mousemove", throttleHandleMouseMove);
-
-      /**
-       * storing data and synchronizing state
-       */
-      setLeftBarSize(tempLeftBarSize);
-      // localSetBySingleKey(LEFT_BAR_WIDTH_KEY, tempLeftBarSize);
-      setConfig("LEFT_BAR_WIDTH", tempLeftBarSize);
+      startContainer.removeEventListener("mousemove", handleMouseMove);
+      setConfig("LEFT_BAR_WIDTH", nextLeftBarSize);
     };
 
-    container.current!.addEventListener("mousemove", throttleHandleMouseMove);
-    container.current!.addEventListener("mouseup", handleMouseUp, {
-      once: true,
-    });
-  }
+    startContainer.addEventListener("mousemove", handleMouseMove);
+    startContainer.addEventListener("mouseup", handleMouseUp, { once: true });
+  }, [
+    HOME_WIDTH,
+    LEFT_BAR_WIDTH_MAX_RATIO,
+    LEFT_BAR_WIDTH_MIN_RATIO,
+    leftBarSize,
+    setConfig,
+  ]);
 
-  async function handleKeyDown(e: KeyboardEvent) {
-    if (e.ctrlKey && e.key === "s") {
-      e.preventDefault();
-      saveEdit();
-    }
-  }
-
-  async function initView() {
-    setLeftBarSize(LEFT_BAR_WIDTH);
-    rightBar.current!.setContainerWidth(containerWidth - LEFT_BAR_WIDTH - DIVIDER_WIDTH);
-  }
-
-  /**
-   * try to avoid container flickering as much as possible
-   */
   useLayoutEffect(() => {
     (async () => {
       await initConfig();
+      setLeftBarSize(LEFT_BAR_WIDTH);
       await refresh();
-      await initView();
+      syncContainerWidth();
     })();
-
-    /**
-     * when window size changes, only the size of the right bar
-     * needs to be changed
-     */
-    window.addEventListener("resize", redraw);
-
-    return () => {
-      window.removeEventListener("resize", redraw);
-    };
   }, []);
 
-  // TODO! optimize
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+    const handleResize = () => syncContainerWidth();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [syncContainerWidth]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        saveEdit();
+      }
     };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [saveEdit]);
 
   return (
-    // change size to fit different scenes
     <div
       style={{
         minWidth: HOME_WIDTH,
@@ -144,8 +108,7 @@ export const Home = () => {
             <LeftBar />
           </div>
           <div
-            // todo! ensure a theme color
-            className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-red-500 hover:scale-x-150 "
+            className="h-full bg-slate-100 cursor-ew-resize transition hover:bg-red-500 hover:scale-x-150"
             onMouseDown={handleChangeSize}
             style={{
               width: DIVIDER_WIDTH,
@@ -158,14 +121,14 @@ export const Home = () => {
           />
           <div
             style={{
-              width: `${containerWidth - leftBarSize - DIVIDER_WIDTH}px`,
+              width: rightBarWidth,
               height: "100%",
               position: "absolute",
               right: 0,
               top: 0,
             }}
           >
-            <RightBar width={containerWidth - leftBarSize - DIVIDER_WIDTH} ref={rightBar} />
+            <RightBar width={rightBarWidth} />
           </div>
         </div>
       )}
@@ -173,12 +136,11 @@ export const Home = () => {
       <FloatButton.Group trigger="click" icon={<MenuOutlined />}>
         <FloatButton
           icon={<CodeOutlined title="open in new tab" />}
-          onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL("src/index.html") })}
+          onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL("home.html") })}
         />
         <FloatButton
           icon={<ClearOutlined title="clear all groups and rules" />}
           onClick={() => {
-            /**just for clean localstorage */
             setLocalRules([]);
             setLocalGroups([]);
           }}
@@ -188,16 +150,8 @@ export const Home = () => {
   );
 };
 
-/**
- * Here we use ReactDOM.render() updates inside of promises, setTimeout,
- * native event handlers, or any other event were not batched in React by default.
- * Starting in React 18 with createRoot, all updates will be automatically batched,
- * no matter where they originate from.
- * #https://github.com/reactwg/react-18/discussions/21
- */
-ReactDOM.render(
+createRoot(document.getElementById("root")!).render(
   <StyleProvider hashPriority="high">
     <Home />
-  </StyleProvider>,
-  document.getElementById("root")
+  </StyleProvider>
 );
