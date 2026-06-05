@@ -1,0 +1,2070 @@
+src/components/matchedRules.tsx
+  6574eb1504d542eb 15,21-23,38 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":15},{"Range":[21,23]},{"Single":38}]}]}
+package.json
+  6574eb1504d542eb 4-6,8-15,21-22,28-30,35-36,46 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[4,6]},{"Range":[8,15]},{"Range":[21,22]},{"Range":[28,30]},{"Range":[35,36]},{"Single":46}]}]}
+scripts/build.ts
+  6574eb1504d542eb 1-120,125,128-129,131-148,150 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,120]},{"Single":125},{"Range":[128,129]},{"Range":[131,148]},{"Single":150}]}]}
+src/components/monacoEditor.tsx
+  6574eb1504d542eb 1-2,8,27-33,49,52,66 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,2]},{"Single":8},{"Range":[27,33]},{"Single":49},{"Single":52},{"Single":66}]}]}
+src/utils/storage.ts
+  6574eb1504d542eb 12-13,17,28,40 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[12,13]},{"Single":17},{"Single":28},{"Single":40}]}]}
+src/utils/monaco.ts
+  6574eb1504d542eb 1-4 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,4]}]}]}
+.github/workflows/ci.yml
+  6574eb1504d542eb 1-42 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,42]}]}]}
+.github/workflows/release.yml
+  6574eb1504d542eb 1-45 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,45]}]}]}
+src/index.tsx
+  6574eb1504d542eb 1,3-7,25-28,30-37,39-43,45-47,49-51,55-56,59-67,72,74,76,78-82,84-89,93,111,124,131,139,153,156 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1},{"Range":[3,7]},{"Range":[25,28]},{"Range":[30,37]},{"Range":[39,43]},{"Range":[45,47]},{"Range":[49,51]},{"Range":[55,56]},{"Range":[59,67]},{"Single":72},{"Single":74},{"Single":76},{"Range":[78,82]},{"Range":[84,89]},{"Single":93},{"Single":111},{"Single":124},{"Single":131},{"Single":139},{"Single":153},{"Single":156}]}]}
+home.html
+  6574eb1504d542eb 6 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":6}]}]}
+src/components/compactEditor.tsx
+  6574eb1504d542eb 1,11,31,36-42,44,48-65,70,76,78-80,95-97,111-113,152,165-173,189-190,196-206,208 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1},{"Single":11},{"Single":31},{"Range":[36,42]},{"Single":44},{"Range":[48,65]},{"Single":70},{"Single":76},{"Range":[78,80]},{"Range":[95,97]},{"Range":[111,113]},{"Single":152},{"Range":[165,173]},{"Range":[189,190]},{"Range":[196,206]},{"Single":208}]}]}
+postcss.config.js
+  6574eb1504d542eb 1-6 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,6]}]}]}
+tailwind.config.js
+  6574eb1504d542eb 2-3,8 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[2,3]},{"Single":8}]}]}
+src/utils/index.ts
+  6574eb1504d542eb 1,3-12,15-16,18,23-25,29,31-32,35-36,38-40,43,45,47,49-50,53-54,56-60,63,66,68-70,74-76,80-81,83-84,86-87 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1},{"Range":[3,12]},{"Range":[15,16]},{"Single":18},{"Range":[23,25]},{"Single":29},{"Range":[31,32]},{"Range":[35,36]},{"Range":[38,40]},{"Single":43},{"Single":45},{"Single":47},{"Range":[49,50]},{"Range":[53,54]},{"Range":[56,60]},{"Single":63},{"Single":66},{"Range":[68,70]},{"Range":[74,76]},{"Range":[80,81]},{"Range":[83,84]},{"Range":[86,87]}]}]}
+tests/utils.test.ts
+  6574eb1504d542eb 1-158 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,158]}]}]}
+manifest.json
+  6574eb1504d542eb 7-9,12,14,25,28-29,31 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[7,9]},{"Single":12},{"Single":14},{"Single":25},{"Range":[28,29]},{"Single":31}]}]}
+src/background.ts
+  6574eb1504d542eb 54,67 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":54},{"Single":67}]}]}
+.prettierrc.json
+  6574eb1504d542eb 1-5 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,5]}]}]}
+src/views/RightBar.tsx
+  6574eb1504d542eb 2,4,6-10,12-17,26-28,40-42,50 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":2},{"Single":4},{"Range":[6,10]},{"Range":[12,17]},{"Range":[26,28]},{"Range":[40,42]},{"Single":50}]}]}
+tests/storage.test.ts
+  6574eb1504d542eb 1-167 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,167]}]}]}
+AGENTS.md
+  6574eb1504d542eb 1-68 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,68]}]}]}
+.github/workflows/deploy.yml
+  6574eb1504d542eb 1-57 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,57]}]}]}
+src/views/LeftBar.tsx
+  6574eb1504d542eb 84,118-119,135-136,142-143,166,168 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":84},{"Range":[118,119]},{"Range":[135,136]},{"Range":[142,143]},{"Single":166},{"Single":168}]}]}
+docs/superpowers/plans/2026-06-04-project-quality-upgrade.md
+  6574eb1504d542eb 1-514 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,514]}]}]}
+src/utils/constants.ts
+  6574eb1504d542eb 1 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1}]}]}
+src/index.css
+  6574eb1504d542eb 6-8,10-12 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[6,8]},{"Range":[10,12]}]}]}
+README.md
+  6574eb1504d542eb 1-125 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,125]}]}]}
+src/components/detailEditor.tsx
+  6574eb1504d542eb 1,8-37,43-46,48,54,56-58,68-70,78 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1},{"Range":[8,37]},{"Range":[43,46]},{"Single":48},{"Single":54},{"Range":[56,58]},{"Range":[68,70]},{"Single":78}]}]}
+.gitignore
+  6574eb1504d542eb 2-6 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[2,6]}]}]}
+src/utils/hooks.ts
+  6574eb1504d542eb 1,37,83-85 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Single":1},{"Single":37},{"Range":[83,85]}]}]}
+eslint.config.js
+  6574eb1504d542eb 1-8,10-19,21-34,36-43,45-52,54 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[1,8]},{"Range":[10,19]},{"Range":[21,34]},{"Range":[36,43]},{"Range":[45,52]},{"Single":54}]}]}
+tsconfig.json
+  6574eb1504d542eb 3-18,20-21 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[3,18]},{"Range":[20,21]}]}]}
+src/utils/store.ts
+  6574eb1504d542eb 18-19,25-26,31,33,35,37,39,44,46,52 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a2250af05cb1433dde46848","tool_type":"agent","tool_id":"RunCommand","line_ranges":[{"Range":[18,19]},{"Range":[25,26]},{"Single":31},{"Single":33},{"Single":35},{"Single":37},{"Single":39},{"Single":44},{"Single":46},{"Single":52}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "d93c78cd635b8ddff5b7fc270c9bdda07a4e09c9",
+  "prompts": {
+    "6574eb1504d542eb": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a216b4c05cb1433dde457a8",
+        "model": "gpt-5.4__dev"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>",
+      "messages": [],
+      "total_additions": 2300,
+      "total_deletions": 2359,
+      "accepted_lines": 2199,
+      "overriden_lines": 0
+    },
+    "cda810d64c540b86": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-5d6512fe-a4bf-47ee-ac88-192ea01cea85",
+        "model": "default"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  },
+  "attestation_metadata": {
+    ".github/workflows/ci.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              42
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  42
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".github/workflows/deploy.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              57
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  57
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".github/workflows/release.yml": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              45
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  45
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".gitignore": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              2,
+              6
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  2,
+                  6
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    ".prettierrc.json": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              5
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  5
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "AGENTS.md": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              68
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  68
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "README.md": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              125
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  125
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "docs/superpowers/plans/2026-06-04-project-quality-upgrade.md": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              514
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  514
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "eslint.config.js": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              8
+            ]
+          },
+          {
+            "Range": [
+              10,
+              19
+            ]
+          },
+          {
+            "Range": [
+              21,
+              34
+            ]
+          },
+          {
+            "Range": [
+              36,
+              43
+            ]
+          },
+          {
+            "Range": [
+              45,
+              52
+            ]
+          },
+          {
+            "Single": 54
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  8
+                ]
+              },
+              {
+                "Range": [
+                  10,
+                  19
+                ]
+              },
+              {
+                "Range": [
+                  21,
+                  34
+                ]
+              },
+              {
+                "Range": [
+                  36,
+                  43
+                ]
+              },
+              {
+                "Range": [
+                  45,
+                  52
+                ]
+              },
+              {
+                "Single": 54
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "home.html": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 6
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 6
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "manifest.json": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              7,
+              9
+            ]
+          },
+          {
+            "Single": 12
+          },
+          {
+            "Single": 14
+          },
+          {
+            "Single": 25
+          },
+          {
+            "Range": [
+              28,
+              29
+            ]
+          },
+          {
+            "Single": 31
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  7,
+                  9
+                ]
+              },
+              {
+                "Single": 12
+              },
+              {
+                "Single": 14
+              },
+              {
+                "Single": 25
+              },
+              {
+                "Range": [
+                  28,
+                  29
+                ]
+              },
+              {
+                "Single": 31
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "package.json": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              4,
+              6
+            ]
+          },
+          {
+            "Range": [
+              8,
+              15
+            ]
+          },
+          {
+            "Range": [
+              21,
+              22
+            ]
+          },
+          {
+            "Range": [
+              28,
+              30
+            ]
+          },
+          {
+            "Range": [
+              35,
+              36
+            ]
+          },
+          {
+            "Single": 46
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  4,
+                  6
+                ]
+              },
+              {
+                "Range": [
+                  8,
+                  15
+                ]
+              },
+              {
+                "Range": [
+                  21,
+                  22
+                ]
+              },
+              {
+                "Range": [
+                  28,
+                  30
+                ]
+              },
+              {
+                "Range": [
+                  35,
+                  36
+                ]
+              },
+              {
+                "Single": 46
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "postcss.config.js": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              6
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  6
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "scripts/build.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              120
+            ]
+          },
+          {
+            "Single": 125
+          },
+          {
+            "Range": [
+              128,
+              129
+            ]
+          },
+          {
+            "Range": [
+              131,
+              148
+            ]
+          },
+          {
+            "Single": 150
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  120
+                ]
+              },
+              {
+                "Single": 125
+              },
+              {
+                "Range": [
+                  128,
+                  129
+                ]
+              },
+              {
+                "Range": [
+                  131,
+                  148
+                ]
+              },
+              {
+                "Single": 150
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/background.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 54
+          },
+          {
+            "Single": 67
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 54
+              },
+              {
+                "Single": 67
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/components/compactEditor.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          },
+          {
+            "Single": 11
+          },
+          {
+            "Single": 31
+          },
+          {
+            "Range": [
+              36,
+              42
+            ]
+          },
+          {
+            "Single": 44
+          },
+          {
+            "Range": [
+              48,
+              65
+            ]
+          },
+          {
+            "Single": 70
+          },
+          {
+            "Single": 76
+          },
+          {
+            "Range": [
+              78,
+              80
+            ]
+          },
+          {
+            "Range": [
+              95,
+              97
+            ]
+          },
+          {
+            "Range": [
+              111,
+              113
+            ]
+          },
+          {
+            "Single": 152
+          },
+          {
+            "Range": [
+              165,
+              173
+            ]
+          },
+          {
+            "Range": [
+              189,
+              190
+            ]
+          },
+          {
+            "Range": [
+              196,
+              206
+            ]
+          },
+          {
+            "Single": 208
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              },
+              {
+                "Single": 11
+              },
+              {
+                "Single": 31
+              },
+              {
+                "Range": [
+                  36,
+                  42
+                ]
+              },
+              {
+                "Single": 44
+              },
+              {
+                "Range": [
+                  48,
+                  65
+                ]
+              },
+              {
+                "Single": 70
+              },
+              {
+                "Single": 76
+              },
+              {
+                "Range": [
+                  78,
+                  80
+                ]
+              },
+              {
+                "Range": [
+                  95,
+                  97
+                ]
+              },
+              {
+                "Range": [
+                  111,
+                  113
+                ]
+              },
+              {
+                "Single": 152
+              },
+              {
+                "Range": [
+                  165,
+                  173
+                ]
+              },
+              {
+                "Range": [
+                  189,
+                  190
+                ]
+              },
+              {
+                "Range": [
+                  196,
+                  206
+                ]
+              },
+              {
+                "Single": 208
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/components/detailEditor.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          },
+          {
+            "Range": [
+              8,
+              37
+            ]
+          },
+          {
+            "Range": [
+              43,
+              46
+            ]
+          },
+          {
+            "Single": 48
+          },
+          {
+            "Single": 54
+          },
+          {
+            "Range": [
+              56,
+              58
+            ]
+          },
+          {
+            "Range": [
+              68,
+              70
+            ]
+          },
+          {
+            "Single": 78
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              },
+              {
+                "Range": [
+                  8,
+                  37
+                ]
+              },
+              {
+                "Range": [
+                  43,
+                  46
+                ]
+              },
+              {
+                "Single": 48
+              },
+              {
+                "Single": 54
+              },
+              {
+                "Range": [
+                  56,
+                  58
+                ]
+              },
+              {
+                "Range": [
+                  68,
+                  70
+                ]
+              },
+              {
+                "Single": 78
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/components/matchedRules.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 15
+          },
+          {
+            "Range": [
+              21,
+              23
+            ]
+          },
+          {
+            "Single": 38
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 15
+              },
+              {
+                "Range": [
+                  21,
+                  23
+                ]
+              },
+              {
+                "Single": 38
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/components/monacoEditor.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              2
+            ]
+          },
+          {
+            "Single": 8
+          },
+          {
+            "Range": [
+              27,
+              33
+            ]
+          },
+          {
+            "Single": 49
+          },
+          {
+            "Single": 52
+          },
+          {
+            "Single": 66
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "Single": 8
+              },
+              {
+                "Range": [
+                  27,
+                  33
+                ]
+              },
+              {
+                "Single": 49
+              },
+              {
+                "Single": 52
+              },
+              {
+                "Single": 66
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/index.css": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              6,
+              8
+            ]
+          },
+          {
+            "Range": [
+              10,
+              12
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  6,
+                  8
+                ]
+              },
+              {
+                "Range": [
+                  10,
+                  12
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/index.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          },
+          {
+            "Range": [
+              3,
+              7
+            ]
+          },
+          {
+            "Range": [
+              25,
+              28
+            ]
+          },
+          {
+            "Range": [
+              30,
+              37
+            ]
+          },
+          {
+            "Range": [
+              39,
+              43
+            ]
+          },
+          {
+            "Range": [
+              45,
+              47
+            ]
+          },
+          {
+            "Range": [
+              49,
+              51
+            ]
+          },
+          {
+            "Range": [
+              55,
+              56
+            ]
+          },
+          {
+            "Range": [
+              59,
+              67
+            ]
+          },
+          {
+            "Single": 72
+          },
+          {
+            "Single": 74
+          },
+          {
+            "Single": 76
+          },
+          {
+            "Range": [
+              78,
+              82
+            ]
+          },
+          {
+            "Range": [
+              84,
+              89
+            ]
+          },
+          {
+            "Single": 93
+          },
+          {
+            "Single": 111
+          },
+          {
+            "Single": 124
+          },
+          {
+            "Single": 131
+          },
+          {
+            "Single": 139
+          },
+          {
+            "Single": 153
+          },
+          {
+            "Single": 156
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              },
+              {
+                "Range": [
+                  3,
+                  7
+                ]
+              },
+              {
+                "Range": [
+                  25,
+                  28
+                ]
+              },
+              {
+                "Range": [
+                  30,
+                  37
+                ]
+              },
+              {
+                "Range": [
+                  39,
+                  43
+                ]
+              },
+              {
+                "Range": [
+                  45,
+                  47
+                ]
+              },
+              {
+                "Range": [
+                  49,
+                  51
+                ]
+              },
+              {
+                "Range": [
+                  55,
+                  56
+                ]
+              },
+              {
+                "Range": [
+                  59,
+                  67
+                ]
+              },
+              {
+                "Single": 72
+              },
+              {
+                "Single": 74
+              },
+              {
+                "Single": 76
+              },
+              {
+                "Range": [
+                  78,
+                  82
+                ]
+              },
+              {
+                "Range": [
+                  84,
+                  89
+                ]
+              },
+              {
+                "Single": 93
+              },
+              {
+                "Single": 111
+              },
+              {
+                "Single": 124
+              },
+              {
+                "Single": 131
+              },
+              {
+                "Single": 139
+              },
+              {
+                "Single": 153
+              },
+              {
+                "Single": 156
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/constants.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/hooks.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          },
+          {
+            "Single": 37
+          },
+          {
+            "Range": [
+              83,
+              85
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              },
+              {
+                "Single": 37
+              },
+              {
+                "Range": [
+                  83,
+                  85
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/index.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 1
+          },
+          {
+            "Range": [
+              3,
+              12
+            ]
+          },
+          {
+            "Range": [
+              15,
+              16
+            ]
+          },
+          {
+            "Single": 18
+          },
+          {
+            "Range": [
+              23,
+              25
+            ]
+          },
+          {
+            "Single": 29
+          },
+          {
+            "Range": [
+              31,
+              32
+            ]
+          },
+          {
+            "Range": [
+              35,
+              36
+            ]
+          },
+          {
+            "Range": [
+              38,
+              40
+            ]
+          },
+          {
+            "Single": 43
+          },
+          {
+            "Single": 45
+          },
+          {
+            "Single": 47
+          },
+          {
+            "Range": [
+              49,
+              50
+            ]
+          },
+          {
+            "Range": [
+              53,
+              54
+            ]
+          },
+          {
+            "Range": [
+              56,
+              60
+            ]
+          },
+          {
+            "Single": 63
+          },
+          {
+            "Single": 66
+          },
+          {
+            "Range": [
+              68,
+              70
+            ]
+          },
+          {
+            "Range": [
+              74,
+              76
+            ]
+          },
+          {
+            "Range": [
+              80,
+              81
+            ]
+          },
+          {
+            "Range": [
+              83,
+              84
+            ]
+          },
+          {
+            "Range": [
+              86,
+              87
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 1
+              },
+              {
+                "Range": [
+                  3,
+                  12
+                ]
+              },
+              {
+                "Range": [
+                  15,
+                  16
+                ]
+              },
+              {
+                "Single": 18
+              },
+              {
+                "Range": [
+                  23,
+                  25
+                ]
+              },
+              {
+                "Single": 29
+              },
+              {
+                "Range": [
+                  31,
+                  32
+                ]
+              },
+              {
+                "Range": [
+                  35,
+                  36
+                ]
+              },
+              {
+                "Range": [
+                  38,
+                  40
+                ]
+              },
+              {
+                "Single": 43
+              },
+              {
+                "Single": 45
+              },
+              {
+                "Single": 47
+              },
+              {
+                "Range": [
+                  49,
+                  50
+                ]
+              },
+              {
+                "Range": [
+                  53,
+                  54
+                ]
+              },
+              {
+                "Range": [
+                  56,
+                  60
+                ]
+              },
+              {
+                "Single": 63
+              },
+              {
+                "Single": 66
+              },
+              {
+                "Range": [
+                  68,
+                  70
+                ]
+              },
+              {
+                "Range": [
+                  74,
+                  76
+                ]
+              },
+              {
+                "Range": [
+                  80,
+                  81
+                ]
+              },
+              {
+                "Range": [
+                  83,
+                  84
+                ]
+              },
+              {
+                "Range": [
+                  86,
+                  87
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/monaco.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              4
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  4
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/storage.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              12,
+              13
+            ]
+          },
+          {
+            "Single": 17
+          },
+          {
+            "Single": 28
+          },
+          {
+            "Single": 40
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  12,
+                  13
+                ]
+              },
+              {
+                "Single": 17
+              },
+              {
+                "Single": 28
+              },
+              {
+                "Single": 40
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/utils/store.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              18,
+              19
+            ]
+          },
+          {
+            "Range": [
+              25,
+              26
+            ]
+          },
+          {
+            "Single": 31
+          },
+          {
+            "Single": 33
+          },
+          {
+            "Single": 35
+          },
+          {
+            "Single": 37
+          },
+          {
+            "Single": 39
+          },
+          {
+            "Single": 44
+          },
+          {
+            "Single": 46
+          },
+          {
+            "Single": 52
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  18,
+                  19
+                ]
+              },
+              {
+                "Range": [
+                  25,
+                  26
+                ]
+              },
+              {
+                "Single": 31
+              },
+              {
+                "Single": 33
+              },
+              {
+                "Single": 35
+              },
+              {
+                "Single": 37
+              },
+              {
+                "Single": 39
+              },
+              {
+                "Single": 44
+              },
+              {
+                "Single": 46
+              },
+              {
+                "Single": 52
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/views/LeftBar.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 84
+          },
+          {
+            "Range": [
+              118,
+              119
+            ]
+          },
+          {
+            "Range": [
+              135,
+              136
+            ]
+          },
+          {
+            "Range": [
+              142,
+              143
+            ]
+          },
+          {
+            "Single": 166
+          },
+          {
+            "Single": 168
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 84
+              },
+              {
+                "Range": [
+                  118,
+                  119
+                ]
+              },
+              {
+                "Range": [
+                  135,
+                  136
+                ]
+              },
+              {
+                "Range": [
+                  142,
+                  143
+                ]
+              },
+              {
+                "Single": 166
+              },
+              {
+                "Single": 168
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/views/RightBar.tsx": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Single": 2
+          },
+          {
+            "Single": 4
+          },
+          {
+            "Range": [
+              6,
+              10
+            ]
+          },
+          {
+            "Range": [
+              12,
+              17
+            ]
+          },
+          {
+            "Range": [
+              26,
+              28
+            ]
+          },
+          {
+            "Range": [
+              40,
+              42
+            ]
+          },
+          {
+            "Single": 50
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Single": 2
+              },
+              {
+                "Single": 4
+              },
+              {
+                "Range": [
+                  6,
+                  10
+                ]
+              },
+              {
+                "Range": [
+                  12,
+                  17
+                ]
+              },
+              {
+                "Range": [
+                  26,
+                  28
+                ]
+              },
+              {
+                "Range": [
+                  40,
+                  42
+                ]
+              },
+              {
+                "Single": 50
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tailwind.config.js": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              2,
+              3
+            ]
+          },
+          {
+            "Single": 8
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "Single": 8
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tests/storage.test.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              167
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  167
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tests/utils.test.ts": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              158
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  158
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tsconfig.json": [
+      {
+        "hash": "6574eb1504d542eb",
+        "line_ranges": [
+          {
+            "Range": [
+              3,
+              18
+            ]
+          },
+          {
+            "Range": [
+              20,
+              21
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a2250af05cb1433dde46848",
+            "tool_type": "agent",
+            "tool_id": "RunCommand",
+            "line_ranges": [
+              {
+                "Range": [
+                  3,
+                  18
+                ]
+              },
+              {
+                "Range": [
+                  20,
+                  21
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "6574eb1504d542eb": {
+      "tool": "trae",
+      "conversation_id": "6a216b4c05cb1433dde457a8",
+      "session_id": "6a216b4c05cb1433dde457a8",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
