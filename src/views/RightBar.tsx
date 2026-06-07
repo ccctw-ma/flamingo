@@ -14,8 +14,8 @@ interface RightBarProps {
 
 export default function RightBar({ width }: RightBarProps) {
   const { selected, saveEdit, setEdit, setEditType } = useGlobalState();
-  const { hasChange, setHasChange } = useChange();
-  const { DETAIL, setConfig } = useConfig();
+  const { setHasChange } = useChange();
+  const { DETAIL } = useConfig();
   const { t } = useI18n();
 
   // Sync editor state to the current rule when switching selection or mode.
@@ -24,9 +24,6 @@ export default function RightBar({ width }: RightBarProps) {
       await saveEdit();
       setEdit(selected);
       setEditType(TYPE.Rule);
-      if (hasChange) {
-        setConfig("MATCH", false);
-      }
       setHasChange(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

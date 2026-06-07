@@ -37,12 +37,9 @@ export const CONFIG_OBJECT = {
   RIGHT_HEADER_HEIGHT: 40,
   RULE_CONTAINER_HEIGHT: 200,
 
-  MATCHED_RULE_TIME_MINUTE_SPAN: 5,
-
   // flag
   DETAIL: false,
   WORKING: true,
-  MATCH: false,
   LOCALE: "zh-CN",
   STORAGE_MODE: "local",
 };

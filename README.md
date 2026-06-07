@@ -1,19 +1,20 @@
 # Flamingo
 
-Flamingo 是一个基于 Manifest V3 的 Chrome 代理 / 网络请求改写扩展，使用 Chrome 的 `declarativeNetRequest` 能力，提供可视化的规则（Rule）与规则组（Group）管理界面，支持重定向、修改请求/响应头、拦截请求，并内置 Monaco JSON 编辑器进行高级编辑。
-
-
-https://chrome.google.com/webstore/devconsole/2c9cd477-df87-4544-84f2-eae6a49ed026
+Flamingo 是一个基于 Manifest V3 的 Chrome Declarative Net Request 规则编辑器。它只管理用户自己创建的本地规则，支持重定向、拦截请求、修改请求/响应头，并内置 Monaco JSON 编辑器用于高级编辑。
 
 
 ## 功能特性
 
-- **规则与规则组管理**：在左侧栏增删改查规则和规则组，支持启用/禁用。
+- **规则管理**：在左侧栏新增、编辑、复制、删除和拖拽排序规则，支持单条规则启用/禁用。
 - **两种编辑模式**：紧凑表单模式（CompactEditor）和 Monaco JSON 详细模式（DetailEditor）。
 - **请求改写**：支持 `redirect`、`modifyHeaders`、`block` 等动作。
-- **匹配记录**：查看最近一段时间内命中的规则及对应标签页。
-- **本地持久化**：所有规则通过 `chrome.storage.local` 保存。
+- **本地优先存储**：默认通过 `chrome.storage.local` 保存规则和偏好设置。
+- **可选 Chrome Sync**：用户可在设置中切换到 `chrome.storage.sync`，让规则跟随 Chrome 账号同步。
+- **中英文界面**：设置面板中支持中文 / English 切换。
+- **可配置面板尺寸**：设置后会同步到 popup 首帧尺寸，避免打开时渐进式抖动。
 - **一键开关**：通过图标状态切换扩展整体生效与否。
+
+Flamingo 不提供代理服务器、VPN、流量隧道、广告注入、远程规则服务或浏览记录分析；它只应用用户在扩展中创建并启用的 Declarative Net Request 规则。
 
 ## 技术栈
 
@@ -82,21 +83,31 @@ bun run check       # 一次性执行 typecheck + lint + test
 测试基于 Bun 内置测试器（`bun test`），位于 `tests/` 目录，覆盖：
 
 - `src/utils`：纯函数（节流、深拷贝、ID 生成、字段过滤等）。
-- `src/utils/storage`：基于内存版 `chrome.storage` mock 的规则 / 规则组 / 选中态的增删改查。
+- `src/utils/storage`：基于内存版 `chrome.storage` mock 的规则 / 选中态 / 存储模式的增删改查。
 
 ## 图标
 
-`images/flamingo.png` 是高分辨率主图标，构建时不会被打包。其余尺寸（`flamingo_16/48/128.png` 以及关闭态灰度版 `flamingo_grey_16/48/128.png`）由它生成，可用 ImageMagick 重新生成：
+`images/flamingo.png` 是高分辨率主图标，构建时不会被打包。其余尺寸（`flamingo_16/32/48/128.png` 以及关闭态灰度版 `flamingo_grey_16/32/48/128.png`）是圆形透明背景图标，用于 Chrome Web Store 和扩展按钮。
 
 ```bash
-cd images
-magick flamingo.png -resize 16x16  flamingo_16.png
-magick flamingo.png -resize 48x48  flamingo_48.png
-magick flamingo.png -resize 128x128 flamingo_128.png
-magick flamingo.png -resize 16x16  -colorspace Gray flamingo_grey_16.png
-magick flamingo.png -resize 48x48  -colorspace Gray flamingo_grey_48.png
-magick flamingo.png -resize 128x128 -colorspace Gray flamingo_grey_128.png
+# 图标生成逻辑已在最近版本中使用圆形透明背景处理。
+# 如需重生成，请确保输出仍保留 alpha 透明通道，避免白色方角。
 ```
+
+## 隐私与商店元数据
+
+Chrome Web Store 审核要求扩展的名称、说明、截图、权限和隐私政策必须和实际功能一致。
+
+- 隐私政策：[docs/privacy-policy.md](docs/privacy-policy.md)
+- Chrome Web Store 元数据建议：[docs/chrome-web-store-listing.md](docs/chrome-web-store-listing.md)
+
+发布前请在 Chrome Web Store Developer Dashboard 的「隐私权政策」专用字段中填写公开可访问的隐私政策 URL，例如：
+
+```text
+https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
+```
+
+不要只把隐私政策写在商品说明里；Chrome Web Store 不会把说明中的链接视为有效隐私政策字段。
 
 ## 持续集成与发布
 

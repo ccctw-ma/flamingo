@@ -64,19 +64,11 @@ async function installChromeMock(page: import("@playwright/test").Page) {
           SET: "set",
           REMOVE: "remove",
         },
-        async getMatchedRules() {
-          return { rulesMatchedInfo: [] };
-        },
         isRegexSupported(_input: unknown, callback?: (result: { isSupported: boolean }) => void) {
           if (!callback) {
             return Promise.resolve({ isSupported: true });
           }
           callback({ isSupported: true });
-        },
-        onRuleMatchedDebug: {
-          addListener: noop,
-          removeListener: noop,
-          hasListener,
         },
       },
       storage: {
@@ -94,9 +86,6 @@ async function installChromeMock(page: import("@playwright/test").Page) {
         },
       },
       tabs: {
-        async query() {
-          return [];
-        },
         async create() {
           return { id: 1 };
         },

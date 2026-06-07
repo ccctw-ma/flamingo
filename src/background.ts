@@ -46,10 +46,6 @@ async function getCurrentDynamicRules() {
   return await chrome.declarativeNetRequest.getDynamicRules();
 }
 
-const handleRuleMatched = (info: chrome.declarativeNetRequest.MatchedRuleInfoDebug) => {
-  console.log(info);
-};
-
 const handleStorageChange = (
   changes: { [key: string]: chrome.storage.StorageChange },
   _area: "sync" | "local" | "managed" | "session"
@@ -72,11 +68,7 @@ function init() {
   if (chrome.storage.onChanged.hasListener(handleStorageChange)) {
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
-  if (chrome.declarativeNetRequest.onRuleMatchedDebug.hasListener(handleRuleMatched)) {
-    chrome.declarativeNetRequest.onRuleMatchedDebug.removeListener(handleRuleMatched);
-  }
   chrome.storage.onChanged.addListener(handleStorageChange);
-  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(handleRuleMatched);
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
   syncExtensionIcon();
   setRules();

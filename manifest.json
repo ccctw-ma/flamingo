@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "flamingo",
+    "name": "Flamingo",
     "version": "1.0.0",
-    "description": "chrome extension for proxy",
+    "description": "Create local Chrome Declarative Net Request rules to redirect, block, or modify request and response headers.",
     "icons": {
         "16": "images/flamingo_16.png",
         "32": "images/flamingo_32.png",
@@ -15,15 +15,13 @@
             "32": "images/flamingo_32.png",
             "48": "images/flamingo_48.png"
         },
-        "default_title": "Hello Flamingo",
+        "default_title": "Flamingo",
         "default_popup": "home.html"
     },
     "permissions": [
         "storage",
-        "tabs",
         "declarativeNetRequest",
-        "declarativeNetRequestWithHostAccess",
-        "declarativeNetRequestFeedback"
+        "declarativeNetRequestWithHostAccess"
     ],
     "host_permissions": [
         "https://*/*",
