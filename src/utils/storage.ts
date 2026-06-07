@@ -1,8 +1,4 @@
-import {
-  CONFIG_KEYSET,
-  RULES_STORAGE_KEY,
-  SELECTED_KEY,
-} from "./constants";
+import { CONFIG_KEYSET, RULES_STORAGE_KEY, SELECTED_KEY } from "./constants";
 import { configKeyType, Rule, TYPE } from "./types";
 
 export type AreaName = "sync" | "local" | "managed" | "session";
@@ -133,13 +129,16 @@ async function setSelectedToArea(areaName: StorageMode, type: TYPE, selected: Ru
 }
 
 async function getConfigValueFromArea<Key extends configKeyType>(areaName: StorageMode, key: Key) {
-  return (await getStorageValue(areaName, key)) as typeof import("./constants").CONFIG_OBJECT[Key];
+  return (await getStorageValue(
+    areaName,
+    key
+  )) as (typeof import("./constants").CONFIG_OBJECT)[Key];
 }
 
 async function setConfigValueToArea<Key extends configKeyType>(
   areaName: StorageMode,
   key: Key,
-  value: typeof import("./constants").CONFIG_OBJECT[Key]
+  value: (typeof import("./constants").CONFIG_OBJECT)[Key]
 ) {
   return await setStorageValue(areaName, key, value);
 }
@@ -165,12 +164,14 @@ export async function getConfigValues(keys: configKeyType[]) {
 
 export async function getConfigValue<Key extends configKeyType>(key: Key) {
   const values = await getConfigValues([key]);
-  return (values as Record<configKeyType, unknown>)[key] as typeof import("./constants").CONFIG_OBJECT[Key];
+  return (values as Record<configKeyType, unknown>)[
+    key
+  ] as (typeof import("./constants").CONFIG_OBJECT)[Key];
 }
 
 export async function setConfigValue<Key extends configKeyType>(
   key: Key,
-  value: typeof import("./constants").CONFIG_OBJECT[Key]
+  value: (typeof import("./constants").CONFIG_OBJECT)[Key]
 ) {
   if (key === STORAGE_MODE_KEY) {
     await setStorageMode(value as StorageMode);

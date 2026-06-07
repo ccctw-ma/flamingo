@@ -18,11 +18,5 @@ export default function RuleEditor() {
     return null;
   }
 
-  return (
-    <CompactEditor
-      rule={selected}
-      onChange={handleRuleChange}
-      handleError={noop}
-    />
-  );
+  return <CompactEditor rule={selected} onChange={handleRuleChange} handleError={noop} />;
 }

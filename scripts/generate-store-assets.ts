@@ -87,110 +87,114 @@ async function waitForServer() {
 }
 
 async function installChromeMock(page: Page) {
-  await page.addInitScript(({ seededRules }) => {
-    localStorage.setItem("flamingo:popup-width", "800");
-    localStorage.setItem("flamingo:popup-height", "494");
+  await page.addInitScript(
+    ({ seededRules }) => {
+      localStorage.setItem("flamingo:popup-width", "800");
+      localStorage.setItem("flamingo:popup-height", "494");
 
-    const createStorageArea = (initialValues: Record<string, unknown>) => {
-      const store = new Map<string, unknown>(Object.entries(initialValues));
-      return {
-        async get(
-          keys: string | string[] | Record<string, unknown>,
-          callback?: (value: Record<string, unknown>) => void
-        ) {
-          const result: Record<string, unknown> = {};
-          if (typeof keys === "string") {
-            if (store.has(keys)) result[keys] = store.get(keys);
-          } else if (Array.isArray(keys)) {
-            for (const key of keys) {
-              if (store.has(key)) result[key] = store.get(key);
+      const createStorageArea = (initialValues: Record<string, unknown>) => {
+        const store = new Map<string, unknown>(Object.entries(initialValues));
+        return {
+          async get(
+            keys: string | string[] | Record<string, unknown>,
+            callback?: (value: Record<string, unknown>) => void
+          ) {
+            const result: Record<string, unknown> = {};
+            if (typeof keys === "string") {
+              if (store.has(keys)) result[keys] = store.get(keys);
+            } else if (Array.isArray(keys)) {
+              for (const key of keys) {
+                if (store.has(key)) result[key] = store.get(key);
+              }
+            } else {
+              for (const key of Object.keys(keys)) {
+                result[key] = store.has(key) ? store.get(key) : keys[key];
+              }
             }
-          } else {
-            for (const key of Object.keys(keys)) {
-              result[key] = store.has(key) ? store.get(key) : keys[key];
+            callback?.(result);
+            return result;
+          },
+          async set(obj: Record<string, unknown>) {
+            for (const [key, value] of Object.entries(obj)) {
+              store.set(key, value);
             }
-          }
-          callback?.(result);
-          return result;
+          },
+        };
+      };
+
+      const local = createStorageArea({
+        STORAGE_MODE: "local",
+        LOCALE: "en",
+        WORKING: true,
+        DETAIL: false,
+        rules_storage_key: seededRules,
+        selected_storage_key: ["Rule", seededRules[0]],
+      });
+
+      const noop = () => {};
+      const hasListener = () => false;
+
+      const chromeMock = {
+        declarativeNetRequest: {
+          RuleActionType: {
+            BLOCK: "block",
+            REDIRECT: "redirect",
+            ALLOW: "allow",
+            MODIFY_HEADERS: "modifyHeaders",
+            ALLOW_ALL_REQUESTS: "allowAllRequests",
+          },
+          HeaderOperation: {
+            APPEND: "append",
+            SET: "set",
+            REMOVE: "remove",
+          },
+          async getDynamicRules() {
+            return [];
+          },
+          async updateDynamicRules() {
+            return undefined;
+          },
+          async setExtensionActionOptions() {
+            return undefined;
+          },
+          isRegexSupported(_input: unknown, callback?: (result: { isSupported: boolean }) => void) {
+            if (!callback) {
+              return Promise.resolve({ isSupported: true });
+            }
+            callback({ isSupported: true });
+          },
         },
-        async set(obj: Record<string, unknown>) {
-          for (const [key, value] of Object.entries(obj)) {
-            store.set(key, value);
-          }
+        action: {
+          async setIcon() {
+            return undefined;
+          },
+        },
+        storage: {
+          local,
+          sync: createStorageArea({ STORAGE_MODE: "local" }),
+          onChanged: {
+            addListener: noop,
+            removeListener: noop,
+            hasListener,
+          },
+        },
+        runtime: {
+          getURL(path: string) {
+            return path;
+          },
+        },
+        tabs: {
+          async create() {
+            return { id: 1 };
+          },
         },
       };
-    };
 
-    const local = createStorageArea({
-      STORAGE_MODE: "local",
-      LOCALE: "en",
-      WORKING: true,
-      DETAIL: false,
-      rules_storage_key: seededRules,
-      selected_storage_key: ["Rule", seededRules[0]],
-    });
-
-    const noop = () => {};
-    const hasListener = () => false;
-
-    const chromeMock = {
-      declarativeNetRequest: {
-        RuleActionType: {
-          BLOCK: "block",
-          REDIRECT: "redirect",
-          ALLOW: "allow",
-          MODIFY_HEADERS: "modifyHeaders",
-          ALLOW_ALL_REQUESTS: "allowAllRequests",
-        },
-        HeaderOperation: {
-          APPEND: "append",
-          SET: "set",
-          REMOVE: "remove",
-        },
-        async getDynamicRules() {
-          return [];
-        },
-        async updateDynamicRules() {
-          return undefined;
-        },
-        async setExtensionActionOptions() {
-          return undefined;
-        },
-        isRegexSupported(_input: unknown, callback?: (result: { isSupported: boolean }) => void) {
-          if (!callback) {
-            return Promise.resolve({ isSupported: true });
-          }
-          callback({ isSupported: true });
-        },
-      },
-      action: {
-        async setIcon() {
-          return undefined;
-        },
-      },
-      storage: {
-        local,
-        sync: createStorageArea({ STORAGE_MODE: "local" }),
-        onChanged: {
-          addListener: noop,
-          removeListener: noop,
-          hasListener,
-        },
-      },
-      runtime: {
-        getURL(path: string) {
-          return path;
-        },
-      },
-      tabs: {
-        async create() {
-          return { id: 1 };
-        },
-      },
-    };
-
-    (window as unknown as { chrome: typeof chrome }).chrome = chromeMock as unknown as typeof chrome;
-  }, { seededRules: rules });
+      (window as unknown as { chrome: typeof chrome }).chrome =
+        chromeMock as unknown as typeof chrome;
+    },
+    { seededRules: rules }
+  );
 }
 
 async function preparePage(browser: Browser, width: number, height: number) {

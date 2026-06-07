@@ -92,12 +92,16 @@ async function installChromeMock(page: import("@playwright/test").Page) {
       },
     };
 
-    (window as unknown as { chrome: typeof chrome }).chrome = chromeMock as unknown as typeof chrome;
+    (window as unknown as { chrome: typeof chrome }).chrome =
+      chromeMock as unknown as typeof chrome;
   });
 }
 
 async function seedRule(page: import("@playwright/test").Page, name: string) {
-  await page.getByRole("button", { name: /^Add$|^新增$/i }).first().click();
+  await page
+    .getByRole("button", { name: /^Add$|^新增$/i })
+    .first()
+    .click();
   const addInput = page.locator(".sidebar-command input");
   await addInput.fill(name);
   await addInput.press("Enter");
@@ -148,14 +152,18 @@ test.describe("popup shell", () => {
     await expect
       .poll(() =>
         page.evaluate(() =>
-          getComputedStyle(document.documentElement).getPropertyValue("--flamingo-popup-width").trim()
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--flamingo-popup-width")
+            .trim()
         )
       )
       .toBe("760px");
     await expect
       .poll(() =>
         page.evaluate(() =>
-          getComputedStyle(document.documentElement).getPropertyValue("--flamingo-popup-height").trim()
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--flamingo-popup-height")
+            .trim()
         )
       )
       .toBe("520px");
@@ -165,14 +173,18 @@ test.describe("popup shell", () => {
     await expect
       .poll(() =>
         page.evaluate(() =>
-          getComputedStyle(document.documentElement).getPropertyValue("--flamingo-popup-width").trim()
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--flamingo-popup-width")
+            .trim()
         )
       )
       .toBe("760px");
     await expect
       .poll(() =>
         page.evaluate(() =>
-          getComputedStyle(document.documentElement).getPropertyValue("--flamingo-popup-height").trim()
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--flamingo-popup-height")
+            .trim()
         )
       )
       .toBe("520px");
@@ -189,7 +201,10 @@ test.describe("popup shell", () => {
     await expect(page.locator(".item-row")).toHaveCount(0);
     await expect(page.locator(".sidebar-empty")).toBeVisible();
 
-    await page.getByRole("button", { name: /^Add$|^新增$/i }).first().click();
+    await page
+      .getByRole("button", { name: /^Add$|^新增$/i })
+      .first()
+      .click();
     const addInput = page.locator(".sidebar-command input");
     await addInput.fill("alpha");
     await addInput.press("Enter");
@@ -221,7 +236,10 @@ test.describe("popup shell", () => {
     const demoRow = page.locator(".item-row", { hasText: "demo-rule" }).first();
     await demoRow.hover();
     await demoRow.locator(".item-handle").click();
-    await page.locator(".flamingo-list-menu").getByText(/Copy Rule|复制规则/i).click();
+    await page
+      .locator(".flamingo-list-menu")
+      .getByText(/Copy Rule|复制规则/i)
+      .click();
 
     await expect(page.locator(".item-row", { hasText: /demo-rule (副本|Copy)/ })).toHaveCount(1);
   });

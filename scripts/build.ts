@@ -143,7 +143,10 @@ async function main() {
   await copyExtensionAssets(background.entryPath);
   await writePopupHtml(popup.entryPath, normalizedOutputs);
 
-  const entries = normalizedOutputs.map((path) => basename(path)).sort().join(", ");
+  const entries = normalizedOutputs
+    .map((path) => basename(path))
+    .sort()
+    .join(", ");
   console.log(`Built Chrome extension into ${relative(rootDir, outDir)} (${entries})`);
 }
 

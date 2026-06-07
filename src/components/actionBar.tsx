@@ -21,10 +21,7 @@ const ActionBar = () => {
 
   return (
     <>
-      <div
-        style={{ height: RIGHT_HEADER_HEIGHT }}
-        className="editor-toolbar"
-      >
+      <div style={{ height: RIGHT_HEADER_HEIGHT }} className="editor-toolbar">
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold text-slate-900">
             {selected?.name || t("untitled")}

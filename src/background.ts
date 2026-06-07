@@ -18,7 +18,10 @@ async function setRules() {
   try {
     const newRules = await getNewRules();
     const oldRules = await getCurrentDynamicRules();
-    const isWorking = (await getConfigValue(CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT)) ?? true;
+    const isWorking =
+      (await getConfigValue(
+        CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT
+      )) ?? true;
     const workingRules = isWorking ? newRules : [];
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
@@ -31,7 +34,10 @@ async function setRules() {
 }
 
 async function syncExtensionIcon() {
-  const isWorking = (await getConfigValue(CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT)) ?? true;
+  const isWorking =
+    (await getConfigValue(
+      CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT
+    )) ?? true;
   const iconPrefix = isWorking ? "flamingo" : "flamingo_grey";
   chrome.action.setIcon({
     path: {
@@ -58,7 +64,10 @@ const handleStorageChange = (
   ) {
     setRules();
   }
-  if (changeKeys.includes(CONFIG_KEYSET.WORKING) || changeKeys.includes(CONFIG_KEYSET.STORAGE_MODE)) {
+  if (
+    changeKeys.includes(CONFIG_KEYSET.WORKING) ||
+    changeKeys.includes(CONFIG_KEYSET.STORAGE_MODE)
+  ) {
     syncExtensionIcon();
   }
 };

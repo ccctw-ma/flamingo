@@ -51,7 +51,6 @@ export const CONFIG_KEYSET = Object.keys(CONFIG_OBJECT).reduce((pre, cur) => {
   };
 }, {}) as ConfigKeySetType;
 
-
 /**
  * rule template for creating a new rule
  */

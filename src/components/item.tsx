@@ -4,7 +4,12 @@ import { DragEventHandler, useEffect, useState } from "react";
 import { CopyOutlined, DeleteOutlined, EditOutlined, HolderOutlined } from "@ant-design/icons";
 import { useI18n } from "../utils/i18n";
 import { Rule, TYPE } from "../utils/types";
-import { deleteRule, setLocalSelected, setRules as persistRules, updateRules } from "../utils/storage";
+import {
+  deleteRule,
+  setLocalSelected,
+  setRules as persistRules,
+  updateRules,
+} from "../utils/storage";
 import { useConfig, useGlobalState } from "../utils/hooks";
 import { deepClone, generateId } from "../utils";
 

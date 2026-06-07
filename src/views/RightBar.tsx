@@ -45,7 +45,9 @@ export default function RightBar({ width }: RightBarProps) {
       <ActionBar />
       <div className="editor-body">
         {DETAIL ? (
-          <Suspense fallback={<div className="p-4 text-sm text-slate-500">{t("loadingEditor")}</div>}>
+          <Suspense
+            fallback={<div className="p-4 text-sm text-slate-500">{t("loadingEditor")}</div>}
+          >
             <DetailEditor width={width} />
           </Suspense>
         ) : (

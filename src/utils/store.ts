@@ -27,12 +27,7 @@ function getBootstrapDimension(
 function getBootstrapConfig() {
   return {
     ...CONFIG_OBJECT,
-    HOME_WIDTH: getBootstrapDimension(
-      POPUP_WIDTH_STORAGE_KEY,
-      CONFIG_OBJECT.HOME_WIDTH,
-      640,
-      800
-    ),
+    HOME_WIDTH: getBootstrapDimension(POPUP_WIDTH_STORAGE_KEY, CONFIG_OBJECT.HOME_WIDTH, 640, 800),
     HOME_HEIGHT: getBootstrapDimension(
       POPUP_HEIGHT_STORAGE_KEY,
       CONFIG_OBJECT.HOME_HEIGHT,

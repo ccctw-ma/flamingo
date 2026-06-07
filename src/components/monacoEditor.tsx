@@ -23,13 +23,13 @@ export default function MonacoEditor(props: Props) {
   const { hasChange, setHasChange, wrapChange } = useChange();
   const [editContent, setEditContent] = useState<string>("");
 
-    useEffect(() => {
-      if (!hasChange) {
-        return;
-      }
-      onChange(editContent);
-      setHasChange(false);
-    }, [editContent, hasChange, onChange, setHasChange]);
+  useEffect(() => {
+    if (!hasChange) {
+      return;
+    }
+    onChange(editContent);
+    setHasChange(false);
+  }, [editContent, hasChange, onChange, setHasChange]);
 
   useEffect(() => {
     loader

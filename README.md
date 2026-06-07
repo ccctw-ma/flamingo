@@ -2,7 +2,6 @@
 
 Flamingo 是一个基于 Manifest V3 的 Chrome Declarative Net Request 规则编辑器。它只管理用户自己创建的本地规则，支持重定向、拦截请求、修改请求/响应头，并内置 Monaco JSON 编辑器用于高级编辑。
 
-
 ## 功能特性
 
 - **规则管理**：在左侧栏新增、编辑、复制、删除和拖拽排序规则，支持单条规则启用/禁用。
@@ -127,11 +126,11 @@ bun run package
 
 在 GitHub 仓库 `Settings → Secrets and variables → Actions` 中配置：
 
-| Secret | 说明 |
-| --- | --- |
-| `CHROME_EXTENSION_ID` | Chrome Web Store 中的扩展 ID |
-| `CHROME_CLIENT_ID` | Google Cloud OAuth 客户端 ID |
-| `CHROME_CLIENT_SECRET` | Google Cloud OAuth 客户端密钥 |
+| Secret                 | 说明                                 |
+| ---------------------- | ------------------------------------ |
+| `CHROME_EXTENSION_ID`  | Chrome Web Store 中的扩展 ID         |
+| `CHROME_CLIENT_ID`     | Google Cloud OAuth 客户端 ID         |
+| `CHROME_CLIENT_SECRET` | Google Cloud OAuth 客户端密钥        |
 | `CHROME_REFRESH_TOKEN` | 用于 Chrome Web Store API 的刷新令牌 |
 
 > 当前审核未通过期间不要恢复自动上传。待商店元数据和隐私政策确认通过后，再把 `.github/workflows/deploy.yml` 恢复为 push 自动部署。

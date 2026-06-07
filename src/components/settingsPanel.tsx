@@ -18,8 +18,15 @@ const POPUP_HEIGHT_STORAGE_KEY = "flamingo:popup-height";
 
 export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
   const { t } = useI18n();
-  const { LOCALE, STORAGE_MODE, HOME_WIDTH, HOME_HEIGHT, setConfig, switchStorageMode, initConfig } =
-    useConfig();
+  const {
+    LOCALE,
+    STORAGE_MODE,
+    HOME_WIDTH,
+    HOME_HEIGHT,
+    setConfig,
+    switchStorageMode,
+    initConfig,
+  } = useConfig();
   const { refresh, saveEdit } = useGlobalState();
   const [messageApi, contextHolder] = message.useMessage();
   const [panelWidth, setPanelWidth] = useState(HOME_WIDTH);
@@ -111,9 +118,7 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
 
           <section className="editor-card !m-0">
             <div className="mb-1 text-sm font-semibold text-slate-900">{t("panelSize")}</div>
-            <div className="mb-3 text-xs leading-5 text-slate-500">
-              {t("panelSizeDescription")}
-            </div>
+            <div className="mb-3 text-xs leading-5 text-slate-500">{t("panelSizeDescription")}</div>
             <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-2 text-xs font-medium text-slate-500">
                 <span>{t("panelWidth")}</span>
@@ -121,7 +126,9 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
                   min={POPUP_WIDTH_MIN}
                   max={POPUP_WIDTH_MAX}
                   value={panelWidth}
-                  onChange={(value) => setPanelWidth(typeof value === "number" ? value : HOME_WIDTH)}
+                  onChange={(value) =>
+                    setPanelWidth(typeof value === "number" ? value : HOME_WIDTH)
+                  }
                   addonAfter="px"
                   className="w-full"
                 />

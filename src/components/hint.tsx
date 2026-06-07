@@ -34,9 +34,7 @@ export default function Hint({ title, children, placement = "top" }: HintProps) 
     const targetCenter = anchorRect.left + anchorRect.width / 2;
     let nextPlacement = placement;
     let top =
-      placement === "bottom"
-        ? anchorRect.bottom + gap
-        : anchorRect.top - bubbleRect.height - gap;
+      placement === "bottom" ? anchorRect.bottom + gap : anchorRect.top - bubbleRect.height - gap;
 
     if (placement === "bottom" && top + bubbleRect.height > viewportHeight - margin) {
       nextPlacement = "top";
@@ -48,10 +46,7 @@ export default function Hint({ title, children, placement = "top" }: HintProps) 
 
     const maxLeft = viewportWidth - bubbleRect.width - margin;
     const left = Math.min(maxLeft, Math.max(margin, targetCenter - bubbleRect.width / 2));
-    const arrowLeft = Math.min(
-      bubbleRect.width - 14,
-      Math.max(14, targetCenter - left)
-    );
+    const arrowLeft = Math.min(bubbleRect.width - 14, Math.max(14, targetCenter - left));
 
     setPosition({
       left,

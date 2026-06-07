@@ -27,6 +27,7 @@
 ## Task 1: Add Test Harness
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `vitest.config.ts`
 - Create: `tests/setup.ts`
@@ -38,7 +39,15 @@ Create `tests/utils.test.ts` with:
 
 ```ts
 import { describe, expect, test, vi } from "vitest";
-import { deepClone, filterEditContent, obj2str, padZero, removeKeys, str2obj, throttle } from "../src/utils";
+import {
+  deepClone,
+  filterEditContent,
+  obj2str,
+  padZero,
+  removeKeys,
+  str2obj,
+  throttle,
+} from "../src/utils";
 import { TYPE, type Group, type Rule } from "../src/utils/types";
 
 function createRule(overrides: Partial<Rule> = {}): Rule {
@@ -116,7 +125,9 @@ describe("utils", () => {
 
     const filtered = filterEditContent(group, TYPE.Group);
 
-    expect(filtered).toEqual([{ action: group.rules[0].action, condition: group.rules[0].condition }]);
+    expect(filtered).toEqual([
+      { action: group.rules[0].action, condition: group.rules[0].condition },
+    ]);
     expect(group.rules[0]).toHaveProperty("id", 201);
   });
 
@@ -253,6 +264,7 @@ Expected initially after installing dependencies: PASS for existing utility beha
 ## Task 2: Make Build Helpers Testable
 
 **Files:**
+
 - Create: `tests/build.test.ts`
 - Modify: `scripts/build.ts`
 
@@ -266,11 +278,15 @@ import { toHtmlPath, shouldTreatOutputAsCss } from "../scripts/build";
 
 describe("build helpers", () => {
   test("toHtmlPath returns extension-friendly relative paths", () => {
-    expect(toHtmlPath("/repo/build/assets/home-abc.js", "/repo/build")).toBe("./assets/home-abc.js");
+    expect(toHtmlPath("/repo/build/assets/home-abc.js", "/repo/build")).toBe(
+      "./assets/home-abc.js"
+    );
   });
 
   test("toHtmlPath normalizes Windows path separators", () => {
-    expect(toHtmlPath("C:\\repo\\build\\assets\\home.css", "C:\\repo\\build")).toBe("./assets/home.css");
+    expect(toHtmlPath("C:\\repo\\build\\assets\\home.css", "C:\\repo\\build")).toBe(
+      "./assets/home.css"
+    );
   });
 
   test("shouldTreatOutputAsCss identifies generated CSS chunks", () => {
@@ -323,6 +339,7 @@ Expected: PASS.
 ## Task 3: Add Lint and CI Scripts
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `eslint.config.js`
 
@@ -402,6 +419,7 @@ Expected: PASS after formatting/import cleanup. If lint reports unused imports o
 ## Task 4: Add Chinese Documentation and Agent Guidance
 
 **Files:**
+
 - Modify: `README.md`
 - Create: `AGENTS.md`
 
@@ -422,6 +440,7 @@ Expected: command exits 0.
 ## Task 5: Add GitHub Actions CI/CD
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Add CI/CD workflow**

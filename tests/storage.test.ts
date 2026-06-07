@@ -4,10 +4,7 @@ import { beforeEach, describe, expect, test } from "bun:test";
 const localStore = new Map<string, unknown>();
 const syncStore = new Map<string, unknown>();
 
-function readKeys(
-  store: Map<string, unknown>,
-  keys: string | string[] | Record<string, unknown>
-) {
+function readKeys(store: Map<string, unknown>, keys: string | string[] | Record<string, unknown>) {
   const result: Record<string, unknown> = {};
   if (typeof keys === "string") {
     if (store.has(keys)) result[keys] = store.get(keys);
@@ -62,10 +59,7 @@ function readKeys(
   },
 };
 
-const {
-  RULES_STORAGE_KEY,
-  SELECTED_KEY,
-} = await import("../src/utils/constants");
+const { RULES_STORAGE_KEY, SELECTED_KEY } = await import("../src/utils/constants");
 const storage = await import("../src/utils/storage");
 const { TYPE } = await import("../src/utils/types");
 import type { Rule } from "../src/utils/types";
