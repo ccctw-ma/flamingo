@@ -49,10 +49,22 @@ Do not put the privacy policy only in the description. It must be configured in 
 
 Screenshots should show only actual product functionality:
 
-- Empty state with the add-rule button.
-- Rule list with one user-created rule.
 - Compact rule editor.
 - JSON detail editor.
 - Settings panel showing language, storage mode, and popup size.
 
 Avoid screenshots or text implying proxy service, VPN service, traffic capture, matched-rule history, group management, or any feature that is no longer present.
+
+Generated assets are stored in `images/`:
+
+- `store_screenshot_compact_1280x800.jpg`
+- `store_screenshot_detail_1280x800.jpg`
+- `store_screenshot_settings_1280x800.jpg`
+- `store_promo_small_440x280.jpg`
+- `store_promo_marquee_1400x560.jpg`
+
+Regenerate them with:
+
+```bash
+bun run store:assets
+```
