@@ -1,17 +1,16 @@
-name: Deploy to Chrome Web Store
+name: Package Chrome Extension
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
-# Avoid overlapping store uploads when several commits land quickly.
+# Chrome Web Store publishing is disabled until the current listing passes review.
 concurrency:
-  group: chrome-web-store-deploy
+  group: chrome-extension-package
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Build & Publish to Chrome Web Store
+  package:
+    name: Build & Package Extension
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,7 +35,7 @@ jobs:
           BASE_VERSION=$(node -p "require('./manifest.json').version.split('.').slice(0,2).join('.')")
           NEW_VERSION="${BASE_VERSION}.${{ github.run_number }}"
           node -e "const fs=require('fs');const m=require('./manifest.json');m.version='${NEW_VERSION}';fs.writeFileSync('./manifest.json', JSON.stringify(m, null, 4) + '\n');"
-          echo "Publishing version ${NEW_VERSION}"
+          echo "Packaging version ${NEW_VERSION}"
 
       - name: Verify (typecheck, lint, test)
         run: |
@@ -44,20 +43,12 @@ jobs:
           bun run lint
           bun test
 
-      - name: Build extension
-        run: bun scripts/build.ts
+      - name: Build and package extension
+        run: bun run package
 
-      - name: Package extension
-        run: |
-          cd build
-          zip -r ../flamingo.zip .
-
-      - name: Upload & publish to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v5.0.0
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
         with:
-          file-path: flamingo.zip
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: true
+          name: flamingo-extension-zip
+          path: flamingo.zip
+          if-no-files-found: error

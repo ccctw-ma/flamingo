@@ -109,13 +109,21 @@ https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
 
 不要只把隐私政策写在商品说明里；Chrome Web Store 不会把说明中的链接视为有效隐私政策字段。
 
-## 持续集成与发布
+## 持续集成与打包
 
 - `.github/workflows/ci.yml`：在 `push` 与 `pull_request` 时执行类型检查、Lint、测试、构建，并上传构建产物。
-- `.github/workflows/deploy.yml`：推送到 `main` 时自动构建、按 `github.run_number` 递增 patch 版本号、打包并发布到 Chrome Web Store。
+- `.github/workflows/deploy.yml`：当前仅支持手动触发打包 zip，不会上传或发布到 Chrome Web Store。等商店审核问题确认解决后，再恢复 push 自动部署。
 - `.github/workflows/release.yml`：推送 `v*` 形式的 tag 时，自动构建、打包为 zip 并创建 GitHub Release。
 
-### 配置自动部署所需的 Secrets
+本地生成 Chrome Web Store 可上传的 zip：
+
+```bash
+bun run package
+```
+
+产物为项目根目录下的 `flamingo.zip`。
+
+### 恢复自动部署时需要的 Secrets
 
 在 GitHub 仓库 `Settings → Secrets and variables → Actions` 中配置：
 
@@ -126,7 +134,7 @@ https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
 | `CHROME_CLIENT_SECRET` | Google Cloud OAuth 客户端密钥 |
 | `CHROME_REFRESH_TOKEN` | 用于 Chrome Web Store API 的刷新令牌 |
 
-> 首次发布需要先在 Chrome Web Store 开发者后台手动创建扩展条目，拿到 `CHROME_EXTENSION_ID` 后，后续推送到 `main` 即可自动更新发布。
+> 当前审核未通过期间不要恢复自动上传。待商店元数据和隐私政策确认通过后，再把 `.github/workflows/deploy.yml` 恢复为 push 自动部署。
 
 发布正式版本（GitHub Release）示例：
 

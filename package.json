@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "bun --watch scripts/build.ts",
     "build": "bun run typecheck && bun scripts/build.ts",
+    "package": "bun scripts/package.ts",
     "typecheck": "bun x tsc --noEmit",
     "lint": "bun x eslint .",
     "lint:fix": "bun x eslint . --fix",
