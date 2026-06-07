@@ -1,51 +1,71 @@
 import { CONFIG_KEYSET, RULES_STORAGE_KEY } from "./utils/constants";
 import { getConfigValue, getRules } from "./utils/storage";
-import { Rule } from "./utils/types";
+import { CUSTOM_ACTION, Rule } from "./utils/types";
 
-async function getNewRules(): Promise<Array<chrome.declarativeNetRequest.Rule>> {
-  const rules: Rule[] = await getRules();
-  const enableRules = rules.filter((rule) => rule.enable);
-  const availableRules: chrome.declarativeNetRequest.Rule[] = enableRules.map((rule) => ({
+function toDynamicRule(rule: Rule): chrome.declarativeNetRequest.Rule | null {
+  if (rule.uiActionType === CUSTOM_ACTION.MOCK) {
+    return null;
+  }
+  return {
     action: rule.action,
     condition: rule.condition,
     id: rule.id,
     priority: rule.priority,
-  }));
-  return availableRules;
+  };
 }
 
-async function setRules() {
+async function getIsWorking() {
+  return (
+    ((await getConfigValue(
+      CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT
+    )) as boolean | undefined) ?? true
+  );
+}
+
+async function getEnabledRules() {
+  const rules: Rule[] = await getRules();
+  return rules.filter((rule) => rule.enable);
+}
+
+async function setRules(isWorkingOverride?: boolean) {
   try {
-    const newRules = await getNewRules();
+    const enableRules = await getEnabledRules();
+    const newRules = enableRules.flatMap((rule) => {
+      const dynamicRule = toDynamicRule(rule);
+      return dynamicRule ? [dynamicRule] : [];
+    });
     const oldRules = await getCurrentDynamicRules();
-    const isWorking =
-      (await getConfigValue(
-        CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT
-      )) ?? true;
+    const isWorking = isWorkingOverride ?? (await getIsWorking());
     const workingRules = isWorking ? newRules : [];
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: workingRules,
       removeRuleIds: removeIds,
     });
+    await syncActionState(enableRules.length, isWorking);
   } catch (err) {
     console.log("error: setRules", err);
   }
 }
 
-async function syncExtensionIcon() {
-  const isWorking =
-    (await getConfigValue(
-      CONFIG_KEYSET.WORKING as keyof typeof import("./utils/constants").CONFIG_OBJECT
-    )) ?? true;
-  const iconPrefix = isWorking ? "flamingo" : "flamingo_grey";
+async function syncActionState(enabledRuleCount?: number, isWorking?: boolean) {
+  const [resolvedEnabledRuleCount, resolvedIsWorking] = await Promise.all([
+    enabledRuleCount === undefined
+      ? getEnabledRules().then((rules) => rules.length)
+      : Promise.resolve(enabledRuleCount),
+    isWorking === undefined ? getIsWorking() : Promise.resolve(isWorking),
+  ]);
+  const iconPrefix = resolvedIsWorking ? "flamingo" : "flamingo_grey";
   chrome.action.setIcon({
     path: {
       16: `images/${iconPrefix}_16.png`,
       32: `images/${iconPrefix}_32.png`,
       48: `images/${iconPrefix}_48.png`,
+      128: `images/${iconPrefix}_128.png`,
     },
   });
+  chrome.action.setBadgeBackgroundColor({ color: resolvedIsWorking ? "#ff5d52" : "#94a3b8" });
+  chrome.action.setBadgeText({ text: resolvedIsWorking ? String(resolvedEnabledRuleCount) : "" });
 }
 
 async function getCurrentDynamicRules() {
@@ -68,9 +88,24 @@ const handleStorageChange = (
     changeKeys.includes(CONFIG_KEYSET.WORKING) ||
     changeKeys.includes(CONFIG_KEYSET.STORAGE_MODE)
   ) {
-    syncExtensionIcon();
+    syncActionState();
   }
 };
+
+chrome.runtime.onMessage.addListener((message: unknown) => {
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    message.type === "FLAMINGO_SYNC_ACTION_STATE"
+  ) {
+    const payload = message as { enabledRuleCount?: number; isWorking?: boolean };
+    if (typeof payload.enabledRuleCount === "number" || typeof payload.isWorking === "boolean") {
+      syncActionState(payload.enabledRuleCount, payload.isWorking);
+    }
+    setRules(payload.isWorking);
+  }
+});
 
 function init() {
   console.log("welcome to flamingo, a proxy extension");
@@ -78,8 +113,8 @@ function init() {
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
   chrome.storage.onChanged.addListener(handleStorageChange);
-  chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: true });
-  syncExtensionIcon();
+  chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: false });
+  syncActionState();
   setRules();
 }
 

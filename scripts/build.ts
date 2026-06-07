@@ -16,7 +16,7 @@ interface BuildEntry {
   outputs: string[];
 }
 
-async function copyExtensionAssets(backgroundPath: string) {
+async function copyExtensionAssets(backgroundPath: string, mockMainPath: string, contentBridgePath: string) {
   // Ship only the sized icons; skip the high-resolution master image.
   await cp(resolve(rootDir, "images"), resolve(outDir, "images"), {
     recursive: true,
@@ -24,6 +24,21 @@ async function copyExtensionAssets(backgroundPath: string) {
   });
   const manifest = JSON.parse(await readFile(resolve(rootDir, "manifest.json"), "utf8"));
   manifest.background.service_worker = toHtmlPath(backgroundPath).slice(2);
+  manifest.content_scripts = [
+    {
+      matches: ["https://*/*", "http://*/*"],
+      js: [toHtmlPath(mockMainPath).slice(2)],
+      run_at: "document_start",
+      all_frames: true,
+      world: "MAIN",
+    },
+    {
+      matches: ["https://*/*", "http://*/*"],
+      js: [toHtmlPath(contentBridgePath).slice(2)],
+      run_at: "document_start",
+      all_frames: true,
+    },
+  ];
   await writeFile(resolve(outDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
@@ -64,7 +79,20 @@ async function runBuild(entrypoint: string, entryName: string): Promise<BuildEnt
 async function buildBundles() {
   const popup = await runBuild("src/index.tsx", "index");
   const background = await runBuild("src/background.ts", "background");
-  return { popup, background, outputs: [...popup.outputs, ...background.outputs] };
+  const mockMain = await runBuild("src/mockMain.ts", "mockMain");
+  const contentBridge = await runBuild("src/contentBridge.ts", "contentBridge");
+  return {
+    popup,
+    background,
+    mockMain,
+    contentBridge,
+    outputs: [
+      ...popup.outputs,
+      ...background.outputs,
+      ...mockMain.outputs,
+      ...contentBridge.outputs,
+    ],
+  };
 }
 
 async function normalizeCssAssets(outputs: string[]) {
@@ -137,10 +165,10 @@ async function writePopupHtml(scriptPath: string, outputs: string[]) {
 async function main() {
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
-  const { popup, background, outputs } = await buildBundles();
+  const { popup, background, mockMain, contentBridge, outputs } = await buildBundles();
   const normalizedOutputs = await normalizeCssAssets(outputs);
   normalizedOutputs.push(await buildCss());
-  await copyExtensionAssets(background.entryPath);
+  await copyExtensionAssets(background.entryPath, mockMain.entryPath, contentBridge.entryPath);
   await writePopupHtml(popup.entryPath, normalizedOutputs);
 
   const entries = normalizedOutputs

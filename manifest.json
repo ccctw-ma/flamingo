@@ -23,5 +23,20 @@
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["src/mockMain.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["src/contentBridge.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
 }

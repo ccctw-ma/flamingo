@@ -1,22 +1,19 @@
-import { useFlag } from "../utils/store";
 import { Rule, TYPE } from "../utils/types";
 import CompactEditor from "./compactEditor";
-import { noop } from "../utils";
 import { useGlobalState } from "../utils/hooks";
 
 export default function RuleEditor() {
-  const { selected, setEdit, setEditType } = useGlobalState();
-  const { setIsSaved } = useFlag();
+  const { selected, setEdit, setEditType, saveEdit } = useGlobalState();
 
   const handleRuleChange = async (rule: Rule) => {
-    setIsSaved(false);
     setEdit(rule);
     setEditType(TYPE.Rule);
+    await saveEdit(rule);
   };
 
   if (!selected) {
     return null;
   }
 
-  return <CompactEditor rule={selected} onChange={handleRuleChange} handleError={noop} />;
+  return <CompactEditor rule={selected} onChange={handleRuleChange} />;
 }

@@ -2,14 +2,13 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { getConfigValues, getRules, getSelected, switchStorageMode, updateRules } from "./storage";
 import { useRule, useSelected, useFlag, useConfigStore } from "./store";
 import { Rule, TYPE, configKeyType } from "./types";
-import { message } from "antd";
 import { CONFIG_OBJECT } from "./constants";
 
 export function useGlobalState() {
   const { rules, setRules } = useRule();
   const { type, selected, setType, setSelected } = useSelected();
-  const { edit, editType, setEdit, setEditType, hasError, setHasError } = useSelected();
-  const { isSaved, setIsSaved, loaded, setIsLoaded } = useFlag();
+  const { edit, editType, setEdit, setEditType, setHasError } = useSelected();
+  const { loaded, setIsLoaded } = useFlag();
   const refresh = async () => {
     const localRules: Rule[] = await getRules();
     const [localSelectedType, localSelected] = await getSelected();
@@ -25,20 +24,11 @@ export function useGlobalState() {
     return { localRules, currentSelected: fallbackRule };
   };
   const saveEdit = async (newEdit?: Rule) => {
-    if (isSaved && !newEdit) {
-      return;
-    }
-    if (hasError) {
-      setHasError(false);
-      message.error("The edited rule has errors and has been restored to a state without errors");
-    }
     const updateEdit = newEdit || edit;
     if (!updateEdit) {
-      setIsSaved(true);
       return;
     }
     await updateRules(updateEdit);
-    setIsSaved(true);
     setEdit(updateEdit);
     return await refresh();
   };

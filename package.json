@@ -44,6 +44,7 @@
     "@ant-design/icons": "^5.2.6",
     "antd": "^5.12.1",
     "@monaco-editor/react": "^4.6.0",
+    "jsonc-parser": "^3.3.1",
     "monaco-editor": "^0.44.0",
     "zustand": "^4.4.7"
   }

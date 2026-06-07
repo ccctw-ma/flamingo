@@ -15,6 +15,10 @@ export enum TYPE {
   Rule = "Rule",
 }
 
+export enum CUSTOM_ACTION {
+  MOCK = "mock",
+}
+
 export enum STATUS {
   ERROR = "error",
   WARN = "warning",
@@ -36,6 +40,14 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
 
   /** Determin whether this rule is working*/
   enable: boolean;
+
+  /** Optional editable mock response body for redirect rules. */
+  mockResponse?: {
+    enabled: boolean;
+    body: string;
+  };
+
+  uiActionType?: chrome.declarativeNetRequest.RuleActionType | CUSTOM_ACTION.MOCK;
 }
 
 export type RuleStore = {
@@ -59,8 +71,6 @@ export type SelecedStore = {
 };
 
 export type FalgStore = {
-  isSaved: boolean;
-  setIsSaved: (val: boolean) => void;
   loaded: boolean;
   setIsLoaded: (val: boolean) => void;
 };

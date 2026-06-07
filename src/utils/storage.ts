@@ -13,6 +13,16 @@ const ACTIVE_CONFIG_KEYS = new Set<configKeyType>([
   CONFIG_KEYSET.LOCALE as configKeyType,
 ]);
 
+function notifyActionStateChange() {
+  if (!chrome.runtime?.sendMessage) {
+    return;
+  }
+
+  chrome.runtime.sendMessage({ type: "FLAMINGO_SYNC_ACTION_STATE" }).catch(() => {
+    // Background may be asleep or unavailable in tests.
+  });
+}
+
 /** function currying*/
 function storageSet(areaName: AreaName) {
   return async function (obj: StorageObject) {
@@ -89,6 +99,7 @@ export async function setStorageMode(mode: StorageMode) {
     localSetBySingleKey(CONFIG_KEYSET.STORAGE_MODE, mode),
     syncSetBySingleKey(STORAGE_MODE_KEY, mode),
   ]);
+  notifyActionStateChange();
 }
 
 async function getDataArea() {
@@ -180,6 +191,9 @@ export async function setConfigValue<Key extends configKeyType>(
 
   if (ACTIVE_CONFIG_KEYS.has(key)) {
     await setConfigValueToArea(await getDataArea(), key, value);
+    if (key === CONFIG_KEYSET.WORKING) {
+      notifyActionStateChange();
+    }
     return;
   }
 
@@ -218,7 +232,8 @@ export async function getRules() {
 }
 
 export async function setRules(rules: Array<Rule>) {
-  return await setRulesToArea(await getDataArea(), rules);
+  await setRulesToArea(await getDataArea(), rules);
+  notifyActionStateChange();
 }
 
 export async function addRule(rule: Rule) {
@@ -230,12 +245,8 @@ export async function addRule(rule: Rule) {
 export async function updateRules(rule: Rule) {
   const oldRules: Array<Rule> = await getRules();
   const newRules = oldRules.map((r) => {
-    // override
     if (r.id === rule.id) {
-      return {
-        ...r,
-        ...rule,
-      };
+      return rule;
     } else {
       return r;
     }

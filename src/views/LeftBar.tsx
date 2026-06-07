@@ -13,7 +13,7 @@ import { useGlobalState } from "../utils/hooks";
 type SidebarMode = "idle" | "add" | "search";
 
 export default function LeftBar() {
-  const { rules, refresh, saveEdit, setRules } = useGlobalState();
+  const { rules, refresh, setRules } = useGlobalState();
   const { t } = useI18n();
   const [mode, setMode] = useState<SidebarMode>("idle");
   const [draftName, setDraftName] = useState("");
@@ -39,7 +39,6 @@ export default function LeftBar() {
       return;
     }
 
-    await saveEdit();
     await addRule({
       ...EMPTY_RULE,
       name: nextName,
@@ -80,7 +79,6 @@ export default function LeftBar() {
     const [draggedRule] = nextRules.splice(fromIndex, 1);
     nextRules.splice(toIndex, 0, draggedRule);
 
-    await saveEdit();
     await persistRules(nextRules);
     setRules(nextRules);
     setDropTargetId(null);

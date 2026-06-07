@@ -35,7 +35,7 @@ export default function Item(props: Props) {
     onDrop,
     onDragEnd,
   } = props;
-  const { type, selected, setType, setSelected, rules, refresh, saveEdit } = useGlobalState();
+  const { type, selected, setType, setSelected, rules, refresh } = useGlobalState();
   const { LEFT_TAB_ITEM_HEIGHT } = useConfig();
   const { t } = useI18n();
   // item built-in states
@@ -45,7 +45,6 @@ export default function Item(props: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const deleteItem = async (item: Rule) => {
-    await saveEdit();
     await deleteRule(item);
     const remaining = rules.filter((r) => r.id !== item.id);
     await setLocalSelected(TYPE.Rule, remaining[0] ?? null);
@@ -53,13 +52,11 @@ export default function Item(props: Props) {
   };
 
   const updateItem = async (item: Rule) => {
-    await saveEdit();
     await updateRules({ ...item, update: Date.now() });
     refresh();
   };
 
   const duplicateItem = async (item: Rule) => {
-    await saveEdit();
     const ruleCopy: Rule = {
       ...deepClone(item),
       id: generateId(),

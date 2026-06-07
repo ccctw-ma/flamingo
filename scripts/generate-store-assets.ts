@@ -143,6 +143,9 @@ async function installChromeMock(page: Page) {
             MODIFY_HEADERS: "modifyHeaders",
             ALLOW_ALL_REQUESTS: "allowAllRequests",
           },
+          ResourceType: {
+            XMLHTTPREQUEST: "xmlhttprequest",
+          },
           HeaderOperation: {
             APPEND: "append",
             SET: "set",
@@ -166,6 +169,12 @@ async function installChromeMock(page: Page) {
         },
         action: {
           async setIcon() {
+            return undefined;
+          },
+          async setBadgeBackgroundColor() {
+            return undefined;
+          },
+          async setBadgeText() {
             return undefined;
           },
         },

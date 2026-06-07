@@ -10,6 +10,7 @@ import {
   str2obj,
   throttle,
 } from "../src/utils";
+import { getDefaultMockResponseBody } from "../src/utils/mock";
 import type { Rule } from "../src/utils/types";
 
 describe("padZero", () => {
@@ -43,6 +44,15 @@ describe("obj2str / str2obj", () => {
 
   test("obj2str pretty prints with two spaces", () => {
     expect(obj2str({ a: 1 })).toBe('{\n  "a": 1\n}');
+  });
+});
+
+describe("mock helpers", () => {
+  test("default mock response body is valid JSON", () => {
+    expect(JSON.parse(getDefaultMockResponseBody())).toMatchObject({
+      code: 0,
+      message: "ok",
+    });
   });
 });
 

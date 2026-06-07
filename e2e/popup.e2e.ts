@@ -1,9 +1,15 @@
 import { expect, test } from "@playwright/test";
 
-async function installChromeMock(page: import("@playwright/test").Page) {
-  await page.addInitScript(() => {
-    const createStorageArea = () => {
+async function installChromeMock(
+  page: import("@playwright/test").Page,
+  initialLocalStorage: Record<string, unknown> = {}
+) {
+  await page.addInitScript((initialLocalStorageValues) => {
+    const createStorageArea = (initialValues: Record<string, unknown> = {}) => {
       const store = new Map<string, unknown>();
+      for (const [key, value] of Object.entries(initialValues)) {
+        store.set(key, value);
+      }
       return {
         async get(
           keys: string | string[] | Record<string, unknown>,
@@ -37,14 +43,16 @@ async function installChromeMock(page: import("@playwright/test").Page) {
         local: ReturnType<typeof createStorageArea>;
         sync: ReturnType<typeof createStorageArea>;
       };
+      __flamingoChromeMockTabs__?: Array<{ url?: string }>;
     };
 
     if (!globalState.__flamingoChromeMockStore__) {
       globalState.__flamingoChromeMockStore__ = {
-        local: createStorageArea(),
+        local: createStorageArea(initialLocalStorageValues),
         sync: createStorageArea(),
       };
     }
+    globalState.__flamingoChromeMockTabs__ = [];
 
     const { local, sync } = globalState.__flamingoChromeMockStore__;
     const noop = () => {};
@@ -58,6 +66,9 @@ async function installChromeMock(page: import("@playwright/test").Page) {
           ALLOW: "allow",
           MODIFY_HEADERS: "modifyHeaders",
           ALLOW_ALL_REQUESTS: "allowAllRequests",
+        },
+        ResourceType: {
+          XMLHTTPREQUEST: "xmlhttprequest",
         },
         HeaderOperation: {
           APPEND: "append",
@@ -86,7 +97,8 @@ async function installChromeMock(page: import("@playwright/test").Page) {
         },
       },
       tabs: {
-        async create() {
+        async create(options: { url?: string }) {
+          globalState.__flamingoChromeMockTabs__?.push(options);
           return { id: 1 };
         },
       },
@@ -94,7 +106,7 @@ async function installChromeMock(page: import("@playwright/test").Page) {
 
     (window as unknown as { chrome: typeof chrome }).chrome =
       chromeMock as unknown as typeof chrome;
-  });
+  }, initialLocalStorage);
 }
 
 async function seedRule(page: import("@playwright/test").Page, name: string) {
@@ -106,6 +118,39 @@ async function seedRule(page: import("@playwright/test").Page, name: string) {
   await addInput.fill(name);
   await addInput.press("Enter");
   await page.locator(".item-row", { hasText: name }).first().waitFor();
+}
+
+function createNestedMockRule() {
+  const rule = {
+    id: 7001,
+    name: "mock-json",
+    create: Date.now(),
+    update: Date.now(),
+    enable: true,
+    action: { type: "block" },
+    condition: { regexFilter: "^https://example\\.com/api/mock$" },
+    mockResponse: {
+      enabled: true,
+      body: JSON.stringify(
+        {
+          user: {
+            id: "u-1",
+            name: "Ada",
+          },
+          payload: JSON.stringify({
+            nested: {
+              value: 1,
+            },
+          }),
+          status: "ok",
+        },
+        null,
+        2
+      ),
+    },
+    uiActionType: "mock",
+  };
+  return rule;
 }
 
 test.describe("popup shell", () => {
@@ -122,6 +167,7 @@ test.describe("popup shell", () => {
     await expect(appWindow).toBeVisible();
     await expect(appShell).toBeVisible();
     await expect(appPane).toHaveCSS("border-radius", "22px");
+    await expect(page.getByRole("button", { name: "menu" })).toHaveCount(0);
 
     const bounds = await appWindow.boundingBox();
     expect(bounds).not.toBeNull();
@@ -259,5 +305,96 @@ test.describe("popup shell", () => {
 
     await expect(rows.nth(0)).toContainText("cros");
     await expect(rows.nth(1)).toContainText("demo-rule");
+  });
+
+  test("edits mock response with Monaco folding and automatic nested JSON entry", async ({
+    page,
+  }) => {
+    const nestedMockRule = createNestedMockRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [nestedMockRule],
+      selected_storage_key: ["Rule", nestedMockRule],
+    });
+    await page.goto("/home.html");
+
+    const inlineEditor = page.locator(".editor-card textarea").nth(1);
+    await expect(inlineEditor).toBeVisible();
+    await inlineEditor.fill(
+      JSON.stringify(
+        {
+          user: {
+            id: "u-2",
+            name: "Grace",
+          },
+          payload: JSON.stringify({
+            nested: {
+              value: 2,
+            },
+          }),
+          status: "edited-inline",
+        },
+        null,
+        2
+      )
+    );
+    await expect(page.getByRole("button", { name: /详细编辑|Detailed Editor/i })).toBeVisible();
+    await page.getByRole("button", { name: /^全屏$|^Fullscreen$/i }).click();
+
+    await expect
+      .poll(async () => {
+        return await page.evaluate(() => {
+          const state = window as typeof window & {
+            __flamingoChromeMockTabs__?: Array<{ url?: string }>;
+          };
+          return state.__flamingoChromeMockTabs__?.at(-1)?.url;
+        });
+      })
+      .toBe("home.html?mode=tab");
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return JSON.parse(
+          (result.rules_storage_key as Array<{ mockResponse: { body: string } }>)[0].mockResponse
+            .body
+        ).status;
+      })
+      .toBe("edited-inline");
+
+    await page.getByRole("button", { name: /详细编辑|Detailed Editor/i }).click();
+
+    const editor = page.locator(".monaco-editor").first();
+    await expect(editor).toBeVisible();
+    await expect(page.getByRole("button", { name: /Format|格式化/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Fold|折叠/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Edit Nested JSON|编辑嵌套 JSON/i })).toHaveCount(
+      0
+    );
+
+    await expect
+      .poll(async () => {
+        return await page
+          .locator(".margin-view-overlays .codicon-folding-expanded")
+          .count();
+      })
+      .toBeGreaterThan(0);
+    await expect
+      .poll(async () => {
+        return await page
+          .locator(".margin-view-overlays .codicon-folding-expanded")
+          .first()
+          .evaluate((element) => getComputedStyle(element).fontFamily);
+      })
+      .toContain("codicon");
+
+    await editor.locator(".view-line", { hasText: "payload" }).first().click({
+      position: { x: 80, y: 10 },
+    });
+    await expect(page.getByText(/Mock 响应 \/ payload|Mock Response \/ payload/)).toHaveCount(1);
+    await expect(page.getByRole("button", { name: /应用到上层|Apply to Parent/i })).toBeVisible();
   });
 });

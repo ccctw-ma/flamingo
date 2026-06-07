@@ -27,7 +27,7 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
     switchStorageMode,
     initConfig,
   } = useConfig();
-  const { refresh, saveEdit } = useGlobalState();
+  const { refresh } = useGlobalState();
   const [messageApi, contextHolder] = message.useMessage();
   const [panelWidth, setPanelWidth] = useState(HOME_WIDTH);
   const [panelHeight, setPanelHeight] = useState(HOME_HEIGHT);
@@ -47,7 +47,6 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
       return;
     }
 
-    await saveEdit();
     await switchStorageMode(nextMode);
     await initConfig();
     await refresh();

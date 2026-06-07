@@ -1,14 +1,11 @@
-import { ClearOutlined, CodeOutlined, MenuOutlined } from "@ant-design/icons";
 import { StyleProvider } from "@ant-design/cssinjs";
-import { ConfigProvider, FloatButton, theme } from "antd";
+import { ConfigProvider, theme } from "antd";
 import enUS from "antd/locale/en_US";
 import zhCN from "antd/locale/zh_CN";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { useI18n } from "./utils/i18n";
 import { throttle } from "./utils";
 import { useConfig, useGlobalState } from "./utils/hooks";
-import { setRules } from "./utils/storage";
 import LeftBar from "./views/LeftBar";
 import RightBar from "./views/RightBar";
 
@@ -23,8 +20,7 @@ export const Home = () => {
     initConfig,
     setConfig,
   } = useConfig();
-  const { loaded, refresh, saveEdit } = useGlobalState();
-  const { t } = useI18n();
+  const { loaded, refresh } = useGlobalState();
   const container = useRef<HTMLDivElement>(null);
   const dividerHitWidth = 14;
   const isStandaloneMode = new URLSearchParams(window.location.search).get("mode") === "tab";
@@ -124,18 +120,6 @@ export const Home = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [syncContainerWidth]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
-        event.preventDefault();
-        saveEdit();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [saveEdit]);
-
   return (
     <div
       style={{
@@ -156,30 +140,11 @@ export const Home = () => {
             }}
           />
           <div className="app-pane app-content" style={{ width: rightBarWidth }}>
-            <RightBar width={rightBarWidth} />
+            <RightBar />
           </div>
         </div>
 
         {!loaded && <div className="app-loading-mask" aria-hidden="true" />}
-
-        <FloatButton.Group
-          trigger="click"
-          icon={<MenuOutlined />}
-          style={{ right: 22, bottom: 20 }}
-        >
-          <FloatButton
-            icon={<CodeOutlined title={t("openStandalone")} />}
-            aria-label={t("openStandalone")}
-            onClick={() => chrome.tabs.create({ url: chrome.runtime.getURL("home.html?mode=tab") })}
-          />
-          <FloatButton
-            icon={<ClearOutlined title={t("clearCurrentData")} />}
-            aria-label={t("clearCurrentData")}
-            onClick={() => {
-              void setRules([]);
-            }}
-          />
-        </FloatButton.Group>
       </div>
     </div>
   );

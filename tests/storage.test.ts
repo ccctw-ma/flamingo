@@ -29,6 +29,9 @@ function readKeys(store: Map<string, unknown>, keys: string | string[] | Record<
       MODIFY_HEADERS: "modifyHeaders",
       ALLOW_ALL_REQUESTS: "allowAllRequests",
     },
+    ResourceType: {
+      XMLHTTPREQUEST: "xmlhttprequest",
+    },
     HeaderOperation: {
       APPEND: "append",
       SET: "set",
@@ -61,7 +64,7 @@ function readKeys(store: Map<string, unknown>, keys: string | string[] | Record<
 
 const { RULES_STORAGE_KEY, SELECTED_KEY } = await import("../src/utils/constants");
 const storage = await import("../src/utils/storage");
-const { TYPE } = await import("../src/utils/types");
+const { CUSTOM_ACTION, TYPE } = await import("../src/utils/types");
 import type { Rule } from "../src/utils/types";
 
 function makeRule(id: number, name: string): Rule {
@@ -101,6 +104,27 @@ describe("rules CRUD", () => {
     const rules = await storage.getLocalRules();
     expect(rules.map((r: Rule) => r.id)).toEqual([1, 2]);
     expect(rules.find((r: Rule) => r.id === 2)?.name).toBe("renamed");
+  });
+
+  test("updateRules replaces stale optional fields", async () => {
+    const mockRule: Rule = {
+      ...makeRule(7, "mock"),
+      mockResponse: {
+        enabled: true,
+        body: "{}",
+      },
+      uiActionType: CUSTOM_ACTION.MOCK,
+    };
+
+    await storage.setLocalRules([mockRule]);
+    await storage.updateRules({
+      ...makeRule(7, "block"),
+      uiActionType: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+    });
+
+    const [updatedRule] = await storage.getLocalRules();
+    expect(updatedRule.mockResponse).toBeUndefined();
+    expect(updatedRule.uiActionType).toBe(chrome.declarativeNetRequest.RuleActionType.BLOCK);
   });
 
   test("deleteRule removes by id", async () => {

@@ -58,8 +58,6 @@ export const useSelected = create<SelecedStore>()((set) => ({
 }));
 
 export const useFlag = create<FalgStore>()((set) => ({
-  isSaved: true,
-  setIsSaved: (val: boolean) => set({ isSaved: val }),
   loaded: false,
   setIsLoaded: (val: boolean) => set({ loaded: val }),
 }));
