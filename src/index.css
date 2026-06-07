@@ -12,16 +12,9 @@
 
   body {
     font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "SF Pro Text",
-      "SF Pro Display",
-      "PingFang SC",
-      "Hiragino Sans GB",
-      "Segoe UI",
-      "Microsoft YaHei",
-      sans-serif;
-    font-size: 13px;
+      -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC",
+      "Hiragino Sans GB", "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
     line-height: 1.5;
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
@@ -54,9 +47,16 @@
     z-index: 20;
     border-radius: 22px;
     background:
-      linear-gradient(110deg, rgba(255, 255, 255, 0.78) 8%, rgba(255, 255, 255, 0.5) 18%, rgba(255, 255, 255, 0.78) 33%),
+      linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0.78) 8%,
+        rgba(255, 255, 255, 0.5) 18%,
+        rgba(255, 255, 255, 0.78) 33%
+      ),
       linear-gradient(180deg, rgba(248, 250, 252, 0.36), rgba(248, 250, 252, 0.12));
-    background-size: 200% 100%, 100% 100%;
+    background-size:
+      200% 100%,
+      100% 100%;
     animation: flamingo-loading 1.2s linear infinite;
     pointer-events: none;
   }
@@ -107,7 +107,9 @@
     border-radius: 999px;
     background: #d7deea;
     transform: translateX(-50%);
-    transition: background-color 0.15s ease, width 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      width 0.15s ease;
   }
 
   .app-divider:hover::before {
@@ -127,7 +129,7 @@
 
   .sidebar-tabs .ant-tabs-tab {
     padding: 12px 0 !important;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
   }
 
@@ -323,7 +325,7 @@
     gap: 8px;
     border-radius: 10px;
     padding: 6px 12px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     color: #334155;
   }
@@ -357,7 +359,7 @@
       0 10px 24px rgba(15, 23, 42, 0.12),
       0 1px 3px rgba(15, 23, 42, 0.08);
     color: #0f172a;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0;
     line-height: 16px;
@@ -430,9 +432,15 @@
     display: flex;
     align-items: center;
     min-height: 32px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #334155;
+  }
+
+  .editor-toolbar .ant-tag {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
   }
 
   .ant-btn,
@@ -465,22 +473,26 @@
   .data-panel .ant-table-thead > tr > th {
     background: #f8fafc !important;
     color: #475569;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
   }
 
   .data-panel .ant-table-tbody > tr > td {
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 
 @keyframes flamingo-loading {
   from {
-    background-position: 200% 0, 0 0;
+    background-position:
+      200% 0,
+      0 0;
   }
 
   to {
-    background-position: -200% 0, 0 0;
+    background-position:
+      -200% 0,
+      0 0;
   }
 }
 

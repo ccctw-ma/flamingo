@@ -28,7 +28,9 @@ export const Home = () => {
   const container = useRef<HTMLDivElement>(null);
   const dividerHitWidth = 14;
   const isStandaloneMode = new URLSearchParams(window.location.search).get("mode") === "tab";
-  const [containerWidth, setContainerWidth] = useState(() => Math.max(HOME_WIDTH, window.innerWidth));
+  const [containerWidth, setContainerWidth] = useState(() =>
+    Math.max(HOME_WIDTH, window.innerWidth)
+  );
 
   const clampLeftBarSize = useCallback(
     (nextWidth: number, nextSize: number) => {
@@ -64,7 +66,7 @@ export const Home = () => {
     const handleMouseMove = throttle((event: MouseEvent) => {
       const containerRect = startContainer.getBoundingClientRect();
       const offsetX = event.clientX - containerRect.left - 12;
-        nextLeftBarSize = clampLeftBarSize(containerWidth, offsetX);
+      nextLeftBarSize = clampLeftBarSize(containerWidth, offsetX);
       setLeftBarSize(nextLeftBarSize);
     });
 
@@ -75,12 +77,7 @@ export const Home = () => {
 
     startContainer.addEventListener("mousemove", handleMouseMove);
     startContainer.addEventListener("mouseup", handleMouseUp, { once: true });
-  }, [
-    clampLeftBarSize,
-    containerWidth,
-    leftBarSize,
-    setConfig,
-  ]);
+  }, [clampLeftBarSize, containerWidth, leftBarSize, setConfig]);
 
   // Bootstrap config and first paint layout once from persisted values.
   useLayoutEffect(() => {
@@ -94,9 +91,11 @@ export const Home = () => {
   }, []);
 
   useEffect(() => {
-    const targets = [document.documentElement, document.body, document.getElementById("root")].filter(
-      Boolean
-    ) as HTMLElement[];
+    const targets = [
+      document.documentElement,
+      document.body,
+      document.getElementById("root"),
+    ].filter(Boolean) as HTMLElement[];
     const width = `${HOME_WIDTH}px`;
     const height = `${HOME_HEIGHT}px`;
 
@@ -206,7 +205,8 @@ const AppRoot = () => {
             '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Segoe UI", "Microsoft YaHei", sans-serif',
           borderRadius: 14,
           controlHeight: 34,
-          fontSize: 13,
+          fontSize: 14,
+          fontSizeSM: 13,
           wireframe: false,
         },
         components: {

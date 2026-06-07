@@ -16,9 +16,7 @@ const Cell: React.FC<{ label: string; children?: ReactNode }> = (props) => {
   return (
     <div className="editor-grid">
       <label className="field-label">{props.label}</label>
-      <div className="min-w-0">
-        {props.children}
-      </div>
+      <div className="min-w-0">{props.children}</div>
     </div>
   );
 };
@@ -226,23 +224,18 @@ function CompactEditor(props: Porps) {
       value: chrome.declarativeNetRequest.RuleActionType.BLOCK,
       label: t("actionBlock"),
     },
-    {
-      value: chrome.declarativeNetRequest.RuleActionType.ALLOW,
-      label: t("actionAllow"),
-      disabled: true,
-    },
-    {
-      value: chrome.declarativeNetRequest.RuleActionType.ALLOW_ALL_REQUESTS,
-      label: t("actionAllowAllRequests"),
-      disabled: true,
-    },
   ];
 
   return (
     <div className="editor-card">
       <div className="editor-stack">
         <Cell label={t("actionType")}>
-          <Select className="w-full" value={type} options={actionOptions} onChange={wrapChange(setType)} />
+          <Select
+            className="w-full"
+            value={type}
+            options={actionOptions}
+            onChange={wrapChange(setType)}
+          />
         </Cell>
         <Cell label={t("condition")}>
           <Input.TextArea
