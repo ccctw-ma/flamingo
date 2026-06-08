@@ -50,6 +50,12 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
   uiActionType?: chrome.declarativeNetRequest.RuleActionType | CUSTOM_ACTION.MOCK;
 }
 
+export interface EditableModifyHeaderInfo
+  extends chrome.declarativeNetRequest.ModifyHeaderInfo {
+  /** UI-only flag. Disabled header operations are kept in storage but skipped in DNR rules. */
+  enabled?: boolean;
+}
+
 export type RuleStore = {
   rules: Array<Rule>;
   selectedRule: Rule | null;

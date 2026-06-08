@@ -22,7 +22,7 @@ export const Home = () => {
   } = useConfig();
   const { loaded, refresh } = useGlobalState();
   const container = useRef<HTMLDivElement>(null);
-  const dividerHitWidth = 14;
+  const dividerHitWidth = 6;
   const isStandaloneMode = new URLSearchParams(window.location.search).get("mode") === "tab";
   const [containerWidth, setContainerWidth] = useState(() =>
     Math.max(HOME_WIDTH, window.innerWidth)
@@ -42,7 +42,7 @@ export const Home = () => {
   );
 
   const rightBarWidth = useMemo(
-    () => Math.max(0, containerWidth - leftBarSize - dividerHitWidth - 10),
+    () => Math.max(0, containerWidth - leftBarSize - dividerHitWidth),
     [containerWidth, leftBarSize]
   );
 
@@ -61,7 +61,7 @@ export const Home = () => {
     let nextLeftBarSize = leftBarSize;
     const handleMouseMove = throttle((event: MouseEvent) => {
       const containerRect = startContainer.getBoundingClientRect();
-      const offsetX = event.clientX - containerRect.left - 12;
+      const offsetX = event.clientX - containerRect.left - dividerHitWidth / 2;
       nextLeftBarSize = clampLeftBarSize(containerWidth, offsetX);
       setLeftBarSize(nextLeftBarSize);
     });

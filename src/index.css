@@ -37,15 +37,15 @@
     position: relative;
     width: 100%;
     height: 100%;
-    padding: 10px;
+    padding: 0;
     overflow: hidden;
   }
 
   .app-loading-mask {
     position: absolute;
-    inset: 10px;
+    inset: 0;
     z-index: 20;
-    border-radius: 22px;
+    border-radius: 0;
     background:
       linear-gradient(
         110deg,
@@ -63,7 +63,7 @@
 
   .app-shell {
     display: flex;
-    gap: 10px;
+    gap: 0;
     width: 100%;
     height: 100%;
   }
@@ -72,7 +72,7 @@
     min-width: 0;
     height: 100%;
     border: 1px solid rgba(148, 163, 184, 0.18);
-    border-radius: 22px;
+    border-radius: 0;
     background: rgba(255, 255, 255, 0.92);
     box-shadow:
       0 14px 32px rgba(15, 23, 42, 0.08),
@@ -167,10 +167,23 @@
     gap: 6px;
   }
 
+  .sidebar-pane-collapsed .sidebar-tools {
+    padding: 8px 4px 6px;
+  }
+
+  .sidebar-pane-collapsed .sidebar-command {
+    display: none;
+  }
+
   .sidebar-icon-row {
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  .sidebar-pane-collapsed .sidebar-icon-row {
+    justify-content: center;
+    gap: 2px;
   }
 
   .sidebar-icon-row .ant-btn,
@@ -204,6 +217,10 @@
     min-height: 0;
     padding: 6px 6px 10px;
     overflow-y: auto;
+  }
+
+  .sidebar-pane-collapsed .sidebar-list {
+    padding: 4px;
   }
 
   .sidebar-empty {
@@ -273,6 +290,18 @@
     letter-spacing: 0.01em;
   }
 
+  .item-index {
+    display: none;
+    flex: none;
+    min-width: 18px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
   .item-handle {
     display: inline-flex;
     flex: none;
@@ -306,6 +335,36 @@
 
   .item-handle:active {
     cursor: grabbing;
+  }
+
+  .item-row-compact {
+    justify-content: center;
+    gap: 4px;
+    min-height: 40px;
+    padding: 0 3px;
+    border-radius: 10px;
+  }
+
+  .item-row-compact .item-index {
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .item-row-compact .item-name,
+  .item-row-compact .ant-input {
+    display: none;
+  }
+
+  .item-row-compact .ant-checkbox-wrapper,
+  .item-row-compact .ant-checkbox {
+    flex: none;
+  }
+
+  .item-row-compact .item-handle {
+    width: 20px;
+    height: 24px;
+    border-radius: 8px;
+    opacity: 1;
   }
 
   .flamingo-list-menu .ant-dropdown-menu {

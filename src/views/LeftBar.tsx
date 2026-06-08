@@ -2,7 +2,7 @@ import { Button, Empty, Input } from "antd";
 import { CheckOutlined, CloseOutlined, SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import Item from "../components/item";
 import Hint from "../components/hint";
-import { DragEvent, useEffect, useMemo, useState } from "react";
+import { DragEvent, useEffect, useMemo, useRef, useState } from "react";
 import { generateId } from "../utils";
 import { useI18n } from "../utils/i18n";
 import { STATUS, Rule } from "../utils/types";
@@ -21,6 +21,8 @@ export default function LeftBar() {
   const [status, setStatus] = useState<STATUS>(STATUS.NONE);
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [dropTargetId, setDropTargetId] = useState<number | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
+  const [isCompact, setIsCompact] = useState(false);
 
   const activeItems = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -61,6 +63,22 @@ export default function LeftBar() {
     setStatus(STATUS.NONE);
   }, [mode]);
 
+  useEffect(() => {
+    const pane = paneRef.current;
+    if (!pane) {
+      return;
+    }
+
+    const syncCompactState = () => {
+      setIsCompact(pane.clientWidth < 132);
+    };
+    syncCompactState();
+
+    const resizeObserver = new ResizeObserver(syncCompactState);
+    resizeObserver.observe(pane);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const currentInput = mode === "add" ? draftName : searchQuery;
   const isSearchMode = searchQuery.trim().length > 0;
 
@@ -87,8 +105,8 @@ export default function LeftBar() {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <div className="sidebar-pane">
+    <div className="relative h-full w-full overflow-hidden" ref={paneRef}>
+      <div className={`sidebar-pane ${isCompact ? "sidebar-pane-collapsed" : ""}`}>
         <div className="sidebar-tools sidebar-tools-compact">
           <div className="sidebar-icon-row">
             <Hint title={t("add")} placement="bottom">
@@ -163,10 +181,12 @@ export default function LeftBar() {
         </div>
         <div className="sidebar-list no-scrollbar">
           {activeItems.length > 0 ? (
-            activeItems.map((val: Rule) => (
+            activeItems.map((val: Rule, index) => (
               <Item
                 key={val.id}
                 item={val}
+                index={index + 1}
+                compact={isCompact}
                 draggable={!isSearchMode}
                 isDragging={draggingId === val.id}
                 isDropTarget={dropTargetId === val.id && draggingId !== val.id}

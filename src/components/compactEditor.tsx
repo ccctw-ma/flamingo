@@ -1,6 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { CUSTOM_ACTION, Rule } from "../utils/types";
-import { Select, Divider, Input, Button, Alert, Space, message } from "antd";
+import { CUSTOM_ACTION, EditableModifyHeaderInfo, Rule } from "../utils/types";
+import { Select, Divider, Input, Button, Alert, Space, Checkbox, message } from "antd";
 import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import "monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css";
@@ -390,11 +390,18 @@ const MockResponseJsonEditor: React.FC<{
   );
 };
 
+function normalizeHeaderInfo(header: EditableModifyHeaderInfo): EditableModifyHeaderInfo {
+  return {
+    ...header,
+    enabled: header.enabled !== false,
+  };
+}
+
 const ModifyHeader: React.FC<{
-  headerInfos: chrome.declarativeNetRequest.ModifyHeaderInfo[];
-  onChange: (headers: chrome.declarativeNetRequest.ModifyHeaderInfo[]) => void;
+  headerInfos: EditableModifyHeaderInfo[];
+  onChange: (headers: EditableModifyHeaderInfo[]) => void;
 }> = ({ headerInfos, onChange }) => {
-  const [headers, setHeaders] = useState(headerInfos);
+  const [headers, setHeaders] = useState(() => headerInfos.map(normalizeHeaderInfo));
   const { hasChange, setHasChange, wrapChange } = useChange();
   const { t } = useI18n();
 
@@ -407,7 +414,7 @@ const ModifyHeader: React.FC<{
   }, [hasChange, headers, onChange, setHasChange]);
 
   useEffect(() => {
-    setHeaders(headerInfos);
+    setHeaders(headerInfos.map(normalizeHeaderInfo));
   }, [headerInfos]);
 
   const operationOptions = useMemo(
@@ -432,16 +439,33 @@ const ModifyHeader: React.FC<{
     <div className="flex flex-col gap-3">
       {headers.map((header, idx) => {
         const isRemove = header.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE;
+        const isEnabled = header.enabled !== false;
         return (
           <div
-            key={`${header.header}-${idx}`}
-            className="grid grid-cols-[88px_minmax(0,1fr)_minmax(0,1fr)_24px] gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2"
+            key={`header-row-${idx}`}
+            className={`grid grid-cols-[22px_72px_minmax(0,1.15fr)_minmax(0,1fr)_24px] gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2 ${
+              isEnabled ? "" : "opacity-60"
+            }`}
           >
+            <div className="flex items-center justify-center">
+              <Checkbox
+                checked={isEnabled}
+                aria-label={t("toggleHeaderOperation")}
+                onChange={(event) => {
+                  const checked = event.target.checked;
+                  const newHeaders = headers.map((item, index) =>
+                    index === idx ? { ...item, enabled: checked } : item
+                  );
+                  wrapChange(setHeaders)(newHeaders);
+                }}
+              />
+            </div>
             <div>
               <Select
                 className="w-full"
                 value={header.operation}
                 options={operationOptions}
+                disabled={!isEnabled}
                 onChange={(val) => {
                   const newHeaders = headers.map((item, index) =>
                     index === idx ? { ...item, operation: val } : item
@@ -456,6 +480,7 @@ const ModifyHeader: React.FC<{
                 value={header.header}
                 title={header.header}
                 variant="filled"
+                disabled={!isEnabled}
                 onChange={(e) => {
                   const newHeaders = headers.map((item, index) =>
                     index === idx ? { ...item, header: e.target.value } : item
@@ -470,6 +495,7 @@ const ModifyHeader: React.FC<{
                   placeholder="value"
                   value={header.value}
                   variant="filled"
+                  disabled={!isEnabled}
                   onChange={(e) => {
                     const newHeaders = headers.map((item, index) =>
                       index === idx ? { ...item, value: e.target.value } : item
@@ -500,6 +526,7 @@ const ModifyHeader: React.FC<{
           wrapChange(setHeaders)([
             ...headers,
             {
+              enabled: true,
               header: "",
               value: "",
               operation: chrome.declarativeNetRequest.HeaderOperation.SET,
@@ -545,10 +572,10 @@ function CompactEditor(props: Porps) {
   const [isEditingMockResponse, setIsEditingMockResponse] = useState(false);
 
   const [requestHeaders, setRequestHeaders] = useState<
-    chrome.declarativeNetRequest.ModifyHeaderInfo[]
+    EditableModifyHeaderInfo[]
   >([]);
   const [responseHeaders, setResponseHeaders] = useState<
-    chrome.declarativeNetRequest.ModifyHeaderInfo[]
+    EditableModifyHeaderInfo[]
   >([]);
 
   useEffect(() => {

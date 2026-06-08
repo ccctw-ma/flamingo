@@ -15,6 +15,8 @@ import { deepClone, generateId } from "../utils";
 
 interface Props {
   item: Rule;
+  index: number;
+  compact?: boolean;
   draggable?: boolean;
   isDragging?: boolean;
   isDropTarget?: boolean;
@@ -27,6 +29,8 @@ interface Props {
 export default function Item(props: Props) {
   const {
     item: current,
+    index,
+    compact = false,
     draggable = false,
     isDragging = false,
     isDropTarget = false,
@@ -119,7 +123,7 @@ export default function Item(props: Props) {
       style={{ minHeight: LEFT_TAB_ITEM_HEIGHT }}
       className={`item-row group ${isActive ? "item-row-active" : ""} ${isDragging ? "item-row-dragging" : ""} ${
         isDropTarget ? "item-row-drop-target" : ""
-      }`}
+      } ${compact ? "item-row-compact" : ""}`}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onClick={() => {
@@ -139,6 +143,9 @@ export default function Item(props: Props) {
           e.stopPropagation();
         }}
       />
+      <span className="item-index" aria-hidden={!compact}>
+        {index}
+      </span>
       {isEdit ? (
         <AntInput
           value={name}

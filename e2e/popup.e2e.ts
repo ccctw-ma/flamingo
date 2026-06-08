@@ -153,6 +153,29 @@ function createNestedMockRule() {
   return rule;
 }
 
+function createModifyHeadersRule() {
+  const rule = {
+    id: 7002,
+    name: "headers",
+    create: Date.now(),
+    update: Date.now(),
+    enable: true,
+    action: {
+      type: "modifyHeaders",
+      requestHeaders: [
+        {
+          operation: "set",
+          header: "",
+          value: "1",
+        },
+      ],
+    },
+    condition: { regexFilter: "^https://example\\.com/.*" },
+    uiActionType: "modifyHeaders",
+  };
+  return rule;
+}
+
 test.describe("popup shell", () => {
   test("renders the full panel immediately and clears the loading mask", async ({ page }) => {
     await installChromeMock(page);
@@ -166,7 +189,7 @@ test.describe("popup shell", () => {
 
     await expect(appWindow).toBeVisible();
     await expect(appShell).toBeVisible();
-    await expect(appPane).toHaveCSS("border-radius", "22px");
+    await expect(appPane).toHaveCSS("border-radius", "0px");
     await expect(page.getByRole("button", { name: "menu" })).toHaveCount(0);
 
     const bounds = await appWindow.boundingBox();
@@ -305,6 +328,106 @@ test.describe("popup shell", () => {
 
     await expect(rows.nth(0)).toContainText("cros");
     await expect(rows.nth(1)).toContainText("demo-rule");
+  });
+
+  test("collapses the left bar to index and drag controls", async ({ page }) => {
+    await installChromeMock(page);
+    await page.goto("/home.html");
+
+    await seedRule(page, "demo-rule");
+    await seedRule(page, "cros");
+
+    const divider = page.locator(".app-divider");
+    const dividerBox = await divider.boundingBox();
+    expect(dividerBox).not.toBeNull();
+    await page.mouse.move(dividerBox!.x + dividerBox!.width / 2, dividerBox!.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(74, dividerBox!.y + 20);
+    await page.mouse.up();
+
+    const sidebar = page.locator(".app-sidebar");
+    await expect
+      .poll(async () => {
+        const box = await sidebar.boundingBox();
+        return Math.round(box?.width ?? 0);
+      })
+      .toBeLessThanOrEqual(132);
+
+    const firstRow = page.locator(".item-row").first();
+    await expect(firstRow.locator(".item-index")).toBeVisible();
+    await expect(firstRow.locator(".item-index")).toHaveText("1");
+    await expect(firstRow.locator(".item-name")).toBeHidden();
+    await expect(firstRow.locator(".item-handle")).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Add$|^新增$/i }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Search|搜索/i }).first()).toBeVisible();
+  });
+
+  test("keeps focus while editing modify header names", async ({ page }) => {
+    const modifyHeadersRule = createModifyHeadersRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [modifyHeadersRule],
+      selected_storage_key: ["Rule", modifyHeadersRule],
+    });
+    await page.goto("/home.html");
+
+    const headerInput = page.locator(".editor-card input[placeholder='header']").first();
+    await expect(headerInput).toBeVisible();
+    await headerInput.focus();
+    await page.keyboard.type("x-use-ppe", { delay: 20 });
+
+    await expect(headerInput).toHaveValue("x-use-ppe");
+    await expect
+      .poll(async () => {
+        return await headerInput.evaluate((element) => element === document.activeElement);
+      })
+      .toBe(true);
+  });
+
+  test("toggles individual modify header operations", async ({ page }) => {
+    const modifyHeadersRule = createModifyHeadersRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [modifyHeadersRule],
+      selected_storage_key: ["Rule", modifyHeadersRule],
+    });
+    await page.goto("/home.html");
+
+    const headerToggle = page
+      .locator(".editor-card")
+      .getByRole("checkbox", { name: /Enable header operation|启用 Header 操作/i })
+      .first();
+    await expect(headerToggle).toBeVisible();
+    await headerToggle.click();
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            action: { requestHeaders: Array<{ enabled?: boolean }> };
+          }>
+        )[0].action.requestHeaders[0].enabled;
+      })
+      .toBe(false);
+
+    await headerToggle.click();
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            action: { requestHeaders: Array<{ enabled?: boolean }> };
+          }>
+        )[0].action.requestHeaders[0].enabled;
+      })
+      .toBe(true);
   });
 
   test("edits mock response with Monaco folding and automatic nested JSON entry", async ({
