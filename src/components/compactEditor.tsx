@@ -1,6 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { CUSTOM_ACTION, EditableModifyHeaderInfo, Rule } from "../utils/types";
-import { Select, Divider, Input, Button, Alert, Space, Checkbox, message } from "antd";
+import { Select, Input, Button, Alert, Space, Checkbox, message } from "antd";
 import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import "monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css";
@@ -748,7 +748,6 @@ function CompactEditor(props: Porps) {
           </>
         )}
       </div>
-      <Divider style={{ margin: "14px 0 0" }} />
     </div>
   );
 }
