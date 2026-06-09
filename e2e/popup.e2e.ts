@@ -386,9 +386,15 @@ test.describe("popup shell", () => {
 
     const headerInput = page.locator(".editor-card input[placeholder='header']").first();
     await expect(headerInput).toBeVisible();
-    await headerInput.focus();
-    await page.keyboard.type("x-use-ppe", { delay: 20 });
+    await headerInput.fill("x-use");
+    await expect(headerInput).toHaveValue("x-use");
+    await expect
+      .poll(async () => {
+        return await headerInput.evaluate((element) => element === document.activeElement);
+      })
+      .toBe(true);
 
+    await headerInput.fill("x-use-ppe");
     await expect(headerInput).toHaveValue("x-use-ppe");
     await expect
       .poll(async () => {
@@ -598,9 +604,7 @@ test.describe("popup shell", () => {
 
     await expect
       .poll(async () => {
-        return await page
-          .locator(".margin-view-overlays .codicon-folding-expanded")
-          .count();
+        return await page.locator(".margin-view-overlays .codicon-folding-expanded").count();
       })
       .toBeGreaterThan(0);
     await expect
@@ -612,9 +616,12 @@ test.describe("popup shell", () => {
       })
       .toContain("codicon");
 
-    await editor.locator(".view-line", { hasText: "payload" }).first().click({
-      position: { x: 80, y: 10 },
-    });
+    await editor
+      .locator(".view-line", { hasText: "payload" })
+      .first()
+      .click({
+        position: { x: 80, y: 10 },
+      });
     await expect(page.getByText(/Mock 响应 \/ payload|Mock Response \/ payload/)).toHaveCount(1);
     await expect(page.getByRole("button", { name: /应用到上层|Apply to Parent/i })).toBeVisible();
   });
