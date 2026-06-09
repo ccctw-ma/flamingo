@@ -15,6 +15,7 @@ const POPUP_HEIGHT_MIN = 420;
 const POPUP_HEIGHT_MAX = 600;
 const POPUP_WIDTH_STORAGE_KEY = "flamingo:popup-width";
 const POPUP_HEIGHT_STORAGE_KEY = "flamingo:popup-height";
+const PRIVACY_POLICY_URL = "https://ccctw-ma.github.io/flamingo/privacy-policy.html";
 
 export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
   const { t } = useI18n();
@@ -148,6 +149,16 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
             </div>
             <Button className="mt-3" type="primary" block onClick={handlePanelSizeSave}>
               {t("panelSizeSave")}
+            </Button>
+          </section>
+
+          <section className="editor-card !m-0">
+            <div className="mb-1 text-sm font-semibold text-slate-900">{t("privacyPolicy")}</div>
+            <div className="mb-3 text-xs leading-5 text-slate-500">
+              {t("privacyPolicyDescription")}
+            </div>
+            <Button block href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">
+              {t("openPrivacyPolicy")}
             </Button>
           </section>
         </div>

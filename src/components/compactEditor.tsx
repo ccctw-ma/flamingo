@@ -19,6 +19,7 @@ import {
 import { CloseOutlined } from "@ant-design/icons";
 import { useI18n } from "../utils/i18n";
 import { useChange } from "../utils/hooks";
+import { normalizeRegexFilter } from "../utils/urlPattern";
 
 loader.config({ monaco });
 
@@ -583,10 +584,12 @@ function CompactEditor(props: Porps) {
       return;
     }
     const newRule: Rule = { ...rule };
-    newRule.condition = {
+    const nextCondition: Rule["condition"] = {
       ...newRule.condition,
-      regexFilter,
+      regexFilter: normalizeRegexFilter(regexFilter),
     };
+    delete nextCondition.resourceTypes;
+    newRule.condition = nextCondition;
     newRule.update = Date.now();
     if (type === CUSTOM_ACTION.MOCK) {
       newRule.action = {

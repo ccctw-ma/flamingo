@@ -68,7 +68,19 @@ async function installChromeMock(
           ALLOW_ALL_REQUESTS: "allowAllRequests",
         },
         ResourceType: {
+          MAIN_FRAME: "main_frame",
+          SUB_FRAME: "sub_frame",
+          STYLESHEET: "stylesheet",
+          SCRIPT: "script",
+          IMAGE: "image",
+          FONT: "font",
+          OBJECT: "object",
           XMLHTTPREQUEST: "xmlhttprequest",
+          PING: "ping",
+          CSP_REPORT: "csp_report",
+          MEDIA: "media",
+          WEBSOCKET: "websocket",
+          OTHER: "other",
         },
         HeaderOperation: {
           APPEND: "append",
@@ -428,6 +440,92 @@ test.describe("popup shell", () => {
         )[0].action.requestHeaders[0].enabled;
       })
       .toBe(true);
+  });
+
+  test("normalizes URL wildcard conditions before persisting proxy rules", async ({ page }) => {
+    const modifyHeadersRule = createModifyHeadersRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [modifyHeadersRule],
+      selected_storage_key: ["Rule", modifyHeadersRule],
+    });
+    await page.goto("/home.html");
+
+    const conditionInput = page.locator(".editor-card textarea").first();
+    await expect(conditionInput).toBeVisible();
+    await conditionInput.fill("https://magic-cn.bytedance.net/*");
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            condition: { regexFilter?: string };
+          }>
+        )[0].condition.regexFilter;
+      })
+      .toBe("^https://magic-cn\\.bytedance\\.net/.*$");
+  });
+
+  test("normalizes bare wildcard conditions before persisting proxy rules", async ({ page }) => {
+    const modifyHeadersRule = createModifyHeadersRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [modifyHeadersRule],
+      selected_storage_key: ["Rule", modifyHeadersRule],
+    });
+    await page.goto("/home.html");
+
+    const conditionInput = page.locator(".editor-card textarea").first();
+    await expect(conditionInput).toBeVisible();
+    await conditionInput.fill("*");
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            condition: { regexFilter?: string };
+          }>
+        )[0].condition.regexFilter;
+      })
+      .toBe("^.*$");
+  });
+
+  test("normalizes plain URL conditions to prefix matches before persisting proxy rules", async ({
+    page,
+  }) => {
+    const modifyHeadersRule = createModifyHeadersRule();
+    await installChromeMock(page, {
+      STORAGE_MODE: "local",
+      WORKING: true,
+      rules_storage_key: [modifyHeadersRule],
+      selected_storage_key: ["Rule", modifyHeadersRule],
+    });
+    await page.goto("/home.html");
+
+    const conditionInput = page.locator(".editor-card textarea").first();
+    await expect(conditionInput).toBeVisible();
+    await conditionInput.fill("https://magic-cn.bytedance.net/");
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            condition: { regexFilter?: string };
+          }>
+        )[0].condition.regexFilter;
+      })
+      .toBe("^https://magic-cn\\.bytedance\\.net/.*$");
   });
 
   test("edits mock response with Monaco folding and automatic nested JSON entry", async ({

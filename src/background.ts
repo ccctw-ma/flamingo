@@ -1,54 +1,7 @@
 import { CONFIG_KEYSET, RULES_STORAGE_KEY } from "./utils/constants";
+import { toDynamicRule } from "./utils/dynamicRules";
 import { getConfigValue, getRules } from "./utils/storage";
-import { CUSTOM_ACTION, EditableModifyHeaderInfo, Rule } from "./utils/types";
-
-function toDynamicModifyHeaderInfo(
-  header: EditableModifyHeaderInfo
-): chrome.declarativeNetRequest.ModifyHeaderInfo {
-  const { enabled: _enabled, ...dynamicHeader } = header;
-  return dynamicHeader;
-}
-
-function toDynamicAction(
-  action: Rule["action"]
-): chrome.declarativeNetRequest.RuleAction | null {
-  if (action.type !== chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS) {
-    return action;
-  }
-
-  const requestHeaders = (action.requestHeaders as EditableModifyHeaderInfo[] | undefined)
-    ?.filter((header) => header.enabled !== false)
-    .map(toDynamicModifyHeaderInfo);
-  const responseHeaders = (action.responseHeaders as EditableModifyHeaderInfo[] | undefined)
-    ?.filter((header) => header.enabled !== false)
-    .map(toDynamicModifyHeaderInfo);
-
-  if (!requestHeaders?.length && !responseHeaders?.length) {
-    return null;
-  }
-
-  return {
-    type: action.type,
-    ...(requestHeaders?.length ? { requestHeaders } : {}),
-    ...(responseHeaders?.length ? { responseHeaders } : {}),
-  };
-}
-
-function toDynamicRule(rule: Rule): chrome.declarativeNetRequest.Rule | null {
-  if (rule.uiActionType === CUSTOM_ACTION.MOCK) {
-    return null;
-  }
-  const action = toDynamicAction(rule.action);
-  if (!action) {
-    return null;
-  }
-  return {
-    action,
-    condition: rule.condition,
-    id: rule.id,
-    priority: rule.priority,
-  };
-}
+import { Rule } from "./utils/types";
 
 async function getIsWorking() {
   return (

@@ -67,6 +67,10 @@ const messages = {
     panelHeight: "Height",
     panelSizeSave: "Apply Size",
     panelSizeSaved: "Panel size updated",
+    privacyPolicy: "Privacy Policy",
+    privacyPolicyDescription:
+      "Review how Flamingo stores rules locally, how optional Chrome Sync works, and what host permissions are used for.",
+    openPrivacyPolicy: "Open Privacy Policy",
     sortBy: "Sort By",
     clear: "Clear",
     copyRule: "Copy Rule",
@@ -167,6 +171,10 @@ const messages = {
     panelHeight: "高度",
     panelSizeSave: "应用尺寸",
     panelSizeSaved: "面板尺寸已更新",
+    privacyPolicy: "隐私政策",
+    privacyPolicyDescription:
+      "查看 Flamingo 如何在本地保存规则、可选 Chrome 同步如何工作，以及站点权限的用途。",
+    openPrivacyPolicy: "打开隐私政策",
     sortBy: "排序方式",
     clear: "清空",
     copyRule: "复制规则",

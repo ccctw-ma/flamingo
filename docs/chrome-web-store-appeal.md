@@ -13,8 +13,9 @@ The extension metadata has been updated to match the actual product functionalit
 
 The privacy disclosure has been added and should be configured in the Chrome Web Store Developer Dashboard privacy policy field.
 
-- Privacy policy URL: `https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md`
+- Privacy policy URL: `https://ccctw-ma.github.io/flamingo/privacy-policy.html`
 - The privacy policy explains what user-created rule data is stored, how it is used, how Chrome Sync is optional, and that the extension does not send data to developer servers or third parties.
+- The URL points directly to a public privacy policy page hosted through GitHub Pages, not to the repository homepage or a private document.
 
 The extension permissions have been reduced to match current functionality.
 
@@ -33,9 +34,9 @@ For the metadata issue, I updated the extension description and prepared revised
 
 For the privacy policy issue, I added a dedicated privacy policy and will configure it in the Chrome Web Store Developer Dashboard privacy policy field:
 
-https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
+https://ccctw-ma.github.io/flamingo/privacy-policy.html
 
-The privacy policy explains that Flamingo stores only user-created rules and preferences in Chrome storage. By default this data stays in `chrome.storage.local`; Chrome Sync is optional and used only when the user selects it in Settings. Flamingo does not send rules, browsing activity, or preferences to developer servers, advertisers, analytics providers, data brokers, or other third parties.
+The privacy policy explains that Flamingo stores only user-created rules and preferences in Chrome storage. By default this data stays in `chrome.storage.local`; Chrome Sync is optional and used only when the user selects it in Settings. It also explains that host access is used only so user-created rules can match normal web requests locally in the browser. Flamingo does not send rules, browsing activity, preferences, or mock response data to developer servers, advertisers, analytics providers, data brokers, or other third parties.
 
 I also reduced permissions to match the current feature set. The extension no longer requests `tabs` or `declarativeNetRequestFeedback`, and the background script no longer registers debug matched-rule listeners.
 

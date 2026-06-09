@@ -31,19 +31,23 @@ Flamingo does not provide a proxy server, VPN, traffic tunneling, analytics, ad 
 
 ## Prominent Privacy Disclosure
 
-Flamingo stores the rules and preferences you create in Chrome storage. Your rules may contain URLs, domains, header names, or header values that you enter.
+Flamingo stores the rules and preferences you create in Chrome storage. Your rules may contain URLs, domains, header names, header values, or mock response content that you enter.
 
 By default, data is stored locally in `chrome.storage.local`. If you choose Chrome Sync storage mode in Settings, Flamingo stores rules and key preferences in `chrome.storage.sync` so Chrome can synchronize them through your Chrome account.
 
-Flamingo does not send your rules, browsing activity, or preferences to the developer's servers. Flamingo does not sell or share data with advertisers, analytics providers, data brokers, or other third parties.
+Flamingo requests host access for HTTP and HTTPS sites so user-created rules can match normal web requests. Rule matching and mock response handling happen locally in the browser. Flamingo does not create a browsing history, does not analyze page content for profiling, and does not send your rules, browsing activity, preferences, or mock response data to the developer's servers.
+
+Flamingo does not sell or share data with advertisers, analytics providers, data brokers, or other third parties.
 
 ## Privacy Policy URL
 
 Set the Chrome Web Store privacy policy field to:
 
-https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
+https://ccctw-ma.github.io/flamingo/privacy-policy.html
 
-Do not put the privacy policy only in the description. It must be configured in the dedicated privacy policy field in the Chrome Web Store Developer Dashboard.
+Do not use the GitHub repository homepage, a GitHub `blob` page, a private document, or a redirecting landing page. The Chrome Web Store privacy policy field must point directly to the public privacy policy page above.
+
+GitHub Pages must be enabled with **Source: GitHub Actions** before resubmitting. After the Pages workflow runs, open the URL in a normal browser session and confirm that it loads without login.
 
 ## Screenshot Checklist
 

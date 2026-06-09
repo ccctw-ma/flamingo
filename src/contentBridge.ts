@@ -1,3 +1,5 @@
+import { normalizeRegexFilter } from "./utils/urlPattern";
+
 type MockRulePayload = {
   id: number;
   regexFilter: string;
@@ -81,7 +83,7 @@ async function readMockState(): Promise<MockStatePayload> {
       )
       .map((rule) => ({
         id: rule.id,
-        regexFilter: rule.condition?.regexFilter ?? "",
+        regexFilter: normalizeRegexFilter(rule.condition?.regexFilter ?? ""),
         body: rule.mockResponse?.body ?? "",
       })),
   };

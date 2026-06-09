@@ -12,6 +12,7 @@ import {
 } from "../src/utils";
 import { getDefaultMockResponseBody } from "../src/utils/mock";
 import type { Rule } from "../src/utils/types";
+import { normalizeRegexFilter } from "../src/utils/urlPattern";
 
 describe("padZero", () => {
   test("pads single digit numbers", () => {
@@ -53,6 +54,42 @@ describe("mock helpers", () => {
       code: 0,
       message: "ok",
     });
+  });
+});
+
+describe("normalizeRegexFilter", () => {
+  test("keeps explicit regular expressions unchanged", () => {
+    expect(normalizeRegexFilter("^https://example\\.com/api(\\?.*)?$")).toBe(
+      "^https://example\\.com/api(\\?.*)?$"
+    );
+  });
+
+  test("converts URL wildcard patterns to regular expressions", () => {
+    const regexFilter = normalizeRegexFilter("https://magic-cn.bytedance.net/*");
+    expect(regexFilter).toBe("^https://magic-cn\\.bytedance\\.net/.*$");
+    expect(new RegExp(regexFilter).test("https://magic-cn.bytedance.net/path/api")).toBe(true);
+  });
+
+  test("converts plain URL patterns to prefix regular expressions", () => {
+    const regexFilter = normalizeRegexFilter("https://magic-cn.bytedance.net/");
+    expect(regexFilter).toBe("^https://magic-cn\\.bytedance\\.net/.*$");
+    expect(new RegExp(regexFilter).test(
+      "https://magic-cn.bytedance.net/api/alading_card/getAladingCardInfo"
+    )).toBe(true);
+  });
+
+  test("repairs generated exact-origin regular expressions to prefix matches", () => {
+    const regexFilter = normalizeRegexFilter("^https://magic-cn\\.bytedance\\.net/$");
+    expect(regexFilter).toBe("^https://magic-cn\\.bytedance\\.net/.*$");
+    expect(new RegExp(regexFilter).test(
+      "https://magic-cn.bytedance.net/api/alading_card/getAladingCardInfo"
+    )).toBe(true);
+  });
+
+  test("converts a bare wildcard to a match-all regular expression", () => {
+    const regexFilter = normalizeRegexFilter("*");
+    expect(regexFilter).toBe("^.*$");
+    expect(new RegExp(regexFilter).test("https://magic-cn.bytedance.net/path/api")).toBe(true);
   });
 });
 

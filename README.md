@@ -97,16 +97,19 @@ bun run check       # 一次性执行 typecheck + lint + test
 
 Chrome Web Store 审核要求扩展的名称、说明、截图、权限和隐私政策必须和实际功能一致。
 
-- 隐私政策：[docs/privacy-policy.md](docs/privacy-policy.md)
+- 隐私政策页面：[docs/privacy-policy.html](docs/privacy-policy.html)
+- 隐私政策 Markdown 备份：[docs/privacy-policy.md](docs/privacy-policy.md)
 - Chrome Web Store 元数据建议：[docs/chrome-web-store-listing.md](docs/chrome-web-store-listing.md)
 
 发布前请在 Chrome Web Store Developer Dashboard 的「隐私权政策」专用字段中填写公开可访问的隐私政策 URL，例如：
 
 ```text
-https://github.com/ccctw-ma/flamingo/blob/main/docs/privacy-policy.md
+https://ccctw-ma.github.io/flamingo/privacy-policy.html
 ```
 
-不要只把隐私政策写在商品说明里；Chrome Web Store 不会把说明中的链接视为有效隐私政策字段。
+不要使用 GitHub 仓库首页、GitHub `blob` 页面、需要登录的文档或会跳转的落地页。Chrome Web Store 的「隐私权政策」字段必须直接指向可公开访问的隐私政策页面。
+
+GitHub Pages 发布由 `.github/workflows/pages.yml` 负责。首次使用前需要在 GitHub 仓库 `Settings → Pages` 中确认 Source 选择 **GitHub Actions**，然后手动运行 `Publish Privacy Policy` workflow 或推送 `docs/**` 变更。
 
 ## 持续集成与打包
 

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flamingo Privacy Policy</title>
+    <meta name="description" content="Privacy policy for the Flamingo Chrome extension." />
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: #172033;
+        background: #fff8f5;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(255, 93, 82, 0.12), transparent 30rem),
+          radial-gradient(circle at 90% 12%, rgba(251, 191, 36, 0.1), transparent 24rem),
+          linear-gradient(180deg, #fffaf7 0%, #f8fafc 100%);
+      }
+
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 56px 24px 72px;
+      }
+
+      article {
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+        padding: clamp(28px, 5vw, 52px);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: clamp(32px, 5vw, 48px);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+      }
+
+      h2 {
+        margin: 36px 0 12px;
+        color: #111827;
+        font-size: 20px;
+      }
+
+      p,
+      li {
+        color: #475569;
+        font-size: 16px;
+        line-height: 1.72;
+      }
+
+      ul {
+        padding-left: 22px;
+      }
+
+      strong {
+        color: #172033;
+      }
+
+      code {
+        border-radius: 6px;
+        background: #f1f5f9;
+        padding: 2px 6px;
+        color: #334155;
+        font-size: 0.92em;
+      }
+
+      .updated {
+        margin: 0 0 28px;
+        color: #64748b;
+      }
+
+      .notice {
+        border-left: 4px solid #ff5d52;
+        border-radius: 14px;
+        background: rgba(255, 93, 82, 0.07);
+        padding: 14px 18px;
+      }
+
+      a {
+        color: #e0443e;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>Flamingo Privacy Policy</h1>
+        <p class="updated">Last updated: June 9, 2026</p>
+
+        <p class="notice">
+          Flamingo is a local Chrome Declarative Net Request rule editor. It does not sell user
+          data, does not use analytics or advertising SDKs, and does not send rules, browsing
+          activity, or preferences to the developer's servers.
+        </p>
+
+        <h2>Data Flamingo Handles</h2>
+        <p>
+          Flamingo handles only data needed to provide its single purpose: creating and applying
+          user-defined browser request rules. This may include:
+        </p>
+        <ul>
+          <li>Rule names and enabled or disabled state.</li>
+          <li>
+            Rule conditions, such as URL filters, regular expression filters, domains, resource
+            types, and HTTP methods.
+          </li>
+          <li>
+            Rule actions, such as redirects, block actions, mock responses, and request or response
+            header modifications.
+          </li>
+          <li>
+            Extension preferences, such as language, popup size, rule engine state, and storage
+            mode.
+          </li>
+        </ul>
+        <p>
+          Because rules are created by the user, they may contain URLs, domains, header names,
+          header values, or mock response content that the user enters.
+        </p>
+
+        <h2>Website Content and Request Processing</h2>
+        <p>
+          Flamingo requests host access for <code>http://*/*</code> and <code>https://*/*</code> so
+          user-created rules can match normal web requests. Chrome applies enabled Declarative Net
+          Request rules locally in the browser.
+        </p>
+        <p>
+          For user-created mock rules, Flamingo may evaluate request URLs in the page locally in
+          order to return the configured mock response. Flamingo does not create a browsing history,
+          does not analyze page content for profiling, and does not transmit this information to the
+          developer.
+        </p>
+
+        <h2>How Data Is Used</h2>
+        <p>
+          Flamingo uses stored rules and preferences only to manage and apply the rules the user
+          creates. Flamingo does not use this data for advertising, analytics, tracking, profiling,
+          creditworthiness, or any purpose unrelated to the extension's request-rule editing
+          functionality.
+        </p>
+
+        <h2>Storage</h2>
+        <p>
+          By default, Flamingo stores rules and preferences in
+          <code>chrome.storage.local</code> on the user's current browser profile.
+        </p>
+        <p>
+          If the user chooses Chrome Sync storage mode in Settings, Flamingo copies rules and key
+          preferences to <code>chrome.storage.sync</code> so Chrome can synchronize them across
+          browsers where the user is signed in with the same Chrome account. Chrome Sync is optional
+          and controlled by the user.
+        </p>
+
+        <h2>Sharing and Third Parties</h2>
+        <p>
+          Flamingo does not send rules, browsing activity, preferences, or mock response data to the
+          developer's servers. Flamingo does not sell, rent, or share user data with advertisers,
+          analytics providers, data brokers, or other third parties.
+        </p>
+        <p>
+          If Chrome Sync storage mode is enabled, synchronization is handled by Google Chrome
+          through Chrome's built-in sync infrastructure. Flamingo does not control Google's Chrome
+          Sync service.
+        </p>
+
+        <h2>Network Requests</h2>
+        <p>
+          Flamingo does not make external network requests to collect, transmit, or analyze user
+          data. The network behavior performed by Flamingo is limited to the user-defined rules that
+          the user creates and enables.
+        </p>
+
+        <h2>Permissions</h2>
+        <ul>
+          <li>
+            <strong>storage</strong>: saves rules and preferences locally or through Chrome Sync.
+          </li>
+          <li><strong>declarativeNetRequest</strong>: applies enabled request rules in Chrome.</li>
+          <li>
+            <strong>declarativeNetRequestWithHostAccess</strong>: allows user-created rules to run
+            on sites covered by host permissions.
+          </li>
+          <li>
+            <strong>Host permissions for http and https sites</strong>: allow user-created rules to
+            match regular web requests. Rules are applied only when created and enabled by the user.
+          </li>
+        </ul>
+
+        <h2>User Choice, Retention, and Deletion</h2>
+        <p>
+          Users create rules manually and can enable, disable, edit, or delete them in the extension
+          UI. Stored data remains in Chrome storage until the user deletes it, clears the
+          extension's storage, or uninstalls Flamingo.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          For privacy questions or deletion requests, contact
+          <a href="mailto:mashichen1999@gmail.com">mashichen1999@gmail.com</a>.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>

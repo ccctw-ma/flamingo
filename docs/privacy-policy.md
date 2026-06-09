@@ -1,8 +1,10 @@
 # Flamingo Privacy Policy
 
-Last updated: 2026-06-05
+Last updated: 2026-06-09
 
 Flamingo is a Chrome extension for creating and applying user-defined Chrome Declarative Net Request rules. These rules can redirect requests, block requests, and modify request or response headers.
+
+Flamingo does not sell user data, does not use analytics or advertising SDKs, and does not send rules, browsing activity, or preferences to the developer's servers.
 
 ## Data Flamingo Handles
 
@@ -10,16 +12,22 @@ Flamingo handles only data that you create or configure inside the extension:
 
 - Rule names.
 - Declarative Net Request rule conditions, such as URL filters, regex filters, domains, resource types, and HTTP methods.
-- Rule actions, such as redirects, block actions, and request or response header modifications.
+- Rule actions, such as redirects, block actions, mock responses, and request or response header modifications.
 - Extension preferences, such as language, popup size, rule engine enabled state, and storage mode.
 
-Because rules are user-defined, they may contain URLs, domains, header names, or header values that you enter.
+Because rules are user-defined, they may contain URLs, domains, header names, header values, or mock response content that you enter.
+
+## Website Content and Request Processing
+
+Flamingo requests host access for `http://*/*` and `https://*/*` so user-created rules can match normal web requests. Chrome applies enabled Declarative Net Request rules locally in the browser.
+
+For user-created mock rules, Flamingo may evaluate request URLs in the page locally in order to return the configured mock response. Flamingo does not create a browsing history, does not analyze page content for profiling, and does not transmit this information to the developer.
 
 ## How Data Is Used
 
 Flamingo uses this data only to provide its single purpose: managing and applying your local Chrome Declarative Net Request rules.
 
-The extension uses Chrome's `declarativeNetRequest` API to apply enabled rules in the browser. Flamingo does not use your rules for advertising, analytics, tracking, profiling, or any unrelated purpose.
+The extension uses Chrome's `declarativeNetRequest` API to apply enabled rules in the browser. Flamingo does not use your rules for advertising, analytics, tracking, profiling, creditworthiness, or any unrelated purpose.
 
 ## Storage
 
