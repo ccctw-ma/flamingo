@@ -73,9 +73,11 @@ describe("toDynamicRule", () => {
     });
 
     expect(dynamicRule?.condition.regexFilter).toBe("^https://magic-cn\\.bytedance\\.net/.*$");
-    expect(new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
-      "https://magic-cn.bytedance.net/api/user"
-    )).toBe(true);
+    expect(
+      new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
+        "https://magic-cn.bytedance.net/api/user"
+      )
+    ).toBe(true);
     expect(dynamicRule?.condition.resourceTypes).toContain(
       chrome.declarativeNetRequest.ResourceType.MAIN_FRAME
     );
@@ -151,9 +153,11 @@ describe("toDynamicRule", () => {
     });
 
     expect(dynamicRule?.condition.regexFilter).toBe("^.*$");
-    expect(new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
-      "https://magic-cn.bytedance.net/api/user"
-    )).toBe(true);
+    expect(
+      new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
+        "https://magic-cn.bytedance.net/api/user"
+      )
+    ).toBe(true);
   });
 
   test("overrides stale resourceTypes for non-mock DNR rules", () => {
@@ -206,8 +210,32 @@ describe("toDynamicRule", () => {
     });
 
     expect(dynamicRule?.condition.regexFilter).toBe("^https://magic-cn\\.bytedance\\.net/.*$");
-    expect(new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
-      "https://magic-cn.bytedance.net/api/alading_card/getAladingCardInfo"
-    )).toBe(true);
+    expect(
+      new RegExp(dynamicRule?.condition.regexFilter ?? "").test(
+        "https://magic-cn.bytedance.net/api/alading_card/getAladingCardInfo"
+      )
+    ).toBe(true);
+  });
+
+  test("does not emit rules from disabled groups", () => {
+    const dynamicRule = toDynamicRule({
+      id: 6,
+      name: "group-disabled",
+      create: 1,
+      update: 1,
+      enable: true,
+      groupId: 10,
+      groupName: "Proxy Group",
+      groupEnabled: false,
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+      } as Rule["action"],
+      condition: {
+        regexFilter: "*",
+      },
+      uiActionType: chrome.declarativeNetRequest.RuleActionType.BLOCK,
+    });
+
+    expect(dynamicRule).toBeNull();
   });
 });

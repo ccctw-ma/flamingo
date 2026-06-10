@@ -1,16 +1,25 @@
-import { FullscreenOutlined, PoweroffOutlined, SettingOutlined } from "@ant-design/icons";
+import {
+  FullscreenOutlined,
+  PoweroffOutlined,
+  SettingOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
 import { Button } from "antd";
 import { useState } from "react";
 import { useGlobalState, useConfig } from "../utils/hooks";
 import { useI18n } from "../utils/i18n";
 import Hint from "./hint";
 import SettingsPanel from "./settingsPanel";
+import AIRuleAssistant from "./aiRuleAssistant";
+import { setRules as persistRules, setLocalSelected } from "../utils/storage";
+import { Rule, TYPE } from "../utils/types";
 
 const ActionBar = () => {
-  const { selected, rules } = useGlobalState();
+  const { selected, rules, refresh } = useGlobalState();
   const { WORKING, RIGHT_HEADER_HEIGHT, setConfig } = useConfig();
   const { t } = useI18n();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
 
   const syncBrowserAction = (nextWorking: boolean) => {
     const iconPrefix = nextWorking ? "flamingo" : "flamingo_grey";
@@ -37,6 +46,13 @@ const ActionBar = () => {
     }
   };
 
+  const applyAIRules = async (draftRules: Rule[]) => {
+    const nextRules = [...rules, ...draftRules];
+    await persistRules(nextRules);
+    await setLocalSelected(TYPE.Rule, draftRules[0] ?? selected);
+    await refresh();
+  };
+
   return (
     <>
       <div style={{ height: RIGHT_HEADER_HEIGHT }} className="editor-toolbar">
@@ -46,6 +62,13 @@ const ActionBar = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Hint title={t("aiGenerateRule")} placement="bottom">
+            <Button
+              icon={<ThunderboltOutlined />}
+              aria-label={t("aiGenerateRule")}
+              onClick={() => setAiAssistantOpen(true)}
+            />
+          </Hint>
           <Hint title={t("fullscreen")} placement="bottom">
             <Button
               icon={<FullscreenOutlined />}
@@ -79,6 +102,12 @@ const ActionBar = () => {
           </Hint>
         </div>
       </div>
+      <AIRuleAssistant
+        open={aiAssistantOpen}
+        rules={rules}
+        onClose={() => setAiAssistantOpen(false)}
+        onApply={applyAIRules}
+      />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );

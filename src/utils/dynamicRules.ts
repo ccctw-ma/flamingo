@@ -24,9 +24,7 @@ function toDynamicModifyHeaderInfo(
   return dynamicHeader;
 }
 
-function toDynamicAction(
-  action: Rule["action"]
-): chrome.declarativeNetRequest.RuleAction | null {
+function toDynamicAction(action: Rule["action"]): chrome.declarativeNetRequest.RuleAction | null {
   if (action.type !== chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS) {
     return action;
   }
@@ -50,6 +48,9 @@ function toDynamicAction(
 }
 
 export function toDynamicRule(rule: Rule): chrome.declarativeNetRequest.Rule | null {
+  if (rule.groupEnabled === false) {
+    return null;
+  }
   if (rule.uiActionType === CUSTOM_ACTION.MOCK) {
     return null;
   }

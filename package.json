@@ -14,7 +14,9 @@
     "lint:fix": "bun x eslint . --fix",
     "format": "bun x prettier --write .",
     "test": "bun test tests/*.test.ts",
+    "test:coverage": "bun test --coverage tests/*.test.ts",
     "test:e2e": "bun x playwright test",
+    "coverage:check": "bun scripts/check-coverage.ts",
     "check": "bun run typecheck && bun run lint && bun run test && bun run test:e2e"
   },
   "keywords": [],

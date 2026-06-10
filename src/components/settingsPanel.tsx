@@ -1,5 +1,12 @@
-import { Button, Drawer, InputNumber, Segmented, message } from "antd";
+import { Button, Drawer, Input, InputNumber, Segmented, Select, Switch, message } from "antd";
 import { useEffect, useState } from "react";
+import { AIProvider } from "../ai/types";
+import {
+  AI_PROVIDER_PRESETS,
+  DEFAULT_AI_SETTINGS,
+  getAISettings,
+  setAISettings,
+} from "../ai/runtime";
 import { useI18n } from "../utils/i18n";
 import { useConfig, useGlobalState } from "../utils/hooks";
 import { StorageMode } from "../utils/storage";
@@ -32,11 +39,19 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
   const [messageApi, contextHolder] = message.useMessage();
   const [panelWidth, setPanelWidth] = useState(HOME_WIDTH);
   const [panelHeight, setPanelHeight] = useState(HOME_HEIGHT);
-
+  const [aiSettings, setAISettingsDraft] = useState(DEFAULT_AI_SETTINGS);
   useEffect(() => {
     setPanelWidth(HOME_WIDTH);
     setPanelHeight(HOME_HEIGHT);
   }, [HOME_HEIGHT, HOME_WIDTH]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    void getAISettings().then(setAISettingsDraft);
+  }, [open]);
 
   const handleLocaleChange = (value: string | number) => {
     setConfig("LOCALE", value === "en" ? "en" : "zh-CN");
@@ -70,6 +85,22 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
     document.documentElement.style.setProperty("--flamingo-popup-width", `${nextWidth}px`);
     document.documentElement.style.setProperty("--flamingo-popup-height", `${nextHeight}px`);
     messageApi.success(t("panelSizeSaved"));
+  };
+
+  const handleAIProviderChange = (provider: AIProvider) => {
+    const preset = AI_PROVIDER_PRESETS[provider];
+    setAISettingsDraft((current) => ({
+      ...current,
+      provider,
+      baseUrl: preset.baseUrl,
+      model: preset.defaultModel,
+      apiKey: current.apiKeys[provider] || "",
+    }));
+  };
+
+  const handleAISettingsSave = async () => {
+    await setAISettings(aiSettings);
+    messageApi.success(t("aiSettingsSaved"));
   };
 
   return (
@@ -150,6 +181,74 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
             <Button className="mt-3" type="primary" block onClick={handlePanelSizeSave}>
               {t("panelSizeSave")}
             </Button>
+          </section>
+
+          <section className="editor-card !m-0">
+            <div className="mb-1 text-sm font-semibold text-slate-900">{t("aiSettings")}</div>
+            <div className="mb-3 text-xs leading-5 text-slate-500">
+              {t("aiSettingsDescription")}
+            </div>
+            <div className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2">
+              <span className="text-xs font-medium text-slate-600">{t("aiAssistantEnabled")}</span>
+              <Switch
+                checked={aiSettings.enabled}
+                onChange={(enabled) =>
+                  setAISettingsDraft((current) => ({
+                    ...current,
+                    enabled,
+                  }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="flex flex-col gap-2 text-xs font-medium text-slate-500">
+                <span>{t("aiProvider")}</span>
+                <Select
+                  value={aiSettings.provider}
+                  onChange={handleAIProviderChange}
+                  options={Object.values(AI_PROVIDER_PRESETS).map((preset) => ({
+                    label: preset.label,
+                    value: preset.provider,
+                  }))}
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-xs font-medium text-slate-500">
+                <span>{t("aiModel")}</span>
+                <Select
+                  value={aiSettings.model}
+                  onChange={(model) =>
+                    setAISettingsDraft((current) => ({
+                      ...current,
+                      model,
+                    }))
+                  }
+                  options={AI_PROVIDER_PRESETS[aiSettings.provider].models}
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-xs font-medium text-slate-500">
+                <span>{t("aiApiKey")}</span>
+                <Input.Password
+                  value={aiSettings.apiKey}
+                  onChange={(event) =>
+                    setAISettingsDraft((current) => ({
+                      ...current,
+                      apiKey: event.target.value,
+                      apiKeys: {
+                        ...current.apiKeys,
+                        [current.provider]: event.target.value,
+                      },
+                    }))
+                  }
+                  autoComplete="off"
+                />
+              </label>
+              <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
+                {t("aiApiKeyLocalHint")}
+              </div>
+              <Button type="primary" block onClick={handleAISettingsSave}>
+                {t("aiSettingsSave")}
+              </Button>
+            </div>
           </section>
 
           <section className="editor-card !m-0">

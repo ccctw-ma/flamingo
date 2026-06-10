@@ -41,6 +41,15 @@ export interface Rule extends chrome.declarativeNetRequest.Rule {
   /** Determin whether this rule is working*/
   enable: boolean;
 
+  /** Optional project-level group id. Rules with the same id are managed as one scenario. */
+  groupId?: number;
+
+  /** Human readable group name shown in the rule list. */
+  groupName?: string;
+
+  /** Group-level switch. A disabled group prevents all child rules from being emitted. */
+  groupEnabled?: boolean;
+
   /** Optional editable mock response body for redirect rules. */
   mockResponse?: {
     enabled: boolean;
