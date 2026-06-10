@@ -118,6 +118,75 @@ async function installChromeMock(
 
     (window as unknown as { chrome: typeof chrome }).chrome =
       chromeMock as unknown as typeof chrome;
+
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/chat/completions")) {
+        const body = JSON.parse(String(init?.body ?? "{}")) as {
+          messages?: Array<{ content?: string }>;
+        };
+        const userPayload = JSON.parse(body.messages?.at(-1)?.content ?? "{}") as { task?: string };
+        const content =
+          userPayload.task === "Plan all Flamingo DNR rules needed for the user request."
+            ? JSON.stringify({
+                groupName: "Magic Proxy",
+                rules: [
+                  {
+                    action: "modifyHeaders",
+                    target: "https://magic-cn.bytedance.net/api/*",
+                    needsMockResponse: false,
+                    needsRedirectUrl: false,
+                    needsHeaders: true,
+                  },
+                  {
+                    action: "block",
+                    target: "https://magic-cn.bytedance.net/tracking/*",
+                    needsMockResponse: false,
+                    needsRedirectUrl: false,
+                    needsHeaders: false,
+                  },
+                ],
+                confidence: 0.9,
+                notes: ["project proxy group"],
+              })
+            : JSON.stringify({
+                groupName: "Magic Proxy",
+                rules: [
+                  {
+                    name: "API Headers",
+                    action: "modifyHeaders",
+                    regexFilter: "https://magic-cn.bytedance.net/api/",
+                    requestHeaders: [
+                      {
+                        header: "x-use-ppe",
+                        operation: "set",
+                        value: "1",
+                        enabled: true,
+                      },
+                    ],
+                  },
+                  {
+                    name: "Block Track",
+                    action: "block",
+                    regexFilter: "https://magic-cn.bytedance.net/tracking/",
+                  },
+                ],
+              });
+
+        return Response.json({
+          choices: [
+            {
+              message: {
+                content,
+              },
+            },
+          ],
+        });
+      }
+
+      return nativeFetch(input, init);
+    }) as typeof fetch;
   }, initialLocalStorage);
 }
 
@@ -125,6 +194,11 @@ async function seedRule(page: import("@playwright/test").Page, name: string) {
   await page
     .getByRole("button", { name: /^Add$|^新增$/i })
     .first()
+    .click();
+  await page
+    .locator(".flamingo-list-menu")
+    .last()
+    .getByText(/Add rule|添加规则/i)
     .click();
   const addInput = page.locator(".sidebar-command input");
   await addInput.fill(name);
@@ -275,6 +349,227 @@ test.describe("popup shell", () => {
     await expect(appWindow).toHaveCSS("overflow", "hidden");
   });
 
+  test("generates and applies a project-level AI rule group", async ({ page }) => {
+    await installChromeMock(page, {
+      "flamingo:ai-settings": {
+        enabled: true,
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        apiKey: "test-key",
+        apiKeys: {
+          gpt: "",
+          deepseek: "test-key",
+        },
+      },
+    });
+    await page.goto("/home.html");
+    await seedRule(page, "Standalone");
+
+    await page.getByRole("button", { name: /AI Generate Rule|AI 生成规则/i }).click();
+    await page
+      .getByPlaceholder(/Mock https:\/\/api\.example\.com\/user|例如：把/)
+      .fill("给 magic 项目生成代理规则：API 加 header，tracking 拦截");
+    await page
+      .getByRole("button", { name: /AI Generate Rule|AI 生成规则/i })
+      .last()
+      .click();
+    await expect(page.getByText(/Generation Progress|生成过程/)).toBeVisible();
+    await expect(page.getByText(/正在分析需求并规划规则/)).toBeVisible();
+    await expect(page.getByText(/草稿生成完成：2 条/)).toBeVisible();
+    await expect(page.getByText(/Draft passed validation|草稿已通过校验/)).toBeVisible();
+    const assistantScroll = page.locator(".ai-assistant-scroll");
+    await expect(assistantScroll).toBeVisible();
+    await expect
+      .poll(async () => {
+        return await assistantScroll.evaluate((element) => ({
+          clientHeight: element.clientHeight,
+          scrollHeight: element.scrollHeight,
+        }));
+      })
+      .toMatchObject({
+        clientHeight: expect.any(Number),
+        scrollHeight: expect.any(Number),
+      });
+    const canScrollAssistant = await assistantScroll.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+      return element.scrollTop > 0 && element.scrollHeight > element.clientHeight;
+    });
+    expect(canScrollAssistant).toBe(true);
+    await page.getByRole("button", { name: /Apply Draft|应用草稿/i }).click();
+
+    const folder = page.locator(".rule-folder", { hasText: "Magic Proxy" });
+    await expect(folder).toHaveCount(1);
+    await expect(folder.locator(".rule-folder-count")).toHaveCount(0);
+    await expect(folder.locator(".anticon-folder, .anticon-down, .anticon-right")).toHaveCount(0);
+    await expect(folder.locator(".rule-folder-badge")).toHaveCount(0);
+    await expect(folder.locator(".rule-folder-handle")).toBeVisible();
+    await expect(folder.locator(".rule-folder-row")).toHaveCSS("display", "flex");
+    await expect(folder.locator(".rule-folder-row")).toHaveCSS("min-height", "46px");
+    await expect(folder.locator(".rule-folder-row")).toHaveCSS(
+      "border-color",
+      /rgba\(239, 127, 141, 0\.32\)/
+    );
+    await expect
+      .poll(async () => {
+        const folderBackground = await folder
+          .locator(".rule-folder-row")
+          .evaluate((element) => getComputedStyle(element).backgroundImage);
+        const rowBackground = await page
+          .locator(".item-row", { hasText: "Standalone" })
+          .evaluate((element) => getComputedStyle(element).backgroundColor);
+        return { folderBackground, rowBackground };
+      })
+      .toEqual({
+        folderBackground: expect.stringContaining("rgba(239, 127, 141, 0.11)"),
+        rowBackground: "rgba(255, 255, 255, 0.3)",
+      });
+    await folder
+      .locator(".rule-folder-handle")
+      .dragTo(page.locator(".item-row", { hasText: "Standalone" }));
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (result.rules_storage_key as Array<{ name: string }>).map((rule) => rule.name);
+      })
+      .toEqual(["API Headers", "Block Track", "Standalone"]);
+    const firstFolder = page.locator(".rule-folder").first();
+    await expect(page.locator(".item-row", { hasText: "API Headers" })).toHaveCount(1);
+    await expect(page.locator(".item-row", { hasText: "Block Track" })).toHaveCount(1);
+    await folder.locator(".rule-folder-row").click();
+    await expect(folder.locator(".rule-folder-row")).toHaveClass(/rule-folder-row-active/);
+    await expect(folder.locator(".rule-folder-row")).toHaveCSS(
+      "border-color",
+      /rgba\(239, 127, 141, 0\.32\)/
+    );
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("selected_storage_key");
+        });
+        const selected = result.selected_storage_key as [string, { name?: string } | null];
+        return selected?.[1]?.name;
+      })
+      .toBe("API Headers");
+    await expect(page.locator(".item-row", { hasText: "API Headers" })).toHaveCount(0);
+    await expect(folder.locator(".rule-folder-children")).toHaveCount(0);
+    await folder.locator(".rule-folder-row").click();
+    await expect(folder.locator(".rule-folder-children")).toHaveCount(1);
+    await expect(folder.locator(".rule-folder-children")).toHaveCSS("margin-left", "10px");
+    await expect(folder.locator(".rule-folder-children")).toHaveCSS("padding-left", "6px");
+    await expect(page.locator(".item-row", { hasText: "API Headers" })).toHaveCount(1);
+    await folder.locator(".rule-folder-row .ant-checkbox-input").click({ force: true });
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            groupId?: number;
+            groupName?: string;
+            groupEnabled?: boolean;
+            enable: boolean;
+          }>
+        ).map((rule) => ({
+          hasGroup: typeof rule.groupId === "number",
+          groupName: rule.groupName,
+          groupEnabled: rule.groupEnabled,
+          enable: rule.enable,
+        }));
+      })
+      .toEqual([
+        { hasGroup: true, groupName: "Magic Proxy", groupEnabled: true, enable: false },
+        { hasGroup: true, groupName: "Magic Proxy", groupEnabled: true, enable: false },
+        { hasGroup: false, groupName: undefined, groupEnabled: undefined, enable: false },
+      ]);
+    await expect(folder.locator(".rule-folder-row .ant-checkbox-inner")).toHaveCSS(
+      "background-color",
+      "rgb(239, 127, 141)"
+    );
+    await page.locator(".item-row", { hasText: "API Headers" }).getByRole("checkbox").click();
+    await expect
+      .poll(async () => {
+        const groupCheckedColor = await folder
+          .locator(".rule-folder-row .ant-checkbox-inner")
+          .evaluate((element) => getComputedStyle(element).backgroundColor);
+        const rowCheckedColor = await page
+          .locator(".item-row", { hasText: "API Headers" })
+          .locator(".ant-checkbox-inner")
+          .evaluate((element) => getComputedStyle(element).backgroundColor);
+        return { groupCheckedColor, rowCheckedColor };
+      })
+      .toEqual({
+        groupCheckedColor: "rgb(239, 127, 141)",
+        rowCheckedColor: "rgb(255, 136, 122)",
+      });
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            name: string;
+            groupEnabled?: boolean;
+            enable: boolean;
+          }>
+        ).find((rule) => rule.name === "API Headers");
+      })
+      .toMatchObject({ groupEnabled: true, enable: true });
+    await folder.locator(".rule-folder-handle").click();
+    await page
+      .locator(".flamingo-list-menu")
+      .last()
+      .getByText(/Edit Rule|编辑规则/i)
+      .click();
+    await firstFolder.locator(".rule-folder-input").fill("Magic Group");
+    await firstFolder.locator(".rule-folder-input").press("Enter");
+    const renamedFolder = page.locator(".rule-folder", { hasText: "Magic Group" });
+    await expect(renamedFolder).toHaveCount(1);
+    await renamedFolder.locator(".rule-folder-handle").click({ force: true });
+    await expect(page.locator(".flamingo-list-menu").last()).toBeVisible();
+    await page
+      .locator(".flamingo-list-menu")
+      .last()
+      .getByText(/Copy Rule|复制规则/i)
+      .click();
+    const copiedFolder = page.locator(".rule-folder", { hasText: /Magic Group (Copy|副本)/ });
+    await expect(copiedFolder).toHaveCount(1);
+    await page.mouse.move(1, 1);
+    await expect(copiedFolder.locator(".rule-folder-row")).toHaveCSS(
+      "border-color",
+      /rgba\(255, 132, 122, 0\.18\)/
+    );
+    await copiedFolder.locator(".rule-folder-handle").click({ force: true });
+    await expect(page.locator(".flamingo-list-menu").last()).toBeVisible();
+    await page
+      .locator(".flamingo-list-menu")
+      .last()
+      .getByText(/Delete Rule|删除/i)
+      .click();
+    await expect(copiedFolder).toHaveCount(0);
+    const divider = page.locator(".app-divider");
+    const dividerBox = await divider.boundingBox();
+    expect(dividerBox).not.toBeNull();
+    await page.mouse.move(dividerBox!.x + dividerBox!.width / 2, dividerBox!.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(74, dividerBox!.y + 20);
+    await page.mouse.up();
+    await expect(renamedFolder.locator(".rule-folder-children")).toHaveCount(0);
+    await expect(renamedFolder.locator(".rule-folder-badge")).toHaveCount(0);
+    await expect(renamedFolder.locator(".rule-folder-name")).toBeHidden();
+    await expect(renamedFolder.locator(".rule-folder-row .ant-checkbox")).toBeVisible();
+    await expect(renamedFolder.locator(".rule-folder-handle")).toBeVisible();
+    await expect(renamedFolder.locator(".rule-folder-row")).toHaveCSS("justify-content", "center");
+    await expect(renamedFolder.locator(".rule-folder-row")).toHaveCSS(
+      "border-color",
+      /rgba\(239, 127, 141, 0\.16\)/
+    );
+    await expect(renamedFolder.locator(".rule-folder-index")).toBeVisible();
+  });
+
   test("shows empty state and creates the first rule", async ({ page }) => {
     await installChromeMock(page);
     await page.goto("/home.html");
@@ -286,11 +581,50 @@ test.describe("popup shell", () => {
       .getByRole("button", { name: /^Add$|^新增$/i })
       .first()
       .click();
+    await page
+      .locator(".flamingo-list-menu")
+      .last()
+      .getByText(/Add rule|添加规则/i)
+      .click();
     const addInput = page.locator(".sidebar-command input");
     await addInput.fill("alpha");
     await addInput.press("Enter");
 
     await expect(page.locator(".item-row", { hasText: "alpha" })).toHaveCount(1);
+  });
+
+  test("creates a group from the add menu and keeps submit button visible", async ({ page }) => {
+    await installChromeMock(page);
+    await page.goto("/home.html");
+
+    await page
+      .getByRole("button", { name: /^Add$|^新增$/i })
+      .first()
+      .click();
+    await page
+      .locator(".flamingo-list-menu")
+      .last()
+      .getByText(/Add group|新增 Group/i)
+      .click();
+
+    const addButton = page.getByRole("button", { name: /^Add$|^新增$/i }).first();
+    const addInput = page.locator(".sidebar-command input");
+    const submitButton = page.locator(".sidebar-command").getByRole("button", {
+      name: /^Add$|^新增$/i,
+    });
+    await expect(addButton).toHaveCSS("background-color", "rgb(255, 93, 82)");
+    await expect(addButton).toHaveCSS("color", "rgb(255, 255, 255)");
+    await expect(submitButton).toBeVisible();
+    await expect(submitButton).toHaveCSS("background-color", "rgb(255, 93, 82)");
+    await addInput.fill("Manual Group");
+    await submitButton.click();
+
+    const folder = page.locator(".rule-folder", { hasText: "Manual Group" });
+    await expect(folder).toHaveCount(1);
+    await expect(
+      folder.locator(".rule-folder-count, .rule-folder-badge, .anticon-folder")
+    ).toHaveCount(0);
+    await expect(page.locator(".item-row", { hasText: /Default rule|默认规则/ })).toHaveCount(1);
   });
 
   test("filters rule list from the sidebar tools", async ({ page }) => {
@@ -363,7 +697,13 @@ test.describe("popup shell", () => {
         const box = await sidebar.boundingBox();
         return Math.round(box?.width ?? 0);
       })
-      .toBeLessThanOrEqual(132);
+      .toBeGreaterThanOrEqual(80);
+    await expect
+      .poll(async () => {
+        const box = await sidebar.boundingBox();
+        return Math.round(box?.width ?? 0);
+      })
+      .toBeLessThanOrEqual(110);
 
     const firstRow = page.locator(".item-row").first();
     await expect(firstRow.locator(".item-index")).toBeVisible();

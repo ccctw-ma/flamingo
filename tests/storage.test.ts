@@ -21,6 +21,9 @@ function readKeys(store: Map<string, unknown>, keys: string | string[] | Record<
 }
 
 (globalThis as unknown as { chrome: unknown }).chrome = {
+  runtime: {
+    sendMessage: async () => undefined,
+  },
   declarativeNetRequest: {
     RuleActionType: {
       BLOCK: "block",
@@ -74,7 +77,7 @@ function readKeys(store: Map<string, unknown>, keys: string | string[] | Record<
   },
 };
 
-const { RULES_STORAGE_KEY, SELECTED_KEY } = await import("../src/utils/constants");
+const { CONFIG_KEYSET, RULES_STORAGE_KEY, SELECTED_KEY } = await import("../src/utils/constants");
 const storage = await import("../src/utils/storage");
 const { CUSTOM_ACTION, TYPE } = await import("../src/utils/types");
 import type { Rule } from "../src/utils/types";
@@ -174,6 +177,34 @@ describe("storage mode", () => {
     expect(await storage.getStorageMode()).toBe("local");
   });
 
+  test("prefers valid local storage mode and falls back to sync mode", async () => {
+    localStore.set(CONFIG_KEYSET.STORAGE_MODE, "sync");
+    syncStore.set(CONFIG_KEYSET.STORAGE_MODE, "local");
+    expect(await storage.getStorageMode()).toBe("sync");
+
+    localStore.set(CONFIG_KEYSET.STORAGE_MODE, "bad");
+    expect(await storage.getStorageMode()).toBe("local");
+  });
+
+  test("setStorageMode writes both storage areas", async () => {
+    await storage.setStorageMode("sync");
+
+    expect(localStore.get(CONFIG_KEYSET.STORAGE_MODE)).toBe("sync");
+    expect(syncStore.get(CONFIG_KEYSET.STORAGE_MODE)).toBe("sync");
+  });
+
+  test("refreshes mode metadata when switching to the current storage mode", async () => {
+    await storage.setStorageMode("sync");
+    await storage.setLocalRules([makeRule(31, "sync-only")]);
+
+    await storage.switchStorageMode("sync");
+
+    expect(await storage.getStorageMode()).toBe("sync");
+    expect(syncStore.get(RULES_STORAGE_KEY)).toEqual([makeRule(31, "sync-only")]);
+    expect(localStore.get(CONFIG_KEYSET.STORAGE_MODE)).toBe("sync");
+    expect(syncStore.get(CONFIG_KEYSET.STORAGE_MODE)).toBe("sync");
+  });
+
   test("switchStorageMode copies current data into sync storage", async () => {
     const rule = makeRule(21, "sync-rule");
 
@@ -189,5 +220,30 @@ describe("storage mode", () => {
     expect(syncStore.get(SELECTED_KEY)).toEqual([TYPE.Rule, rule]);
     expect(syncStore.get("WORKING")).toBe(false);
     expect(syncStore.get("LOCALE")).toBe("en");
+  });
+});
+
+describe("config values", () => {
+  test("gets active config from selected storage mode and passive config from local storage", async () => {
+    await storage.setStorageMode("sync");
+    await storage.setConfigValue("WORKING", false);
+    await storage.setConfigValue("LOCALE", "en");
+    await storage.setConfigValue("LEFT_BAR_WIDTH", 240);
+
+    expect(await storage.getConfigValues(["WORKING", "LOCALE", "LEFT_BAR_WIDTH"])).toEqual({
+      WORKING: false,
+      LOCALE: "en",
+      LEFT_BAR_WIDTH: 240,
+      STORAGE_MODE: "sync",
+    });
+    expect(syncStore.get("WORKING")).toBe(false);
+    expect(syncStore.get("LOCALE")).toBe("en");
+    expect(localStore.get("LEFT_BAR_WIDTH")).toBe(240);
+  });
+
+  test("getConfigValue returns individual config values", async () => {
+    await storage.setConfigValue("LEFT_BAR_WIDTH", 260);
+
+    expect(await storage.getConfigValue("LEFT_BAR_WIDTH")).toBe(260);
   });
 });

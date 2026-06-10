@@ -23,10 +23,11 @@ bun run lint        # ESLint
 bun run lint:fix    # ESLint 自动修复
 bun run format      # Prettier
 bun test            # 单元测试
+bun run coverage:check # 单元测试覆盖率校验（Lines/Statements/Functions/Branches 均需 >= 90%）
 bun run check       # typecheck + lint + test 一把梭
 ```
 
-提交前请确保 `bun run check` 全部通过。
+提交前请确保 `bun run check`、`bun run build`、`bun run coverage:check` 全部通过。
 
 ## 目录结构
 
@@ -55,6 +56,8 @@ bun run check       # typecheck + lint + test 一把梭
 - 纯函数：直接导入并断言。
 - 依赖 `chrome` API 的模块：在 `import` 被测模块**之前**先在 `globalThis` 上挂载 mock（注意 `constants.ts` 在模块加载时即读取 `chrome.declarativeNetRequest`，mock 需提前提供对应枚举）。
 - 测试需可独立运行、无外部网络依赖。
+- 每次完成任何变更后，必须运行测试并校验覆盖率：`bun run check`、`bun run build`、`bun run coverage:check` 均需通过。
+- 单元测试覆盖率必须保持 `Lines`、`Statements`、`Functions`、`Branches` 四项均不低于 90%；如果新增或修改代码导致任一项低于 90%，必须补充有效测试后再交付。
 
 ## CI / 发布
 

@@ -572,12 +572,8 @@ function CompactEditor(props: Porps) {
   const [mockResponseBody, setMockResponseBody] = useState("");
   const [isEditingMockResponse, setIsEditingMockResponse] = useState(false);
 
-  const [requestHeaders, setRequestHeaders] = useState<
-    EditableModifyHeaderInfo[]
-  >([]);
-  const [responseHeaders, setResponseHeaders] = useState<
-    EditableModifyHeaderInfo[]
-  >([]);
+  const [requestHeaders, setRequestHeaders] = useState<EditableModifyHeaderInfo[]>([]);
+  const [responseHeaders, setResponseHeaders] = useState<EditableModifyHeaderInfo[]>([]);
 
   useEffect(() => {
     if (!hasChange) {
@@ -685,73 +681,81 @@ function CompactEditor(props: Porps) {
   }
 
   return (
-    <div className="editor-card">
-      <div className="editor-stack">
-        <Cell label={t("actionType")}>
-          <Select
-            className="w-full"
-            value={type}
-            options={actionOptions}
-            onChange={wrapChange(setType)}
-          />
-        </Cell>
-        <Cell label={t("condition")}>
-          <Input.TextArea
-            autoSize={{ minRows: 3 }}
-            status={regexFilter ? "" : "error"}
-            value={regexFilter}
-            variant="filled"
-            onChange={(e) => {
-              const value = e.target.value;
-              chrome.declarativeNetRequest.isRegexSupported({ regex: value }, (res) => {
-                if (!res.isSupported) {
-                  console.error(res.reason);
-                }
-              });
-
-              wrapChange(setRegexFilter)(e.target.value);
-            }}
-            required
-          />
-        </Cell>
-        {type === chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
-          <Cell label={t("redirect")}>
+    <>
+      <div className="editor-card">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="min-w-0 text-sm font-semibold text-slate-900">{t("editRule")}</div>
+        </div>
+        <div className="editor-stack">
+          <Cell label={t("actionType")}>
+            <Select
+              className="w-full"
+              value={type}
+              options={actionOptions}
+              onChange={wrapChange(setType)}
+            />
+          </Cell>
+          <Cell label={t("condition")}>
             <Input.TextArea
-              status={redirectTarget ? "" : "error"}
               autoSize={{ minRows: 3 }}
-              value={redirectTarget}
+              status={regexFilter ? "" : "error"}
+              value={regexFilter}
               variant="filled"
-              onChange={(e) => wrapChange(setRedirectTarget)(e.target.value)}
-              placeholder={t("redirectPlaceholder")}
-            />
-          </Cell>
-        )}
-        {type === CUSTOM_ACTION.MOCK && (
-          <Cell label={t("mockResponse")}>
-            <MockResponseEditor
-              body={mockResponseBody}
-              onEdit={() => {
-                setIsEditingMockResponse(true);
+              onChange={(e) => {
+                const value = e.target.value;
+                chrome.declarativeNetRequest.isRegexSupported({ regex: value }, (res) => {
+                  if (!res.isSupported) {
+                    console.error(res.reason);
+                  }
+                });
+
+                wrapChange(setRegexFilter)(e.target.value);
               }}
-              onChange={wrapChange(setMockResponseBody)}
+              required
             />
           </Cell>
-        )}
-        {type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
-          <>
-            <Cell label={t("requestHeaders")}>
-              <ModifyHeader headerInfos={requestHeaders} onChange={wrapChange(setRequestHeaders)} />
-            </Cell>
-            <Cell label={t("responseHeaders")}>
-              <ModifyHeader
-                headerInfos={responseHeaders}
-                onChange={wrapChange(setResponseHeaders)}
+          {type === chrome.declarativeNetRequest.RuleActionType.REDIRECT && (
+            <Cell label={t("redirect")}>
+              <Input.TextArea
+                status={redirectTarget ? "" : "error"}
+                autoSize={{ minRows: 3 }}
+                value={redirectTarget}
+                variant="filled"
+                onChange={(e) => wrapChange(setRedirectTarget)(e.target.value)}
+                placeholder={t("redirectPlaceholder")}
               />
             </Cell>
-          </>
-        )}
+          )}
+          {type === CUSTOM_ACTION.MOCK && (
+            <Cell label={t("mockResponse")}>
+              <MockResponseEditor
+                body={mockResponseBody}
+                onEdit={() => {
+                  setIsEditingMockResponse(true);
+                }}
+                onChange={wrapChange(setMockResponseBody)}
+              />
+            </Cell>
+          )}
+          {type === chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS && (
+            <>
+              <Cell label={t("requestHeaders")}>
+                <ModifyHeader
+                  headerInfos={requestHeaders}
+                  onChange={wrapChange(setRequestHeaders)}
+                />
+              </Cell>
+              <Cell label={t("responseHeaders")}>
+                <ModifyHeader
+                  headerInfos={responseHeaders}
+                  onChange={wrapChange(setResponseHeaders)}
+                />
+              </Cell>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

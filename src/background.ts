@@ -13,7 +13,7 @@ async function getIsWorking() {
 
 async function getEnabledRules() {
   const rules: Rule[] = await getRules();
-  return rules.filter((rule) => rule.enable);
+  return rules.filter((rule) => rule.enable && rule.groupEnabled !== false);
 }
 
 async function setRules(isWorkingOverride?: boolean) {

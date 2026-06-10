@@ -17,6 +17,7 @@ interface Props {
   item: Rule;
   index: number;
   compact?: boolean;
+  hideGroupLabel?: boolean;
   draggable?: boolean;
   isDragging?: boolean;
   isDropTarget?: boolean;
@@ -31,6 +32,7 @@ export default function Item(props: Props) {
     item: current,
     index,
     compact = false,
+    hideGroupLabel = false,
     draggable = false,
     isDragging = false,
     isDropTarget = false,
@@ -168,7 +170,16 @@ export default function Item(props: Props) {
         />
       ) : (
         <span className="item-name flex-1 truncate text-sm font-semibold text-slate-800">
-          {name || t("untitled")}
+          {current.groupName && !hideGroupLabel ? (
+            <>
+              <span className="mr-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-slate-500">
+                {t("ruleGroup")}
+              </span>
+              {current.groupName} / {name || t("untitled")}
+            </>
+          ) : (
+            name || t("untitled")
+          )}
         </span>
       )}
       <Dropdown

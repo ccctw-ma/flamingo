@@ -16,10 +16,20 @@ function listen(server: Server) {
 }
 
 function closeServer(server: Server) {
+  if (!server.listening) {
+    return Promise.resolve();
+  }
+
   return new Promise<void>((resolve, reject) => {
     server.closeAllConnections();
     server.close((error) => {
       if (error) {
+        const errorCode =
+          typeof error === "object" && "code" in error ? String(error.code) : "";
+        if (errorCode === "ERR_SERVER_NOT_RUNNING") {
+          resolve();
+          return;
+        }
         reject(error);
         return;
       }

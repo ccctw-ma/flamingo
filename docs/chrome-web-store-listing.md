@@ -26,8 +26,9 @@ Main features:
 - Store rules locally by default.
 - Optionally sync rules through Chrome Sync after selecting Chrome Sync storage mode in Settings.
 - Switch the popup language between Chinese and English.
+- Optionally generate a disabled rule draft with a user-configured GPT or DeepSeek compatible AI provider.
 
-Flamingo does not provide a proxy server, VPN, traffic tunneling, analytics, ad injection, or remote rule service. It only applies rules that you create and enable inside the extension.
+Flamingo does not provide a proxy server, VPN, traffic tunneling, analytics, ad injection, or remote rule service. It only applies rules that you create and enable inside the extension. The optional AI assistant creates disabled drafts only and requires a user-provided provider API key.
 
 ## Prominent Privacy Disclosure
 
@@ -36,6 +37,8 @@ Flamingo stores the rules and preferences you create in Chrome storage. Your rul
 By default, data is stored locally in `chrome.storage.local`. If you choose Chrome Sync storage mode in Settings, Flamingo stores rules and key preferences in `chrome.storage.sync` so Chrome can synchronize them through your Chrome account.
 
 Flamingo requests host access for HTTP and HTTPS sites so user-created rules can match normal web requests. Rule matching and mock response handling happen locally in the browser. Flamingo does not create a browsing history, does not analyze page content for profiling, and does not send your rules, browsing activity, preferences, or mock response data to the developer's servers.
+
+If you enable the optional AI assistant, Flamingo sends your natural-language prompt and current rule context directly to the selected AI provider's built-in official endpoint, using your own provider-specific API key. AI settings, including API keys, are stored in `chrome.storage.local` and are not copied to Chrome Sync by Flamingo.
 
 Flamingo does not sell or share data with advertisers, analytics providers, data brokers, or other third parties.
 
