@@ -126,53 +126,165 @@ async function installChromeMock(
         const body = JSON.parse(String(init?.body ?? "{}")) as {
           messages?: Array<{ content?: string }>;
         };
-        const userPayload = JSON.parse(body.messages?.at(-1)?.content ?? "{}") as { task?: string };
+        const userPayload = JSON.parse(body.messages?.at(-1)?.content ?? "{}") as {
+          task?: string;
+          userPrompt?: string;
+        };
+        const wantsSingleRule = userPayload.userPrompt?.includes("单条");
+        const wantsEditRule = userPayload.userPrompt?.includes("编辑当前规则");
+        const wantsEditGroup = userPayload.userPrompt?.includes("编辑当前组");
         const content =
-          userPayload.task === "Plan all Flamingo DNR rules needed for the user request."
-            ? JSON.stringify({
-                groupName: "Magic Proxy",
-                rules: [
-                  {
-                    action: "modifyHeaders",
-                    target: "https://magic-cn.bytedance.net/api/*",
-                    needsMockResponse: false,
-                    needsRedirectUrl: false,
-                    needsHeaders: true,
-                  },
-                  {
-                    action: "block",
-                    target: "https://magic-cn.bytedance.net/tracking/*",
-                    needsMockResponse: false,
-                    needsRedirectUrl: false,
-                    needsHeaders: false,
-                  },
-                ],
-                confidence: 0.9,
-                notes: ["project proxy group"],
-              })
-            : JSON.stringify({
-                groupName: "Magic Proxy",
-                rules: [
-                  {
-                    name: "API Headers",
-                    action: "modifyHeaders",
-                    regexFilter: "https://magic-cn.bytedance.net/api/",
-                    requestHeaders: [
-                      {
-                        header: "x-use-ppe",
-                        operation: "set",
-                        value: "1",
-                        enabled: true,
-                      },
-                    ],
-                  },
-                  {
-                    name: "Block Track",
-                    action: "block",
-                    regexFilter: "https://magic-cn.bytedance.net/tracking/",
-                  },
-                ],
-              });
+          userPayload.task?.startsWith("Plan")
+            ? JSON.stringify(
+                wantsEditGroup
+                  ? {
+                      generationMode: "group",
+                      groupName: "Edited Group",
+                      rules: [
+                        {
+                          action: "modifyHeaders",
+                          target: "https://group-edited.example.com/api/*",
+                          needsMockResponse: false,
+                          needsRedirectUrl: false,
+                          needsHeaders: true,
+                        },
+                        {
+                          action: "block",
+                          target: "https://group-edited.example.com/tracking/*",
+                          needsMockResponse: false,
+                          needsRedirectUrl: false,
+                          needsHeaders: false,
+                        },
+                      ],
+                      confidence: 0.95,
+                      notes: ["edit selected group"],
+                    }
+                  : wantsEditRule
+                  ? {
+                      generationMode: "rule",
+                      rules: [
+                        {
+                          action: "block",
+                          target: "https://edited.example.com/*",
+                          needsMockResponse: false,
+                          needsRedirectUrl: false,
+                          needsHeaders: false,
+                        },
+                      ],
+                      confidence: 0.95,
+                      notes: ["edit selected rule"],
+                    }
+                  : wantsSingleRule
+                    ? {
+                        generationMode: "rule",
+                        rules: [
+                          {
+                            action: "block",
+                            target: "https://single.example.com/tracking/*",
+                            needsMockResponse: false,
+                            needsRedirectUrl: false,
+                            needsHeaders: false,
+                          },
+                        ],
+                        confidence: 0.9,
+                        notes: ["single rule"],
+                      }
+                    : {
+                        generationMode: "group",
+                        groupName: "Magic Proxy",
+                        rules: [
+                          {
+                            action: "modifyHeaders",
+                            target: "https://magic-cn.bytedance.net/api/*",
+                            needsMockResponse: false,
+                            needsRedirectUrl: false,
+                            needsHeaders: true,
+                          },
+                          {
+                            action: "block",
+                            target: "https://magic-cn.bytedance.net/tracking/*",
+                            needsMockResponse: false,
+                            needsRedirectUrl: false,
+                            needsHeaders: false,
+                          },
+                        ],
+                        confidence: 0.9,
+                        notes: ["project proxy group"],
+                      }
+              )
+            : JSON.stringify(
+                wantsEditGroup
+                  ? {
+                      generationMode: "group",
+                      groupName: "Edited Group",
+                      rules: [
+                        {
+                          name: "Edited API",
+                          action: "modifyHeaders",
+                          regexFilter: "https://group-edited.example.com/api/",
+                          requestHeaders: [
+                            {
+                              header: "x-edited-group",
+                              operation: "set",
+                              value: "1",
+                              enabled: true,
+                            },
+                          ],
+                        },
+                        {
+                          name: "Edited Track",
+                          action: "block",
+                          regexFilter: "https://group-edited.example.com/tracking/",
+                        },
+                      ],
+                    }
+                  : wantsEditRule
+                  ? {
+                      generationMode: "rule",
+                      rules: [
+                        {
+                          name: "Edited Block",
+                          action: "block",
+                          regexFilter: "https://edited.example.com/",
+                        },
+                      ],
+                    }
+                  : wantsSingleRule
+                    ? {
+                        generationMode: "rule",
+                        rules: [
+                          {
+                            name: "Single Block",
+                            action: "block",
+                            regexFilter: "https://single.example.com/tracking/",
+                          },
+                        ],
+                      }
+                    : {
+                        generationMode: "group",
+                        groupName: "Magic Proxy",
+                        rules: [
+                          {
+                            name: "API Headers",
+                            action: "modifyHeaders",
+                            regexFilter: "https://magic-cn.bytedance.net/api/",
+                            requestHeaders: [
+                              {
+                                header: "x-use-ppe",
+                                operation: "set",
+                                value: "1",
+                                enabled: true,
+                              },
+                            ],
+                          },
+                          {
+                            name: "Block Track",
+                            action: "block",
+                            regexFilter: "https://magic-cn.bytedance.net/tracking/",
+                          },
+                        ],
+                      }
+              );
 
         return Response.json({
           choices: [
@@ -522,7 +634,7 @@ test.describe("popup shell", () => {
     await page
       .locator(".flamingo-list-menu")
       .last()
-      .getByText(/Edit Rule|编辑规则/i)
+      .getByText(/Edit Group|编辑组/i)
       .click();
     await firstFolder.locator(".rule-folder-input").fill("Magic Group");
     await firstFolder.locator(".rule-folder-input").press("Enter");
@@ -533,7 +645,7 @@ test.describe("popup shell", () => {
     await page
       .locator(".flamingo-list-menu")
       .last()
-      .getByText(/Copy Rule|复制规则/i)
+      .getByText(/Copy Group|复制组/i)
       .click();
     const copiedFolder = page.locator(".rule-folder", { hasText: /Magic Group (Copy|副本)/ });
     await expect(copiedFolder).toHaveCount(1);
@@ -547,7 +659,7 @@ test.describe("popup shell", () => {
     await page
       .locator(".flamingo-list-menu")
       .last()
-      .getByText(/Delete Rule|删除/i)
+      .getByText(/Delete Group|删除组/i)
       .click();
     await expect(copiedFolder).toHaveCount(0);
     const divider = page.locator(".app-divider");
@@ -568,6 +680,362 @@ test.describe("popup shell", () => {
       /rgba\(239, 127, 141, 0\.16\)/
     );
     await expect(renamedFolder.locator(".rule-folder-index")).toBeVisible();
+  });
+
+  test("generates and applies a standalone AI rule when intent is single-rule", async ({
+    page,
+  }) => {
+    await installChromeMock(page, {
+      "flamingo:ai-settings": {
+        enabled: true,
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        apiKey: "test-key",
+        apiKeys: {
+          gpt: "",
+          deepseek: "test-key",
+        },
+      },
+    });
+    await page.goto("/home.html");
+
+    await page.getByRole("button", { name: /AI Generate Rule|AI 生成规则/i }).click();
+    await page
+      .getByPlaceholder(/Mock https:\/\/api\.example\.com\/user|例如：把/)
+      .fill("生成单条规则：拦截 single.example.com tracking 请求");
+    await page
+      .getByRole("button", { name: /AI Generate Rule|AI 生成规则/i })
+      .last()
+      .click();
+    await expect(page.getByText(/Draft passed validation|草稿已通过校验/)).toBeVisible();
+    await page.getByRole("button", { name: /Apply Draft|应用草稿/i }).click();
+
+    await expect(page.locator(".rule-folder")).toHaveCount(0);
+    await expect(page.locator(".item-row", { hasText: "Single Block" })).toHaveCount(1);
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            name: string;
+            groupId?: number;
+            groupName?: string;
+            groupEnabled?: boolean;
+          }>
+        ).map((rule) => ({
+          name: rule.name,
+          hasGroup: typeof rule.groupId === "number",
+          groupName: rule.groupName,
+          groupEnabled: rule.groupEnabled,
+        }));
+      })
+      .toEqual([
+        {
+          name: "Single Block",
+          hasGroup: false,
+          groupName: undefined,
+          groupEnabled: undefined,
+        },
+      ]);
+  });
+
+  test("edits the selected rule with AI and shows a diff preview", async ({ page }) => {
+    await installChromeMock(page, {
+      "flamingo:ai-settings": {
+        enabled: true,
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        apiKey: "test-key",
+        apiKeys: {
+          gpt: "",
+          deepseek: "test-key",
+        },
+      },
+    });
+    await page.goto("/home.html");
+    await seedRule(page, "Editable Rule");
+    await page.locator(".item-row", { hasText: "Editable Rule" }).click();
+
+    await page.getByRole("button", { name: /AI Generate Rule|AI 生成规则/i }).click();
+    await page
+      .locator(".ant-drawer .ant-segmented")
+      .getByText(/Edit Rule|编辑规则/i)
+      .click();
+    await page
+      .getByPlaceholder(/Mock https:\/\/api\.example\.com\/user|例如：把/)
+      .fill("编辑当前规则：改成 block edited.example.com");
+    await page.getByRole("button", { name: /AI Edit|AI 编辑/i }).click();
+
+    await expect(page.getByText(/Diff Preview|变更预览/i)).toBeVisible();
+    await expect(page.locator("pre", { hasText: "Edited Block" })).toBeVisible();
+    await page.getByRole("button", { name: /Apply Draft|应用草稿/i }).click();
+
+    await expect(page.locator(".item-row", { hasText: "Edited Block" })).toHaveCount(1);
+    await expect(page.locator(".item-row", { hasText: "Editable Rule" })).toHaveCount(0);
+    await expect(page.locator(".rule-folder")).toHaveCount(0);
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            name: string;
+            groupId?: number;
+            condition: { regexFilter?: string };
+          }>
+        ).map((rule) => ({
+          name: rule.name,
+          hasGroup: typeof rule.groupId === "number",
+          regexFilter: rule.condition.regexFilter,
+        }));
+      })
+      .toEqual([
+        {
+          name: "Edited Block",
+          hasGroup: false,
+          regexFilter: "^https://edited\\.example\\.com/.*$",
+        },
+      ]);
+  });
+
+  test("edits a grouped rule selected from the AI rule dropdown", async ({ page }) => {
+    const now = Date.now();
+    await installChromeMock(page, {
+      "flamingo:ai-settings": {
+        enabled: true,
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        apiKey: "test-key",
+        apiKeys: {
+          gpt: "",
+          deepseek: "test-key",
+        },
+      },
+      rules_storage_key: [
+        {
+          id: 8101,
+          name: "Standalone Rule",
+          create: now,
+          update: now,
+          enable: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://standalone\\.example\\.com/.*$" },
+          uiActionType: "block",
+        },
+        {
+          id: 8102,
+          name: "Group API",
+          create: now,
+          update: now,
+          enable: false,
+          groupId: 9101,
+          groupName: "Target Group",
+          groupEnabled: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://group\\.example\\.com/api/.*$" },
+          uiActionType: "block",
+        },
+        {
+          id: 8103,
+          name: "Group Track",
+          create: now,
+          update: now,
+          enable: false,
+          groupId: 9101,
+          groupName: "Target Group",
+          groupEnabled: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://group\\.example\\.com/tracking/.*$" },
+          uiActionType: "block",
+        },
+      ],
+    });
+    await page.goto("/home.html");
+
+    await page.getByRole("button", { name: /AI Generate Rule|AI 生成规则/i }).click();
+    await page
+      .locator(".ant-drawer .ant-segmented")
+      .getByText(/Edit Rule|编辑规则/i)
+      .click();
+    await page.locator(".ant-drawer .ant-select").click();
+    await page.getByText("Target Group / Group API", { exact: true }).last().click();
+    await expect(page.getByText(/Editing: Group API|正在编辑：Group API/i)).toBeVisible();
+    await page
+      .getByPlaceholder(/Mock https:\/\/api\.example\.com\/user|例如：把/)
+      .fill("编辑当前规则：改成 block edited.example.com");
+    await page.getByRole("button", { name: /AI Edit|AI 编辑/i }).click();
+
+    await expect(page.getByText(/Diff Preview|变更预览/i)).toBeVisible();
+    await expect(page.locator("pre", { hasText: "Edited Block" })).toBeVisible();
+    await page.getByRole("button", { name: /Apply Draft|应用草稿/i }).click();
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            id: number;
+            name: string;
+            groupId?: number;
+            groupName?: string;
+            condition: { regexFilter?: string };
+          }>
+        ).map((rule) => ({
+          id: rule.id,
+          name: rule.name,
+          groupId: rule.groupId,
+          groupName: rule.groupName,
+          regexFilter: rule.condition.regexFilter,
+        }));
+      })
+      .toEqual([
+        {
+          id: 8101,
+          name: "Standalone Rule",
+          groupId: undefined,
+          groupName: undefined,
+          regexFilter: "^https://standalone\\.example\\.com/.*$",
+        },
+        {
+          id: 8102,
+          name: "Edited Block",
+          groupId: 9101,
+          groupName: "Target Group",
+          regexFilter: "^https://edited\\.example\\.com/.*$",
+        },
+        {
+          id: 8103,
+          name: "Group Track",
+          groupId: 9101,
+          groupName: "Target Group",
+          regexFilter: "^https://group\\.example\\.com/tracking/.*$",
+        },
+      ]);
+  });
+
+  test("edits a group selected from the AI group dropdown", async ({ page }) => {
+    const now = Date.now();
+    await installChromeMock(page, {
+      "flamingo:ai-settings": {
+        enabled: true,
+        provider: "deepseek",
+        model: "deepseek-v4-flash",
+        apiKey: "test-key",
+        apiKeys: {
+          gpt: "",
+          deepseek: "test-key",
+        },
+      },
+      rules_storage_key: [
+        {
+          id: 8201,
+          name: "Other API",
+          create: now,
+          update: now,
+          enable: false,
+          groupId: 9201,
+          groupName: "Other Group",
+          groupEnabled: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://other\\.example\\.com/api/.*$" },
+          uiActionType: "block",
+        },
+        {
+          id: 8202,
+          name: "Target API",
+          create: now,
+          update: now,
+          enable: false,
+          groupId: 9202,
+          groupName: "Target Group",
+          groupEnabled: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://target\\.example\\.com/api/.*$" },
+          uiActionType: "block",
+        },
+        {
+          id: 8203,
+          name: "Target Track",
+          create: now,
+          update: now,
+          enable: false,
+          groupId: 9202,
+          groupName: "Target Group",
+          groupEnabled: false,
+          action: { type: "block" },
+          condition: { regexFilter: "^https://target\\.example\\.com/tracking/.*$" },
+          uiActionType: "block",
+        },
+      ],
+    });
+    await page.goto("/home.html");
+
+    await page.getByRole("button", { name: /AI Generate Rule|AI 生成规则/i }).click();
+    await page
+      .locator(".ant-drawer .ant-segmented")
+      .getByText(/Edit Group|编辑组/i)
+      .click();
+    await page.locator(".ant-drawer .ant-select").click();
+    await page.getByText("Target Group", { exact: true }).last().click();
+    await expect(page.getByText(/Editing: Target Group|正在编辑：Target Group/i)).toBeVisible();
+    await page
+      .getByPlaceholder(/Mock https:\/\/api\.example\.com\/user|例如：把/)
+      .fill("编辑当前组：把 API 加 header 并拦截 tracking");
+    await page.getByRole("button", { name: /AI Edit|AI 编辑/i }).click();
+
+    await expect(page.getByText(/Diff Preview|变更预览/i)).toBeVisible();
+    await expect(page.locator("pre", { hasText: "Edited API" })).toBeVisible();
+    await page.getByRole("button", { name: /Apply Draft|应用草稿/i }).click();
+
+    await expect
+      .poll(async () => {
+        const result = await page.evaluate(async () => {
+          return await chrome.storage.local.get("rules_storage_key");
+        });
+        return (
+          result.rules_storage_key as Array<{
+            id: number;
+            name: string;
+            groupId?: number;
+            groupName?: string;
+            condition: { regexFilter?: string };
+          }>
+        ).map((rule) => ({
+          id: rule.id,
+          name: rule.name,
+          groupId: rule.groupId,
+          groupName: rule.groupName,
+          regexFilter: rule.condition.regexFilter,
+        }));
+      })
+      .toEqual([
+        {
+          id: 8201,
+          name: "Other API",
+          groupId: 9201,
+          groupName: "Other Group",
+          regexFilter: "^https://other\\.example\\.com/api/.*$",
+        },
+        {
+          id: 8202,
+          name: "Edited API",
+          groupId: 9202,
+          groupName: "Edited Group",
+          regexFilter: "^https://group-edited\\.example\\.com/api/.*$",
+        },
+        {
+          id: 8203,
+          name: "Edited Track",
+          groupId: 9202,
+          groupName: "Edited Group",
+          regexFilter: "^https://group-edited\\.example\\.com/tracking/.*$",
+        },
+      ]);
   });
 
   test("shows empty state and creates the first rule", async ({ page }) => {

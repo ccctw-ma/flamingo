@@ -43,10 +43,13 @@ export interface RuleDraft {
 export interface RuleDraftInput {
   prompt: string;
   currentRules: Rule[];
+  intent?: "create" | "editRule" | "editGroup";
+  editRules?: Rule[];
   locale?: "zh-CN" | "en";
 }
 
 export interface RuleDraftPlan {
+  generationMode: "rule" | "group";
   groupName?: string;
   rules: Array<{
     action: RuleDraftAction;
@@ -80,7 +83,8 @@ export type RuleDraftValidation = ValidationSuccess | ValidationFailure;
 
 export interface RuleDraftWorkflowSuccess {
   ok: true;
-  groupName: string;
+  generationMode: "rule" | "group";
+  groupName?: string;
   plan: RuleDraftPlan;
   drafts: RuleDraft[];
   rules: Rule[];

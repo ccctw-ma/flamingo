@@ -49,7 +49,7 @@ function getLiveSettings(): AIProviderSettings | null {
       enabled: true,
       provider: "gpt",
       baseUrl: "https://api.openai.com/v1",
-      model: "gpt-5.4-mini",
+      model: "gpt-4o-mini",
       apiKey: openAIKey,
       apiKeys: {
         gpt: openAIKey,
@@ -69,14 +69,58 @@ test("live AI provider returns a JSON object for rule generation prompts", async
   }
 
   const agent = createProviderAgent(settings);
-  await expect(
-    agent({
-      kind: "draft",
-      system: [
-        "Return only a JSON object.",
-        'The JSON object must have this exact shape: {"ok":true}.',
-      ].join("\n"),
-      user: 'Return {"ok":true}.',
-    })
-  ).resolves.toEqual({ ok: true });
+  try {
+    await expect(
+      agent({
+        kind: "draft",
+        system: [
+          "Return only a JSON object.",
+          'The JSON object must have this exact shape: {"ok":true}.',
+        ].join("\n"),
+        user: 'Return {"ok":true}.',
+      })
+    ).resolves.toEqual({ ok: true });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("429")) {
+      test.skip(true, "OpenAI key is currently rate limited or out of quota");
+    }
+    throw error;
+  }
+});
+
+test("live OpenAI provider returns a JSON object when OPENAI_API_KEY is set", async () => {
+  test.skip(!openAIKey, "Set OPENAI_API_KEY in .env");
+  if (!openAIKey) {
+    return;
+  }
+
+  const agent = createProviderAgent({
+    enabled: true,
+    provider: "gpt",
+    baseUrl: "https://api.openai.com/v1",
+    model: "gpt-4o-mini",
+    apiKey: openAIKey,
+    apiKeys: {
+      gpt: openAIKey,
+      deepseek: "",
+    },
+  });
+
+  try {
+    await expect(
+      agent({
+        kind: "draft",
+        system: [
+          "Return only a JSON object.",
+          'The JSON object must have this exact shape: {"ok":true}.',
+        ].join("\n"),
+        user: 'Return {"ok":true}.',
+      })
+    ).resolves.toEqual({ ok: true });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("429")) {
+      test.skip(true, "OpenAI key is currently rate limited or out of quota");
+    }
+    throw error;
+  }
 });

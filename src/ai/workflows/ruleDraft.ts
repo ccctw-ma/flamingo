@@ -3,6 +3,7 @@ import {
   validateRuleDraft,
   verifyRuleDraft,
   ruleDraftToNewRule,
+  ruleDraftToRule,
   RegexValidator,
 } from "../validators";
 import {
@@ -47,6 +48,14 @@ function asStringArray(value: unknown) {
     : [];
 }
 
+function readGenerationMode(value: unknown, ruleCount: number): RuleDraftPlan["generationMode"] {
+  const rawMode = isObject(value) ? asString(value.generationMode || value.mode) : "";
+  if (rawMode === "rule" || rawMode === "group") {
+    return rawMode;
+  }
+  return ruleCount > 1 ? "group" : "rule";
+}
+
 function shortenTitle(value: string, fallback: string) {
   const normalized = value.trim().replace(/\s+/g, " ");
   if (!normalized) {
@@ -88,6 +97,7 @@ export function verifyRuleDraftPlan(value: unknown): RuleDraftPlan {
   }
 
   return {
+    generationMode: readGenerationMode(value, rules.length),
     groupName: shortenTitle(asString(value.groupName), "AI Group"),
     rules,
     confidence: Math.max(0, Math.min(1, asNumber(value.confidence))),
@@ -106,13 +116,21 @@ function baseSystemPrompt() {
 }
 
 function planPrompt(input: RuleDraftInput): AgentPrompt {
+  const intent = input.intent ?? "create";
   return {
     kind: "plan",
     system: baseSystemPrompt(),
     user: JSON.stringify(
       {
-        task: "Plan all Flamingo DNR rules needed for the user request.",
+        task:
+          intent === "editRule"
+            ? "Plan how to edit the selected existing Flamingo DNR rule for the user request."
+            : intent === "editGroup"
+              ? "Plan how to edit the selected existing Flamingo DNR rule group for the user request."
+              : "Plan all Flamingo DNR rules needed for the user request.",
         outputShape: {
+          generationMode:
+            "rule | group. Use rule for a single independent request; use group for a scenario that needs multiple coordinated rules.",
           groupName: "short group title, <=10 CJK chars or <=3 English words",
           rules: [
             {
@@ -132,6 +150,16 @@ function planPrompt(input: RuleDraftInput): AgentPrompt {
           regexFilter: rule.condition.regexFilter,
           action: rule.uiActionType ?? rule.action.type,
         })),
+        editContext: {
+          intent,
+          targetRules: (input.editRules ?? []).map((rule) => ({
+            id: rule.id,
+            name: rule.name,
+            groupName: rule.groupName,
+            regexFilter: rule.condition.regexFilter,
+            action: rule.uiActionType ?? rule.action.type,
+          })),
+        },
         locale: input.locale ?? "zh-CN",
       },
       null,
@@ -141,13 +169,21 @@ function planPrompt(input: RuleDraftInput): AgentPrompt {
 }
 
 function buildRulePrompt(input: RuleDraftInput, plan: RuleDraftPlan): AgentPrompt {
+  const intent = input.intent ?? "create";
   return {
     kind: "draft",
     system: baseSystemPrompt(),
     user: JSON.stringify(
       {
-        task: "Generate a JSON object with a rules array. Include every RuleDraft needed by the request.",
+        task:
+          intent === "editRule"
+            ? "Generate the complete edited RuleDraft for the selected rule. Return exactly one rule."
+            : intent === "editGroup"
+              ? "Generate the complete edited RuleDraft list for the selected group."
+              : "Generate a JSON object with a rules array. Include every RuleDraft needed by the request.",
         outputShape: {
+          generationMode:
+            "rule | group. Match the plan. Use rule for one independent rule; group for multiple related rules.",
           groupName: "short group title, <=10 CJK chars or <=3 English words",
           rules: [
             {
@@ -171,7 +207,12 @@ function buildRulePrompt(input: RuleDraftInput, plan: RuleDraftPlan): AgentPromp
         },
         constraints: [
           "Return at least one rule and at most five rules.",
-          "Always provide groupName.",
+          "Use generationMode=rule when the request can be fulfilled by one independent rule.",
+          "Use generationMode=group only when multiple related rules should be managed together.",
+          "Provide groupName only when generationMode is group.",
+          "When editing, preserve the user's intent while returning the full final rule definition, not a partial patch.",
+          "When editing a single rule, return generationMode=rule and exactly one rule.",
+          "When editing a group, return generationMode=group and include every rule that should remain in the group.",
           "Every rule must have a concise name. Keep Chinese names within 10 characters; keep English names within 3 complete words when possible.",
           "Do not set enable/enabled for the rule itself.",
           "For remove header operations, omit value.",
@@ -180,6 +221,16 @@ function buildRulePrompt(input: RuleDraftInput, plan: RuleDraftPlan): AgentPromp
         ],
         plan,
         userPrompt: input.prompt,
+        editTargetRules: (input.editRules ?? []).map((rule) => ({
+          id: rule.id,
+          name: rule.name,
+          groupName: rule.groupName,
+          enable: rule.enable,
+          action: rule.action,
+          condition: rule.condition,
+          mockResponse: rule.mockResponse,
+          uiActionType: rule.uiActionType,
+        })),
       },
       null,
       2
@@ -237,6 +288,30 @@ function readGroupName(value: unknown, fallback: string) {
   return isObject(value) ? shortenTitle(asString(value.groupName), fallback) : fallback;
 }
 
+function readResultMode(value: unknown, plan: RuleDraftPlan, ruleCount: number) {
+  if (!isObject(value)) {
+    return plan.generationMode;
+  }
+  return readGenerationMode(value, ruleCount);
+}
+
+function readResultGroupName(value: unknown, plan: RuleDraftPlan, ruleCount: number) {
+  const generationMode = readResultMode(value, plan, ruleCount);
+  return generationMode === "group"
+    ? readGroupName(value, plan.groupName ?? "AI Group")
+    : undefined;
+}
+
+function normalizeResultMode(input: RuleDraftInput, mode: RuleDraftPlan["generationMode"]) {
+  if (input.intent === "editRule") {
+    return "rule";
+  }
+  if (input.intent === "editGroup") {
+    return "group";
+  }
+  return mode;
+}
+
 async function validateDraftOrReturnIssues(
   draft: unknown,
   input: RuleDraftInput,
@@ -263,19 +338,30 @@ function collectValidationIssues(
 }
 
 function buildRules(
-  validations: Awaited<ReturnType<typeof validateDraftOrReturnIssues>>["validations"]
+  validations: Awaited<ReturnType<typeof validateDraftOrReturnIssues>>["validations"],
+  input: RuleDraftInput
 ) {
+  const editRules = input.editRules ?? [];
+  const baseGroupRule = editRules.find((rule) => rule.groupId);
   return validations
     .filter((validation): validation is Extract<typeof validation, { ok: true }> => validation.ok)
-    .map((validation, index) =>
-      ruleDraftToNewRule(
-        {
-          ...validation.draft,
-          name: shortenTitle(validation.draft.name, `Rule ${index + 1}`),
-        },
-        index
-      )
-    );
+    .map((validation, index) => {
+      const draft = {
+        ...validation.draft,
+        name: shortenTitle(validation.draft.name, `Rule ${index + 1}`),
+      };
+      const editedRule = editRules[index];
+      if (editedRule) {
+        return ruleDraftToRule(draft, editedRule);
+      }
+      const nextRule = ruleDraftToNewRule(draft, index);
+      if (input.intent === "editGroup" && baseGroupRule?.groupId) {
+        nextRule.groupId = baseGroupRule.groupId;
+        nextRule.groupName = baseGroupRule.groupName;
+        nextRule.groupEnabled = baseGroupRule.groupEnabled;
+      }
+      return nextRule;
+    });
 }
 
 export async function runRuleDraftWorkflow(
@@ -315,11 +401,13 @@ export async function runRuleDraftWorkflow(
     const firstPass = await validateDraftOrReturnIssues(draft, input, runtime.validateRegex);
     const firstIssues = collectValidationIssues(firstPass.validations);
     if (!firstIssues.length) {
-      const rules = buildRules(firstPass.validations);
-      const groupName = readGroupName(draft, plan.groupName ?? "AI Group");
+      const rules = buildRules(firstPass.validations, input);
+      const generationMode = normalizeResultMode(input, readResultMode(draft, plan, rules.length));
+      const groupName = readResultGroupName(draft, plan, rules.length);
       runtime.onEvent?.({ type: "complete", message: "草稿校验通过", rules });
       return {
         ok: true,
+        generationMode,
         groupName,
         plan,
         drafts: firstPass.verified,
@@ -360,11 +448,16 @@ export async function runRuleDraftWorkflow(
       };
     }
 
-    const rules = buildRules(repairedPass.validations);
-    const groupName = readGroupName(repairedDraft, plan.groupName ?? "AI Group");
+    const rules = buildRules(repairedPass.validations, input);
+    const generationMode = normalizeResultMode(
+      input,
+      readResultMode(repairedDraft, plan, rules.length)
+    );
+    const groupName = readResultGroupName(repairedDraft, plan, rules.length);
     runtime.onEvent?.({ type: "complete", message: "修复后的草稿校验通过", rules });
     return {
       ok: true,
+      generationMode,
       groupName,
       plan,
       drafts: repairedPass.verified,

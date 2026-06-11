@@ -132,7 +132,7 @@ export default function LeftBar() {
     }
 
     const syncCompactState = () => {
-      setIsCompact(pane.clientWidth < 180);
+      setIsCompact(pane.clientWidth < 120);
     };
     syncCompactState();
 
@@ -301,17 +301,17 @@ export default function LeftBar() {
     {
       key: "copy",
       icon: <CopyOutlined />,
-      label: t("copyRule"),
+      label: t("copyGroup"),
     },
     {
       key: "edit",
       icon: <EditOutlined />,
-      label: t("editRule"),
+      label: t("editGroup"),
     },
     {
       key: "delete",
       icon: <DeleteOutlined />,
-      label: t("deleteRule"),
+      label: t("deleteGroup"),
       danger: true,
     },
   ];

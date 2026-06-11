@@ -15,14 +15,11 @@ export const AI_PROVIDER_PRESETS: Record<AIProvider, AIProviderPreset> = {
     provider: "gpt",
     label: "OpenAI",
     baseUrl: "https://api.openai.com/v1",
-    defaultModel: "gpt-5.4-mini",
+    defaultModel: "gpt-4o-mini",
     models: [
-      { label: "GPT-5.5", value: "gpt-5.5" },
-      { label: "GPT-5.5 Pro", value: "gpt-5.5-pro" },
-      { label: "GPT-5.4", value: "gpt-5.4" },
-      { label: "GPT-5.4 mini", value: "gpt-5.4-mini" },
-      { label: "GPT-5.4 nano", value: "gpt-5.4-nano" },
-      { label: "GPT-5.4 Pro", value: "gpt-5.4-pro" },
+      { label: "GPT-4o mini", value: "gpt-4o-mini" },
+      { label: "GPT-4o", value: "gpt-4o" },
+      { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
     ],
   },
   deepseek: {

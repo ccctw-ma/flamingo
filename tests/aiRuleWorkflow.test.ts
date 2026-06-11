@@ -129,7 +129,7 @@ describe("AI settings storage", () => {
       enabled: true,
       provider: "gpt",
       baseUrl: "https://api.openai.com/v1",
-      model: "gpt-5.4-mini",
+      model: "gpt-4o-mini",
       apiKey: "legacy-openai-key",
       apiKeys: {
         gpt: "legacy-openai-key",
@@ -166,7 +166,7 @@ describe("AI provider request", () => {
         enabled: true,
         provider: "gpt",
         baseUrl: "https://api.openai.com/v1",
-        model: "gpt-5.5",
+        model: "gpt-4o",
         apiKey: "openai-secret",
         apiKeys: {
           gpt: "openai-secret",
@@ -401,6 +401,7 @@ describe("runRuleDraftWorkflow", () => {
         notes: ["keep"],
       })
     ).toEqual({
+      generationMode: "rule",
       groupName: "非常长的中文分组名称",
       rules: [
         {
@@ -476,9 +477,74 @@ describe("runRuleDraftWorkflow", () => {
       return;
     }
     expect(result.repaired).toBe(false);
-    expect(result.groupName).toBe("Tracking");
+    expect(result.generationMode).toBe("rule");
+    expect(result.groupName).toBeUndefined();
     expect(result.rules).toHaveLength(1);
+    expect(result.rules[0].groupId).toBeUndefined();
     expect(events).toContain("complete");
+  });
+
+  test("returns grouped rules when the plan explicitly asks for a group", async () => {
+    const agent: RuleDraftAgent = async (prompt) => {
+      if (prompt.kind === "plan") {
+        return {
+          generationMode: "group",
+          groupName: "Magic Proxy",
+          rules: [
+            {
+              action: "modifyHeaders",
+              target: "https://api.example.com",
+              needsMockResponse: false,
+              needsRedirectUrl: false,
+              needsHeaders: true,
+            },
+            {
+              action: "block",
+              target: "https://api.example.com/tracking",
+              needsMockResponse: false,
+              needsRedirectUrl: false,
+              needsHeaders: false,
+            },
+          ],
+          confidence: 0.8,
+          notes: [],
+        };
+      }
+
+      return {
+        generationMode: "group",
+        groupName: "Magic Proxy",
+        rules: [
+          {
+            name: "API Headers",
+            action: "modifyHeaders",
+            regexFilter: "https://api.example.com",
+            requestHeaders: [{ header: "x-use-ppe", operation: "set", value: "1" }],
+          },
+          {
+            name: "Block Track",
+            action: "block",
+            regexFilter: "https://api.example.com/tracking",
+          },
+        ],
+      };
+    };
+
+    const result = await runRuleDraftWorkflow(
+      {
+        prompt: "给 api 项目生成 header 和 tracking 拦截",
+        currentRules: [],
+      },
+      { agent }
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.generationMode).toBe("group");
+    expect(result.groupName).toBe("Magic Proxy");
+    expect(result.rules).toHaveLength(2);
   });
 
   test("repairs an invalid draft before returning a rule", async () => {
@@ -557,6 +623,7 @@ describe("runRuleDraftWorkflow", () => {
     }
 
     expect(result.repaired).toBe(true);
+    expect(result.generationMode).toBe("group");
     expect(result.groupName).toBe("Magic接口代理规则".slice(0, 10));
     expect(result.rules).toHaveLength(2);
     expect(result.rules[0].name).toBe("Redirect API With");

@@ -46,8 +46,19 @@ const ActionBar = () => {
     }
   };
 
-  const applyAIRules = async (draftRules: Rule[]) => {
-    const nextRules = [...rules, ...draftRules];
+  const applyAIRules = async (draftRules: Rule[], options?: { replaceIds?: number[] }) => {
+    const replaceIds = new Set(options?.replaceIds ?? []);
+    const firstReplaceIndex = replaceIds.size
+      ? rules.findIndex((rule) => replaceIds.has(rule.id))
+      : -1;
+    const nextRules = replaceIds.size
+      ? rules.filter((rule) => !replaceIds.has(rule.id))
+      : [...rules];
+    if (firstReplaceIndex >= 0) {
+      nextRules.splice(firstReplaceIndex, 0, ...draftRules);
+    } else {
+      nextRules.push(...draftRules);
+    }
     await persistRules(nextRules);
     await setLocalSelected(TYPE.Rule, draftRules[0] ?? selected);
     await refresh();
@@ -105,6 +116,7 @@ const ActionBar = () => {
       <AIRuleAssistant
         open={aiAssistantOpen}
         rules={rules}
+        selectedRule={selected}
         onClose={() => setAiAssistantOpen(false)}
         onApply={applyAIRules}
       />
