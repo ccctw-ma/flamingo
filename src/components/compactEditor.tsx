@@ -703,11 +703,17 @@ function CompactEditor(props: Porps) {
               variant="filled"
               onChange={(e) => {
                 const value = e.target.value;
-                chrome.declarativeNetRequest.isRegexSupported({ regex: value }, (res) => {
-                  if (!res.isSupported) {
-                    console.error(res.reason);
-                  }
-                });
+                const normalizedValue = normalizeRegexFilter(value);
+                if (normalizedValue) {
+                  chrome.declarativeNetRequest.isRegexSupported(
+                    { regex: normalizedValue },
+                    (res) => {
+                      if (!res.isSupported) {
+                        console.error(res.reason);
+                      }
+                    }
+                  );
+                }
 
                 wrapChange(setRegexFilter)(e.target.value);
               }}

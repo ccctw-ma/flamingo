@@ -6,9 +6,22 @@ type MockRulePayload = {
   body: string;
 };
 
+type HeaderOperationPayload = {
+  header: string;
+  operation: string;
+  value?: string;
+};
+
+type ProxyRulePayload = {
+  id: number;
+  regexFilter: string;
+  requestHeaders: HeaderOperationPayload[];
+};
+
 type MockStatePayload = {
   working: boolean;
   rules: MockRulePayload[];
+  proxyRules: ProxyRulePayload[];
 };
 
 const MESSAGE_SOURCE = "FLAMINGO_EXTENSION";
@@ -24,6 +37,15 @@ type StorageMode = "local" | "sync";
 type StoredRule = {
   id: number;
   enable?: boolean;
+  action?: {
+    type?: string;
+    requestHeaders?: Array<{
+      enabled?: boolean;
+      header?: string;
+      operation?: string;
+      value?: string;
+    }>;
+  };
   condition?: {
     regexFilter?: string;
   };
@@ -33,6 +55,18 @@ type StoredRule = {
   };
   uiActionType?: string;
 };
+
+function getEnabledRequestHeaders(rule: StoredRule): HeaderOperationPayload[] {
+  return (
+    rule.action?.requestHeaders
+      ?.filter((header) => header.enabled !== false && header.header && header.operation)
+      .map((header) => ({
+        header: header.header ?? "",
+        operation: header.operation ?? "",
+        ...(header.value === undefined ? {} : { value: header.value }),
+      })) ?? []
+  );
+}
 
 function dispatchMockState(payload: MockStatePayload) {
   window.postMessage(
@@ -85,6 +119,19 @@ async function readMockState(): Promise<MockStatePayload> {
         id: rule.id,
         regexFilter: normalizeRegexFilter(rule.condition?.regexFilter ?? ""),
         body: rule.mockResponse?.body ?? "",
+      })),
+    proxyRules: ensureRules(rules)
+      .filter(
+        (rule) =>
+          rule.enable &&
+          rule.uiActionType !== CUSTOM_ACTION_MOCK &&
+          rule.action?.type === "modifyHeaders" &&
+          getEnabledRequestHeaders(rule).length > 0
+      )
+      .map((rule) => ({
+        id: rule.id,
+        regexFilter: normalizeRegexFilter(rule.condition?.regexFilter ?? ""),
+        requestHeaders: getEnabledRequestHeaders(rule),
       })),
   };
 }

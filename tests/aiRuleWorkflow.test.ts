@@ -220,6 +220,16 @@ describe("AI rule draft validator", () => {
     expect(() => verifyRuleDraft({ action: "allow" })).toThrow("Rule draft action is invalid");
   });
 
+  test("defaults modify header drafts to all requests when no filter is provided", () => {
+    const draft = verifyRuleDraft({
+      name: "PPE headers",
+      action: "modifyHeaders",
+      requestHeaders: [{ header: "x-use-ppe", operation: "set", value: "1" }],
+    });
+
+    expect(draft.regexFilter).toBe("*");
+  });
+
   test("converts mock drafts into disabled Flamingo rules", async () => {
     const currentRule = makeRule();
     const validation = await validateRuleDraft(

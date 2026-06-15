@@ -42,8 +42,11 @@ test("real extension proxy modifies request headers through DNR", async () => {
   test.setTimeout(60_000);
   let latestHeaders: IncomingHttpHeaders = {};
   let pageObservedHeaders: Record<string, string> = {};
+  let xhrObservedHeaders: Record<string, string> = {};
+  let navigationObservedHeaders: Record<string, string> = {};
+  let cdpNavigationObservedHeaders: Record<string, string> = {};
   const server = createServer((request, response) => {
-    if (request.url?.startsWith("/api/check")) {
+    if (request.url?.startsWith("/api/check") || request.url?.startsWith("/api/xhr-check")) {
       latestHeaders = request.headers;
       response.setHeader("content-type", "application/json");
       response.end(JSON.stringify({ ok: true }));
@@ -188,10 +191,31 @@ test("real extension proxy modifies request headers through DNR", async () => {
         if (request.url().includes("/api/check")) {
           pageObservedHeaders = request.headers();
         }
+        if (request.url().includes("/api/xhr-check")) {
+          xhrObservedHeaders = request.headers();
+        }
+        if (request.url().includes("/page-check")) {
+          navigationObservedHeaders = request.headers();
+        }
       });
       await page.goto(`http://127.0.0.1:${port}/`, {
         waitUntil: "domcontentloaded",
         timeout: 10_000,
+      });
+      const cdpSession = await context.newCDPSession(page);
+      await cdpSession.send("Network.enable");
+      const cdpRequestUrls = new Map<string, string>();
+      cdpSession.on("Network.requestWillBeSent", (event) => {
+        cdpRequestUrls.set(event.requestId, event.request.url);
+      });
+      cdpSession.on("Network.requestWillBeSentExtraInfo", (event) => {
+        if (!cdpRequestUrls.get(event.requestId)?.includes("/page-check")) {
+          return;
+        }
+        const headers = Object.fromEntries(
+          Object.entries(event.headers).map(([key, value]) => [key.toLowerCase(), String(value)])
+        );
+        cdpNavigationObservedHeaders = headers;
       });
       return page;
     });
@@ -210,9 +234,25 @@ test("real extension proxy modifies request headers through DNR", async () => {
 
     expect(latestHeaders["x-tt-env"]).toBe("ppe_magic_2026");
     expect(latestHeaders["x-disabled-proxy"]).toBeUndefined();
-    // DNR modifies headers in the network service. Renderer/CDP request snapshots can still show
-    // pre-extension headers, so "Copy as cURL" is not a reliable proxy verifier.
-    expect(pageObservedHeaders["x-use-ppe"]).toBeUndefined();
+    expect(pageObservedHeaders["x-use-ppe"]).toBe("1");
+    expect(pageObservedHeaders["x-tt-env"]).toBe("ppe_magic_2026");
+
+    await test.step("assert XHR request headers are visible", async () => {
+      latestHeaders = {};
+      await page.evaluate(async () => {
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", "/api/xhr-check");
+          xhr.onload = () => resolve();
+          xhr.onerror = () => reject(new Error("xhr failed"));
+          xhr.send();
+        });
+      });
+      expect(latestHeaders["x-use-ppe"]).toBe("1");
+      expect(latestHeaders["x-tt-env"]).toBe("ppe_magic_2026");
+      expect(xhrObservedHeaders["x-use-ppe"]).toBe("1");
+      expect(xhrObservedHeaders["x-tt-env"]).toBe("ppe_magic_2026");
+    });
 
     await test.step("assert document navigation headers are modified", async () => {
       latestHeaders = {};
@@ -222,6 +262,9 @@ test("real extension proxy modifies request headers through DNR", async () => {
       });
       expect(latestHeaders["x-use-ppe"]).toBe("1");
       expect(latestHeaders["x-tt-env"]).toBe("ppe_magic_2026");
+      expect(navigationObservedHeaders["x-use-ppe"]).toBeUndefined();
+      expect(cdpNavigationObservedHeaders["x-use-ppe"]).toBe("1");
+      expect(cdpNavigationObservedHeaders["x-tt-env"]).toBe("ppe_magic_2026");
     });
   } finally {
     await context.close();

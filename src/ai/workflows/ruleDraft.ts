@@ -111,7 +111,8 @@ function baseSystemPrompt() {
     "Return JSON objects only. Do not include Markdown, comments, or free text.",
     "Generated rules are project-level drafts. They must be disabled until a human applies and enables them.",
     "Supported actions: mock, redirect, block, modifyHeaders.",
-    "Use regexFilter for URL matching. Prefer anchored regular expressions for exact URLs.",
+    "Use regexFilter for URL matching. Use * when the user does not specify a URL or domain.",
+    "Prefer user-facing wildcard patterns like * or https://example.com/*; the app normalizes them into Chrome-supported regex filters.",
   ].join("\n");
 }
 

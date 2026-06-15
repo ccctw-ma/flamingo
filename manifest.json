@@ -18,7 +18,13 @@
     "default_title": "Flamingo",
     "default_popup": "home.html"
   },
-  "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestWithHostAccess"],
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "webRequest",
+    "webRequestBlocking"
+  ],
   "host_permissions": ["https://*/*", "http://*/*"],
   "background": {
     "service_worker": "src/background.js",

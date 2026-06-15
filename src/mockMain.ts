@@ -4,28 +4,45 @@ type MockRulePayload = {
   body: string;
 };
 
+type HeaderOperationPayload = {
+  header: string;
+  operation: string;
+  value?: string;
+};
+
+type ProxyRulePayload = {
+  id: number;
+  regexFilter: string;
+  requestHeaders: HeaderOperationPayload[];
+};
+
 type MockStatePayload = {
   working: boolean;
   rules: MockRulePayload[];
+  proxyRules: ProxyRulePayload[];
 };
 
 const MESSAGE_SOURCE = "FLAMINGO_EXTENSION";
 const MESSAGE_STATE = "FLAMINGO_MOCK_RULES";
 const MESSAGE_REQUEST_STATE = "FLAMINGO_REQUEST_MOCK_RULES";
 const INSTALLED_KEY = "__FLAMINGO_MOCK_INSTALLED__";
+const STATE_KEY = "__FLAMINGO_PROXY_STATE__";
 const MOCK_HEADERS = "content-type: application/json;charset=utf-8\r\nx-flamingo-mock: true\r\n";
 const INITIAL_STATE_TIMEOUT_MS = 1000;
 
 declare global {
   interface Window {
     [INSTALLED_KEY]?: boolean;
+    [STATE_KEY]?: MockStatePayload;
   }
 }
 
 let mockState: MockStatePayload = {
   working: true,
   rules: [],
+  proxyRules: [],
 };
+window[STATE_KEY] = mockState;
 let hasInitialState = false;
 let initialStateTimer: number | undefined;
 const initialStateWaiters = new Set<() => void>();
@@ -90,6 +107,30 @@ function findMock(url: string) {
   return null;
 }
 
+function matchesRegex(regexFilter: string, url: string) {
+  if (!regexFilter) {
+    return false;
+  }
+  try {
+    return new RegExp(regexFilter).test(url);
+  } catch {
+    return false;
+  }
+}
+
+function findProxyRules(url: string) {
+  if (!mockState.working) {
+    return [];
+  }
+
+  return mockState.proxyRules.filter((rule) => matchesRegex(rule.regexFilter, url));
+}
+
+function updateMockState(nextState: MockStatePayload) {
+  mockState = nextState;
+  window[STATE_KEY] = nextState;
+}
+
 function logMockHit(transport: "fetch" | "xhr", url: string, rule: MockRulePayload) {
   console.warn(`[Flamingo Mock] 命中 Mock 规则: ${url}`, {
     transport,
@@ -123,7 +164,29 @@ function patchFetch() {
       return buildMockResponse(mock.body);
     }
 
-    return nativeFetch(input, init);
+    const proxyRules = findProxyRules(url);
+    if (!proxyRules.length) {
+      return nativeFetch(input, init);
+    }
+
+    const nextInit: RequestInit = { ...(init ?? {}) };
+    const headers = new Headers(
+      init?.headers ?? (input instanceof Request ? input.headers : undefined)
+    );
+    for (const rule of proxyRules) {
+      for (const header of rule.requestHeaders) {
+        if (header.operation === "remove") {
+          headers.delete(header.header);
+        } else if (header.operation === "append") {
+          headers.append(header.header, header.value ?? "");
+        } else {
+          headers.set(header.header, header.value ?? "");
+        }
+      }
+    }
+    nextInit.headers = headers;
+
+    return nativeFetch(input, nextInit);
   }) as typeof window.fetch;
 }
 
@@ -147,6 +210,7 @@ function buildXhrResponse(body: string, responseType: XMLHttpRequestResponseType
 function patchXhr() {
   const nativeOpen = XMLHttpRequest.prototype.open;
   const nativeSend = XMLHttpRequest.prototype.send;
+  const nativeSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
   const nativeGetResponseHeader = XMLHttpRequest.prototype.getResponseHeader;
   const nativeGetAllResponseHeaders = XMLHttpRequest.prototype.getAllResponseHeaders;
   const nativeDescriptors = {
@@ -164,6 +228,7 @@ function patchXhr() {
       url: string;
       async: boolean;
       mockBody?: string;
+      requestHeaders: Map<string, string>;
     }
   >();
 
@@ -178,8 +243,17 @@ function patchXhr() {
       method,
       url: new URL(String(url), window.location.href).href,
       async: async ?? true,
+      requestHeaders: new Map(),
     });
     return nativeOpen.call(this, method, url, async ?? true, username, password);
+  };
+
+  XMLHttpRequest.prototype.setRequestHeader = function setRequestHeader(name, value) {
+    const meta = xhrMeta.get(this);
+    if (meta) {
+      meta.requestHeaders.set(name.toLowerCase(), value);
+    }
+    return nativeSetRequestHeader.call(this, name, value);
   };
 
   XMLHttpRequest.prototype.send = function send(body) {
@@ -196,6 +270,25 @@ function patchXhr() {
 
       const mock = findMock(latestMeta.url);
       if (!mock) {
+        for (const rule of findProxyRules(latestMeta.url)) {
+          for (const header of rule.requestHeaders) {
+            if (header.operation === "remove") {
+              continue;
+            }
+            const normalizedHeader = header.header.toLowerCase();
+            if (header.operation === "append") {
+              nativeSetRequestHeader.call(this, header.header, header.value ?? "");
+              continue;
+            }
+            if (latestMeta.requestHeaders.has(normalizedHeader)) {
+              console.warn(
+                `[Flamingo Proxy] 页面已设置 ${header.header}，XHR 无法在页面层覆盖；网络层仍会通过扩展规则覆盖。`
+              );
+              continue;
+            }
+            nativeSetRequestHeader.call(this, header.header, header.value ?? "");
+          }
+        }
         return nativeSend.call(this, body);
       }
 
@@ -274,7 +367,7 @@ if (!window[INSTALLED_KEY]) {
       event.data?.source === MESSAGE_SOURCE &&
       event.data?.type === MESSAGE_STATE
     ) {
-      mockState = event.data.payload as MockStatePayload;
+      updateMockState(event.data.payload as MockStatePayload);
       resolveInitialStateWaiters();
     }
   });

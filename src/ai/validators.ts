@@ -63,11 +63,12 @@ export function verifyRuleDraft(value: unknown): RuleDraft {
   if (!ACTIONS.has(action)) {
     throw new Error("Rule draft action is invalid");
   }
+  const regexFilter = readString(value.regexFilter) || (action === "modifyHeaders" ? "*" : "");
 
   return {
     name: readString(value.name) || "AI Draft",
     action,
-    regexFilter: readString(value.regexFilter),
+    regexFilter,
     redirectUrl: readString(value.redirectUrl) || undefined,
     mockResponse: "mockResponse" in value ? value.mockResponse : undefined,
     requestHeaders: readHeaderDrafts(value.requestHeaders),

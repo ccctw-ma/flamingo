@@ -1,7 +1,16 @@
 import { CONFIG_KEYSET, RULES_STORAGE_KEY } from "./utils/constants";
 import { toDynamicRule } from "./utils/dynamicRules";
 import { getConfigValue, getRules } from "./utils/storage";
-import { Rule } from "./utils/types";
+import { EditableModifyHeaderInfo, Rule } from "./utils/types";
+import { normalizeRegexFilter } from "./utils/urlPattern";
+
+type WebRequestRule = {
+  id: number;
+  regexFilter: string;
+  requestHeaders: chrome.declarativeNetRequest.ModifyHeaderInfo[];
+};
+
+let webRequestRules: WebRequestRule[] = [];
 
 async function getIsWorking() {
   return (
@@ -16,6 +25,91 @@ async function getEnabledRules() {
   return rules.filter((rule) => rule.enable && rule.groupEnabled !== false);
 }
 
+function toWebRequestRule(rule: Rule): WebRequestRule | null {
+  if (rule.action.type !== chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS) {
+    return null;
+  }
+
+  const requestHeaders = (rule.action.requestHeaders as EditableModifyHeaderInfo[] | undefined)
+    ?.filter((header) => header.enabled !== false)
+    .map(({ enabled: _enabled, ...header }) => header);
+  if (!requestHeaders?.length) {
+    return null;
+  }
+
+  return {
+    id: rule.id,
+    regexFilter: normalizeRegexFilter(rule.condition.regexFilter ?? ""),
+    requestHeaders,
+  };
+}
+
+function syncWebRequestRules(enabledRules: Rule[]) {
+  webRequestRules = enabledRules.flatMap((rule) => {
+    const webRequestRule = toWebRequestRule(rule);
+    return webRequestRule ? [webRequestRule] : [];
+  });
+}
+
+function matchesWebRequestRule(rule: WebRequestRule, url: string) {
+  if (!rule.regexFilter) {
+    return false;
+  }
+  try {
+    return new RegExp(rule.regexFilter).test(url);
+  } catch {
+    return false;
+  }
+}
+
+function applyRequestHeaderOperations(
+  headers: chrome.webRequest.HttpHeader[] | undefined,
+  operations: chrome.declarativeNetRequest.ModifyHeaderInfo[]
+) {
+  const nextHeaders = [...(headers ?? [])];
+
+  for (const operation of operations) {
+    const headerName = operation.header.toLowerCase();
+    const index = nextHeaders.findIndex((header) => header.name.toLowerCase() === headerName);
+    if (operation.operation === chrome.declarativeNetRequest.HeaderOperation.REMOVE) {
+      for (let idx = nextHeaders.length - 1; idx >= 0; idx -= 1) {
+        if (nextHeaders[idx].name.toLowerCase() === headerName) {
+          nextHeaders.splice(idx, 1);
+        }
+      }
+      continue;
+    }
+
+    if (operation.operation === chrome.declarativeNetRequest.HeaderOperation.APPEND) {
+      nextHeaders.push({ name: operation.header, value: operation.value ?? "" });
+      continue;
+    }
+
+    if (index >= 0) {
+      nextHeaders[index] = { name: operation.header, value: operation.value ?? "" };
+    } else {
+      nextHeaders.push({ name: operation.header, value: operation.value ?? "" });
+    }
+  }
+
+  return nextHeaders;
+}
+
+const handleBeforeSendHeaders = (
+  details: chrome.webRequest.WebRequestHeadersDetails
+): chrome.webRequest.BlockingResponse | undefined => {
+  const matchedRules = webRequestRules.filter((rule) => matchesWebRequestRule(rule, details.url));
+  if (!matchedRules.length) {
+    return undefined;
+  }
+
+  const requestHeaders = matchedRules.reduce(
+    (headers, rule) => applyRequestHeaderOperations(headers, rule.requestHeaders),
+    details.requestHeaders
+  );
+  return { requestHeaders };
+};
+
 async function setRules(isWorkingOverride?: boolean) {
   try {
     const enableRules = await getEnabledRules();
@@ -26,6 +120,7 @@ async function setRules(isWorkingOverride?: boolean) {
     const oldRules = await getCurrentDynamicRules();
     const isWorking = isWorkingOverride ?? (await getIsWorking());
     const workingRules = isWorking ? newRules : [];
+    syncWebRequestRules(isWorking ? enableRules : []);
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: workingRules,
@@ -102,6 +197,16 @@ function init() {
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
   chrome.storage.onChanged.addListener(handleStorageChange);
+  if (chrome.webRequest?.onBeforeSendHeaders) {
+    if (chrome.webRequest.onBeforeSendHeaders.hasListener(handleBeforeSendHeaders)) {
+      chrome.webRequest.onBeforeSendHeaders.removeListener(handleBeforeSendHeaders);
+    }
+    chrome.webRequest.onBeforeSendHeaders.addListener(
+      handleBeforeSendHeaders,
+      { urls: ["http://*/*", "https://*/*"] },
+      ["blocking", "requestHeaders", "extraHeaders"]
+    );
+  }
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: false });
   syncActionState();
   setRules();
