@@ -139,7 +139,8 @@ async function syncActionState(enabledRuleCount?: number, isWorking?: boolean) {
       : Promise.resolve(enabledRuleCount),
     isWorking === undefined ? getIsWorking() : Promise.resolve(isWorking),
   ]);
-  const iconPrefix = resolvedIsWorking ? "flamingo" : "flamingo_grey";
+  const hasActiveRules = resolvedIsWorking && resolvedEnabledRuleCount > 0;
+  const iconPrefix = hasActiveRules ? "flamingo" : "flamingo_grey";
   chrome.action.setIcon({
     path: {
       16: `images/${iconPrefix}_16.png`,
@@ -148,8 +149,8 @@ async function syncActionState(enabledRuleCount?: number, isWorking?: boolean) {
       128: `images/${iconPrefix}_128.png`,
     },
   });
-  chrome.action.setBadgeBackgroundColor({ color: resolvedIsWorking ? "#ff5d52" : "#94a3b8" });
-  chrome.action.setBadgeText({ text: resolvedIsWorking ? String(resolvedEnabledRuleCount) : "" });
+  chrome.action.setBadgeBackgroundColor({ color: hasActiveRules ? "#ff5d52" : "#94a3b8" });
+  chrome.action.setBadgeText({ text: hasActiveRules ? String(resolvedEnabledRuleCount) : "" });
 }
 
 async function getCurrentDynamicRules() {

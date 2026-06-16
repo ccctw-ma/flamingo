@@ -22,8 +22,11 @@ const ActionBar = () => {
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
 
   const syncBrowserAction = (nextWorking: boolean) => {
-    const iconPrefix = nextWorking ? "flamingo" : "flamingo_grey";
-    const enabledRuleCount = rules.filter((rule) => rule.enable).length;
+    const enabledRuleCount = rules.filter(
+      (rule) => rule.enable && rule.groupEnabled !== false
+    ).length;
+    const hasActiveRules = nextWorking && enabledRuleCount > 0;
+    const iconPrefix = hasActiveRules ? "flamingo" : "flamingo_grey";
 
     if (chrome.action?.setIcon) {
       void chrome.action.setIcon({
@@ -34,7 +37,7 @@ const ActionBar = () => {
           128: `images/${iconPrefix}_128.png`,
         },
       });
-      void chrome.action.setBadgeText({ text: nextWorking ? String(enabledRuleCount) : "" });
+      void chrome.action.setBadgeText({ text: hasActiveRules ? String(enabledRuleCount) : "" });
     }
 
     if (chrome.runtime?.sendMessage) {
