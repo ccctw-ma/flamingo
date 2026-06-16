@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   addKeys,
+  applySingleActiveSelection,
   deepClone,
   filterEditContent,
   generateId,
@@ -163,6 +164,52 @@ describe("filterEditContent", () => {
     expect(filtered).not.toHaveProperty("name");
     expect(filtered).toHaveProperty("action");
     expect(baseRule.id).toBe(1);
+  });
+});
+
+describe("applySingleActiveSelection", () => {
+  const standalone = (id: number, enable: boolean): Rule => ({
+    id,
+    name: `rule-${id}`,
+    create: 1,
+    update: 1,
+    enable,
+    action: { type: "block" } as Rule["action"],
+    condition: { regexFilter: `rule-${id}` },
+  });
+
+  const grouped = (id: number, groupId: number, groupEnabled: boolean): Rule => ({
+    ...standalone(id, true),
+    groupId,
+    groupName: `group-${groupId}`,
+    groupEnabled,
+  });
+
+  test("enables only the selected standalone rule and disables the rest", () => {
+    const rules = [standalone(1, true), standalone(2, true), standalone(3, false)];
+    const next = applySingleActiveSelection(rules, rules[2]);
+    expect(next.map((rule) => rule.enable)).toEqual([false, false, true]);
+  });
+
+  test("enables only the selected group and disables other groups and rules", () => {
+    const rules = [
+      standalone(1, true),
+      grouped(2, 100, true),
+      grouped(3, 100, true),
+      grouped(4, 200, true),
+    ];
+    const next = applySingleActiveSelection(rules, rules[3]);
+    expect(next[0].enable).toBe(false);
+    expect(next[1].groupEnabled).toBe(false);
+    expect(next[2].groupEnabled).toBe(false);
+    expect(next[3].groupEnabled).toBe(true);
+  });
+
+  test("disables everything when nothing is selected and keeps untouched rules identical", () => {
+    const rules = [standalone(1, false), grouped(2, 100, false)];
+    const next = applySingleActiveSelection(rules, null);
+    expect(next[0]).toBe(rules[0]);
+    expect(next[1]).toBe(rules[1]);
   });
 });
 

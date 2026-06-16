@@ -85,3 +85,30 @@ export const filterEditContent = (edit: Rule): unknown => {
   removeKeys(cloned as unknown as Record<string, unknown>);
   return cloned;
 };
+
+/**
+ * Single-active mode: only the selected rule or group stays on, everything else
+ * is turned off. Standalone rules toggle their `enable` flag, group rules toggle
+ * the group-level `groupEnabled` flag, mirroring manual checkbox behavior.
+ */
+export const applySingleActiveSelection = (rules: Rule[], selected: Rule | null): Rule[] => {
+  const selectedGroupId = selected?.groupId ?? null;
+  const selectedRuleId = selected && selectedGroupId === null ? selected.id : null;
+
+  return rules.map((rule) => {
+    if (rule.groupId) {
+      const groupEnabled = selectedGroupId !== null && rule.groupId === selectedGroupId;
+      if (rule.groupEnabled === groupEnabled) {
+        return rule;
+      }
+      return { ...rule, groupEnabled, update: Date.now() };
+    }
+
+    const enable = selectedRuleId !== null && rule.id === selectedRuleId;
+    if (rule.enable === enable) {
+      return rule;
+    }
+    return { ...rule, enable, update: Date.now() };
+  });
+};
+

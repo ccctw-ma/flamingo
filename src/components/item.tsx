@@ -11,7 +11,7 @@ import {
   updateRules,
 } from "../utils/storage";
 import { useConfig, useGlobalState } from "../utils/hooks";
-import { deepClone, generateId } from "../utils";
+import { applySingleActiveSelection, deepClone, generateId } from "../utils";
 
 interface Props {
   item: Rule;
@@ -41,8 +41,8 @@ export default function Item(props: Props) {
     onDrop,
     onDragEnd,
   } = props;
-  const { type, selected, setType, setSelected, rules, refresh } = useGlobalState();
-  const { LEFT_TAB_ITEM_HEIGHT } = useConfig();
+  const { type, selected, selectRule, rules, refresh } = useGlobalState();
+  const { LEFT_TAB_ITEM_HEIGHT, SINGLE_ACTIVE } = useConfig();
   const { t } = useI18n();
   // item built-in states
   const [isEdit, setIsEdit] = useState(false);
@@ -79,13 +79,13 @@ export default function Item(props: Props) {
   };
 
   useEffect(() => {
+    setChecked(current.enable);
     if (selected?.id === current.id) {
       setName(selected.name);
-      setChecked(selected.enable);
     } else {
       setIsEdit(false);
     }
-  }, [current.id, selected]);
+  }, [current.enable, current.id, selected]);
 
   const isActive = selected?.id === current.id && type === TYPE.Rule;
 
@@ -129,17 +129,28 @@ export default function Item(props: Props) {
       onDragOver={onDragOver}
       onDrop={onDrop}
       onClick={() => {
-        setLocalSelected(TYPE.Rule, current);
-        setType(TYPE.Rule);
-        setSelected(current);
+        void selectRule(current);
       }}
       title={name || t("untitled")}
     >
       <Checkbox
         checked={checked}
         onChange={(e) => {
-          setChecked(e.target.checked);
-          updateItem({ ...current, enable: e.target.checked });
+          const nextChecked = e.target.checked;
+          if (SINGLE_ACTIVE) {
+            void (async () => {
+              const target = nextChecked ? current : null;
+              if (target) {
+                await selectRule(target);
+                return;
+              }
+              await persistRules(applySingleActiveSelection(rules, null));
+              await refresh();
+            })();
+            return;
+          }
+          setChecked(nextChecked);
+          updateItem({ ...current, enable: nextChecked });
         }}
         onClick={(e) => {
           e.stopPropagation();

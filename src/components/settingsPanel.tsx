@@ -9,7 +9,8 @@ import {
 } from "../ai/runtime";
 import { useI18n } from "../utils/i18n";
 import { useConfig, useGlobalState } from "../utils/hooks";
-import { StorageMode } from "../utils/storage";
+import { StorageMode, getRules, getSelected, setRules as persistRules } from "../utils/storage";
+import { applySingleActiveSelection } from "../utils";
 
 interface SettingsPanelProps {
   open: boolean;
@@ -29,6 +30,7 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
   const {
     LOCALE,
     STORAGE_MODE,
+    SINGLE_ACTIVE,
     HOME_WIDTH,
     HOME_HEIGHT,
     setConfig,
@@ -55,6 +57,21 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
 
   const handleLocaleChange = (value: string | number) => {
     setConfig("LOCALE", value === "en" ? "en" : "zh-CN");
+  };
+
+  const handleSingleActiveChange = async (checked: boolean) => {
+    setConfig("SINGLE_ACTIVE", checked);
+    if (!checked) {
+      return;
+    }
+    // Turning on single-active should leave only the current selection enabled.
+    const [latestRules, [, selected]] = await Promise.all([getRules(), getSelected()]);
+    const target = selected
+      ? latestRules.find((rule) => rule.id === selected.id) ?? null
+      : latestRules.find((rule) => rule.enable && rule.groupEnabled !== false) ?? null;
+    const nextRules = applySingleActiveSelection(latestRules, target);
+    await persistRules(nextRules);
+    await refresh();
   };
 
   const handleStorageModeChange = async (value: string | number) => {
@@ -144,6 +161,20 @@ export default function SettingsPanel({ open, onClose }: SettingsPanelProps) {
             />
             <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
               {t("storageSwitchHint")}
+            </div>
+          </section>
+
+          <section className="editor-card !m-0">
+            <div className="mb-1 text-sm font-semibold text-slate-900">{t("singleActive")}</div>
+            <div className="mb-3 text-xs leading-5 text-slate-500">
+              {t("singleActiveDescription")}
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2">
+              <span className="text-xs font-medium text-slate-600">{t("singleActive")}</span>
+              <Switch
+                checked={SINGLE_ACTIVE}
+                onChange={(checked) => void handleSingleActiveChange(checked)}
+              />
             </div>
           </section>
 

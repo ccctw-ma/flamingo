@@ -43,6 +43,7 @@ export const CONFIG_OBJECT = {
 
   // flag
   WORKING: true,
+  SINGLE_ACTIVE: false,
   LOCALE: "zh-CN",
   STORAGE_MODE: "local",
 };

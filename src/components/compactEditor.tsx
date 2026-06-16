@@ -444,7 +444,7 @@ const ModifyHeader: React.FC<{
         return (
           <div
             key={`header-row-${idx}`}
-            className={`grid grid-cols-[22px_72px_minmax(0,1.15fr)_minmax(0,1fr)_24px] gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2 ${
+            className={`grid grid-cols-[22px_72px_minmax(0,4fr)_minmax(0,6fr)_24px] gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2 ${
               isEnabled ? "" : "opacity-60"
             }`}
           >
@@ -697,7 +697,7 @@ function CompactEditor(props: Porps) {
           </Cell>
           <Cell label={t("condition")}>
             <Input.TextArea
-              autoSize={{ minRows: 3 }}
+              autoSize={{ minRows: 1, maxRows: 4 }}
               status={regexFilter ? "" : "error"}
               value={regexFilter}
               variant="filled"

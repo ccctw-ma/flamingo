@@ -63,6 +63,9 @@ const messages = {
       "Switching mode copies current rules and key settings into the selected storage.",
     currentStorageLocal: "Current mode: local only",
     currentStorageSync: "Current mode: Chrome sync",
+    singleActive: "Single Active",
+    singleActiveDescription:
+      "When enabled, only the currently selected rule or group takes effect, and the selection is remembered. When disabled, all enabled rules work together.",
     panelSize: "Panel Size",
     panelSizeDescription:
       "Use the current default width and height for the first launch, then customize later openings here. Chrome popup sizes are kept within 640-800px wide and 420-600px tall.",
@@ -210,6 +213,9 @@ const messages = {
     storageSwitchHint: "切换模式时，会把当前规则和关键设置复制到目标存储。",
     currentStorageLocal: "当前模式：仅本地",
     currentStorageSync: "当前模式：Chrome 同步",
+    singleActive: "单一生效",
+    singleActiveDescription:
+      "开启后只有当前选中的规则或组生效，并会记忆选中位置；关闭后所有启用的规则可同时生效。",
     panelSize: "面板尺寸",
     panelSizeDescription:
       "首次打开使用当前默认宽高，之后可以在这里调整后续打开时的面板尺寸。Chrome popup 会限制在宽 640-800px、高 420-600px。",

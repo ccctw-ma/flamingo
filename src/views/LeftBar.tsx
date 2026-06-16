@@ -13,19 +13,20 @@ import {
 import Item from "../components/item";
 import Hint from "../components/hint";
 import { DragEvent, useEffect, useMemo, useRef, useState } from "react";
-import { deepClone, generateId } from "../utils";
+import { deepClone, generateId, applySingleActiveSelection } from "../utils";
 import { useI18n } from "../utils/i18n";
 import { STATUS, Rule, TYPE } from "../utils/types";
-import { addRule, setLocalSelected, setRules as persistRules } from "../utils/storage";
+import { addRule, setRules as persistRules } from "../utils/storage";
 import { EMPTY_RULE } from "../utils/constants";
-import { useGlobalState } from "../utils/hooks";
+import { useConfig, useGlobalState } from "../utils/hooks";
 
 type SidebarMode = "idle" | "add" | "search";
 type AddTarget = "rule" | "group";
 type DragPayload = { type: "rule"; id: number } | { type: "group"; id: number };
 
 export default function LeftBar() {
-  const { rules, refresh, selected, setRules, setSelected, setType, type } = useGlobalState();
+  const { rules, refresh, selected, setRules, selectRule, type } = useGlobalState();
+  const { SINGLE_ACTIVE } = useConfig();
   const { t } = useI18n();
   const [mode, setMode] = useState<SidebarMode>("idle");
   const [addTarget, setAddTarget] = useState<AddTarget>("rule");
@@ -234,12 +235,24 @@ export default function LeftBar() {
     if (!firstRule) {
       return;
     }
-    await setLocalSelected(TYPE.Rule, firstRule);
-    setType(TYPE.Rule);
-    setSelected(firstRule);
+    await selectRule(firstRule);
   };
 
   const updateGroupEnabled = async (groupId: number, enabled: boolean) => {
+    if (SINGLE_ACTIVE) {
+      // Single-active: enabling a group selects it as the sole active unit;
+      // disabling turns every rule off.
+      const target = enabled ? rules.find((rule) => rule.groupId === groupId) ?? null : null;
+      const nextRules = applySingleActiveSelection(rules, target);
+      if (target) {
+        await selectRule(target);
+        return;
+      }
+      await persistRules(nextRules);
+      setRules(nextRules);
+      await refresh();
+      return;
+    }
     const nextRules = rules.map((rule) =>
       rule.groupId === groupId ? { ...rule, groupEnabled: enabled, update: Date.now() } : rule
     );

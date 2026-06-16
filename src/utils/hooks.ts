@@ -1,8 +1,17 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { getConfigValues, getRules, getSelected, switchStorageMode, updateRules } from "./storage";
+import {
+  getConfigValues,
+  getRules,
+  getSelected,
+  setLocalSelected,
+  setRules as persistRules,
+  switchStorageMode,
+  updateRules,
+} from "./storage";
 import { useRule, useSelected, useFlag, useConfigStore } from "./store";
 import { Rule, TYPE, configKeyType } from "./types";
 import { CONFIG_OBJECT } from "./constants";
+import { applySingleActiveSelection } from "./index";
 
 export function useGlobalState() {
   const { rules, setRules } = useRule();
@@ -23,6 +32,18 @@ export function useGlobalState() {
     if (!loaded) setIsLoaded(true);
     return { localRules, currentSelected: fallbackRule };
   };
+  const selectRule = async (rule: Rule) => {
+    await setLocalSelected(TYPE.Rule, rule);
+    if (useConfigStore.getState().SINGLE_ACTIVE) {
+      const latestRules = await getRules();
+      const nextRules = applySingleActiveSelection(latestRules, rule);
+      await persistRules(nextRules);
+      await refresh();
+      return;
+    }
+    setType(TYPE.Rule);
+    setSelected(rule);
+  };
   const saveEdit = async (newEdit?: Rule) => {
     const updateEdit = newEdit || edit;
     if (!updateEdit) {
@@ -42,6 +63,7 @@ export function useGlobalState() {
     setRules,
     setSelected,
     setType,
+    selectRule,
     refresh,
     setEdit,
     setEditType,
