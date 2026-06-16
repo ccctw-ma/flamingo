@@ -1,0 +1,202 @@
+src/background.ts
+  s_177860bc7d23fc::t_c54e9bb8f1b443 142-143,152-153 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a30ec235b5f64c204cd2102","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[142,143]},{"Range":[152,153]}]}]}
+src/components/actionBar.tsx
+  s_177860bc7d23fc::t_70308e16b4110b 25-27 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a30ec595b5f64c204cd2153","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[25,27]}]}]}
+  s_177860bc7d23fc::t_2471db3d03001b 28-29,40 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a30ec335b5f64c204cd2121","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[28,29]},{"Single":40}]}]}
+manifest.json
+  s_177860bc7d23fc::t_e4f0822906de56 14-16 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a30ec165b5f64c204cd20e8","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[14,16]}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ea5a922e3a469114912ea4e2a75885793a6094b5",
+  "prompts": {},
+  "sessions": {
+    "s_177860bc7d23fc": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a30bd285b5f64c204cd17d5",
+        "model": "gpt-5.5__max"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    "manifest.json": [
+      {
+        "hash": "s_177860bc7d23fc::t_e4f0822906de56",
+        "line_ranges": [
+          {
+            "Range": [
+              14,
+              16
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a30ec165b5f64c204cd20e8",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  14,
+                  16
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/background.ts": [
+      {
+        "hash": "s_177860bc7d23fc::t_c54e9bb8f1b443",
+        "line_ranges": [
+          {
+            "Range": [
+              142,
+              143
+            ]
+          },
+          {
+            "Range": [
+              152,
+              153
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a30ec235b5f64c204cd2102",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  142,
+                  143
+                ]
+              },
+              {
+                "Range": [
+                  152,
+                  153
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "src/components/actionBar.tsx": [
+      {
+        "hash": "s_177860bc7d23fc::t_70308e16b4110b",
+        "line_ranges": [
+          {
+            "Range": [
+              25,
+              27
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a30ec595b5f64c204cd2153",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  25,
+                  27
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hash": "s_177860bc7d23fc::t_2471db3d03001b",
+        "line_ranges": [
+          {
+            "Range": [
+              28,
+              29
+            ]
+          },
+          {
+            "Single": 40
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a30ec335b5f64c204cd2121",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  28,
+                  29
+                ]
+              },
+              {
+                "Single": 40
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_177860bc7d23fc": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_2471db3d03001b": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_6eb5be927fc2cd": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_70308e16b4110b": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_c54e9bb8f1b443": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_e4f0822906de56": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
