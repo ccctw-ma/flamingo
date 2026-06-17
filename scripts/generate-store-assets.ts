@@ -14,7 +14,9 @@ const smallPromoPath = join(imagesDir, "store_promo_small_440x280.jpg");
 const marqueePromoPath = join(imagesDir, "store_promo_marquee_1400x560.jpg");
 
 const now = Date.now();
-const rules = [
+type StoreRule = Record<string, unknown>;
+
+const rules: StoreRule[] = [
   {
     id: 101,
     name: "API redirect rule",
@@ -72,6 +74,45 @@ const rules = [
   },
 ];
 
+const mockRules: StoreRule[] = [
+  {
+    id: 201,
+    name: "Mock user profile",
+    create: now - 90000,
+    update: now,
+    enable: true,
+    priority: 1,
+    action: {
+      type: "block",
+    },
+    condition: {
+      regexFilter: "^https://api\\.example\\.com/user/profile(\\?.*)?$",
+      resourceTypes: ["xmlhttprequest"],
+    },
+    mockResponse: {
+      enabled: true,
+      body: JSON.stringify(
+        {
+          user: {
+            id: "u-2026",
+            name: "Flamingo Demo",
+            plan: "Local First",
+          },
+          flags: {
+            beta: true,
+            source: "chrome-web-store",
+          },
+          status: "mocked",
+        },
+        null,
+        2
+      ),
+    },
+    uiActionType: "mock",
+  },
+  ...rules.slice(1),
+];
+
 async function waitForServer() {
   for (let index = 0; index < 50; index += 1) {
     try {
@@ -86,7 +127,7 @@ async function waitForServer() {
   throw new Error("Timed out waiting for local build server.");
 }
 
-async function installChromeMock(page: Page) {
+async function installChromeMock(page: Page, seededRules: StoreRule[] = rules) {
   await page.addInitScript(
     ({ seededRules }) => {
       localStorage.setItem("flamingo:popup-width", "800");
@@ -202,16 +243,21 @@ async function installChromeMock(page: Page) {
       (window as unknown as { chrome: typeof chrome }).chrome =
         chromeMock as unknown as typeof chrome;
     },
-    { seededRules: rules }
+    { seededRules }
   );
 }
 
-async function preparePage(browser: Browser, width: number, height: number) {
+async function preparePage(
+  browser: Browser,
+  width: number,
+  height: number,
+  seededRules: StoreRule[] = rules
+) {
   const page = await browser.newPage({
     viewport: { width, height },
     deviceScaleFactor: 1,
   });
-  await installChromeMock(page);
+  await installChromeMock(page, seededRules);
   await page.goto(`${baseUrl}/home.html`, { waitUntil: "domcontentloaded" });
   await page.addStyleTag({
     content: `
@@ -389,8 +435,8 @@ try {
   await saveJpeg(compact, compactPath);
   await compact.close();
 
-  const detail = await preparePage(browser, 1280, 800);
-  await detail.getByRole("button", { name: "Switch to detail mode" }).click();
+  const detail = await preparePage(browser, 1280, 800, mockRules);
+  await detail.getByRole("button", { name: /Detailed Editor|详细编辑/i }).click();
   await detail.locator(".monaco-editor").waitFor({ state: "visible", timeout: 15000 });
   await saveJpeg(detail, detailPath);
   await detail.close();
