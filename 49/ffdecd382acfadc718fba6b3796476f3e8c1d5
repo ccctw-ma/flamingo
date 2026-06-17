@@ -1,0 +1,66 @@
+.github/workflows/deploy.yml
+  s_177860bc7d23fc::t_5f0e5e46a3779b 48-54 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a321b895b5f64c204cd3261","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[48,54]}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "49ffdecd382acfadc718fba6b3796476f3e8c1d5",
+  "prompts": {},
+  "sessions": {
+    "s_177860bc7d23fc": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a30bd285b5f64c204cd17d5",
+        "model": "gpt-5.5__max"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    ".github/workflows/deploy.yml": [
+      {
+        "hash": "s_177860bc7d23fc::t_5f0e5e46a3779b",
+        "line_ranges": [
+          {
+            "Range": [
+              48,
+              54
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a321b895b5f64c204cd3261",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  48,
+                  54
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_177860bc7d23fc": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_177860bc7d23fc::t_5f0e5e46a3779b": {
+      "tool": "trae",
+      "conversation_id": "6a30bd285b5f64c204cd17d5",
+      "session_id": "6a30bd285b5f64c204cd17d5",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
