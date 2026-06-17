@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flamingo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create local Chrome Declarative Net Request rules to redirect, block, or modify request and response headers.",
   "icons": {
     "16": "images/flamingo_16.png",

@@ -104,7 +104,7 @@
     <main>
       <article>
         <h1>Flamingo Privacy Policy</h1>
-        <p class="updated">Last updated: June 10, 2026</p>
+        <p class="updated">Last updated: June 17, 2026</p>
 
         <p class="notice">
           Flamingo is a local Chrome Declarative Net Request rule editor. It does not sell user
@@ -129,7 +129,7 @@
           </li>
           <li>
             Extension preferences, such as language, popup size, rule engine state, and storage
-            mode.
+            mode, single-active mode, and the last selected rule position.
           </li>
           <li>
             Optional AI assistant settings, such as provider, selected model, enabled state, and
@@ -162,10 +162,10 @@
           functionality.
         </p>
         <p>
-          If the user explicitly enables the optional AI assistant and clicks
-          <strong>AI Generate Rule</strong>, Flamingo sends the user's natural-language prompt and
-          current rule context to the AI provider configured by the user. The AI response is used
-          only to create a disabled rule draft for user review.
+          If the user explicitly enables the optional AI assistant and uses AI rule generation or
+          editing, Flamingo sends the user's natural-language prompt and current rule or group
+          context to the AI provider configured by the user. The AI response is used only to create
+          a disabled rule draft or a reviewed edit draft for user approval.
         </p>
 
         <h2>Storage</h2>
@@ -209,9 +209,9 @@
         </p>
         <p>
           The optional AI assistant makes external network requests only after the user enables it
-          and clicks <strong>AI Generate Rule</strong>. Those requests go to the user's configured
-          AI provider and may include the user's prompt, current rule context, and the API key
-          needed to authorize the provider request.
+          and explicitly asks Flamingo to generate or edit rules. Those requests go to the user's
+          configured AI provider and may include the user's prompt, current rule or group context,
+          and the API key needed to authorize the provider request.
         </p>
         <p>
           The network behavior performed by Flamingo is limited to the user-defined rules that the
@@ -227,6 +227,11 @@
           <li>
             <strong>declarativeNetRequestWithHostAccess</strong>: allows user-created rules to run
             on sites covered by host permissions.
+          </li>
+          <li>
+            <strong>webRequest</strong> and <strong>webRequestBlocking</strong>: support local
+            request-header operations and mock response handling for rules configured and enabled by
+            the user.
           </li>
           <li>
             <strong>Host permissions for http and https sites</strong>: allow user-created rules to
@@ -250,7 +255,7 @@
 
       <article lang="zh-CN">
         <h1>Flamingo 隐私政策</h1>
-        <p class="updated">最后更新：2026 年 6 月 10 日</p>
+        <p class="updated">最后更新：2026 年 6 月 17 日</p>
 
         <p class="notice">
           Flamingo 是一个本地 Chrome Declarative Net Request 规则编辑器。Flamingo
@@ -266,7 +271,9 @@
           <li>规则名称以及启用或禁用状态。</li>
           <li>规则匹配条件，例如 URL 过滤器、正则过滤器、域名、资源类型和 HTTP 方法。</li>
           <li>规则动作，例如重定向、拦截、Mock 响应以及请求头或响应头修改。</li>
-          <li>扩展偏好设置，例如语言、弹窗尺寸、规则引擎状态和存储模式。</li>
+          <li>
+            扩展偏好设置，例如语言、弹窗尺寸、规则引擎状态、存储模式、单一生效模式和上次选中的规则位置。
+          </li>
           <li>
             可选 AI 助手设置，例如模型提供方、所选模型、启用状态以及按提供方分别保存的 API Key。
           </li>
@@ -293,9 +300,9 @@
           不会将这些数据用于广告、分析、追踪、画像、信用评估或任何与请求规则编辑功能无关的目的。
         </p>
         <p>
-          如果用户明确启用可选 AI 助手并点击 <strong>AI 生成规则</strong>，Flamingo
-          会把用户的自然语言需求和当前规则上下文发送给用户选择的 AI 提供方。AI
-          响应仅用于创建默认禁用的规则草稿，供用户审核。
+          如果用户明确启用可选 AI 助手并使用 AI 规则生成或编辑功能，Flamingo
+          会把用户的自然语言需求以及当前规则或组上下文发送给用户选择的 AI 提供方。AI
+          响应仅用于创建默认禁用的规则草稿，或创建需要用户确认的编辑草稿。
         </p>
 
         <h2>存储</h2>
@@ -331,9 +338,9 @@
         <h2>网络请求</h2>
         <p>默认情况下，Flamingo 不会发起外部网络请求来收集、传输或分析用户数据。</p>
         <p>
-          可选 AI 助手只会在用户启用并点击
-          <strong>AI 生成规则</strong> 后发起外部网络请求。这些请求会发送到用户选择的 AI
-          提供方，并可能包含用户的需求描述、当前规则上下文以及授权该提供方请求所需的 API Key。
+          可选 AI 助手只会在用户启用并明确要求 Flamingo
+          生成或编辑规则后发起外部网络请求。这些请求会发送到用户选择的 AI
+          提供方，并可能包含用户的需求描述、当前规则或组上下文以及授权该提供方请求所需的 API Key。
         </p>
         <p>Flamingo 执行的网络行为仅限于用户创建并启用的自定义规则。</p>
 
@@ -347,6 +354,11 @@
           <li>
             <strong>declarativeNetRequestWithHostAccess</strong>：允许用户创建的规则在 host
             权限覆盖的网站上运行。
+          </li>
+          <li>
+            <strong>webRequest</strong> 和
+            <strong>webRequestBlocking</strong>：支持用户配置并启用的规则在本地执行请求头操作和 Mock
+            响应处理。
           </li>
           <li>
             <strong>HTTP 和 HTTPS 站点 host 权限</strong

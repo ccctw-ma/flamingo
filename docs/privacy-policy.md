@@ -1,6 +1,6 @@
 # Flamingo Privacy Policy
 
-Last updated: 2026-06-10
+Last updated: 2026-06-17
 
 Flamingo is a Chrome extension for creating and applying user-defined Chrome Declarative Net Request rules. These rules can redirect requests, block requests, and modify request or response headers.
 
@@ -13,7 +13,7 @@ Flamingo handles only data that you create or configure inside the extension:
 - Rule names.
 - Declarative Net Request rule conditions, such as URL filters, regex filters, domains, resource types, and HTTP methods.
 - Rule actions, such as redirects, block actions, mock responses, and request or response header modifications.
-- Extension preferences, such as language, popup size, rule engine enabled state, and storage mode.
+- Extension preferences, such as language, popup size, rule engine enabled state, storage mode, single-active mode, and the last selected rule position.
 - Optional AI assistant settings, such as provider, selected model, enabled state, and provider-specific API keys.
 
 Because rules are user-defined, they may contain URLs, domains, header names, header values, or mock response content that you enter.
@@ -30,7 +30,7 @@ Flamingo uses this data only to provide its single purpose: managing and applyin
 
 The extension uses Chrome's `declarativeNetRequest` API to apply enabled rules in the browser. Flamingo does not use your rules for advertising, analytics, tracking, profiling, creditworthiness, or any unrelated purpose.
 
-If you explicitly enable the optional AI assistant and click "AI Generate Rule", Flamingo sends your natural-language prompt and the current rule context to the AI provider that you configured. The AI response is used only to create a disabled rule draft for your review.
+If you explicitly enable the optional AI assistant and use AI rule generation or editing, Flamingo sends your natural-language prompt and the current rule or group context to the AI provider that you configured. The AI response is used only to create a disabled rule draft or a reviewed edit draft for your approval.
 
 ## Storage
 
@@ -54,7 +54,7 @@ If you enable the optional AI assistant, requests are sent directly from the ext
 
 Flamingo does not make external network requests to collect, transmit, or analyze user data by default.
 
-The optional AI assistant makes external network requests only after you enable it and click "AI Generate Rule". Those requests go to the selected AI provider and may include your prompt, current rule context, and the API key needed to authorize the provider request.
+The optional AI assistant makes external network requests only after you enable it and explicitly ask Flamingo to generate or edit rules. Those requests go to the selected AI provider and may include your prompt, current rule or group context, and the API key needed to authorize the provider request.
 
 The network changes performed by Flamingo are the user-defined Declarative Net Request rules that you create and enable.
 
@@ -65,6 +65,7 @@ Flamingo requests these permissions:
 - `storage`: Saves your rules and preferences locally or through Chrome Sync, depending on your selected storage mode.
 - `declarativeNetRequest`: Applies enabled request rules in Chrome.
 - `declarativeNetRequestWithHostAccess`: Allows user-defined rules to run on the sites covered by host permissions.
+- `webRequest` and `webRequestBlocking`: Support local request-header operations and mock response handling for rules configured and enabled by the user.
 - Host permissions for `http://*/*` and `https://*/*`: Allows user-created rules to match regular web requests. Rules are applied only when you create and enable them.
 
 Flamingo does not request the `tabs` permission and does not read your tab list or tab URLs.
