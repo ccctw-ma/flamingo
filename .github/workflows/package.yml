@@ -6,13 +6,16 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: package-extension-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   package:
-    name: Build & Upload Zip
+    name: Build, Upload & Release Zip
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,3 +50,33 @@ jobs:
           name: flamingo-extension-zip-${{ github.sha }}
           path: flamingo.zip
           if-no-files-found: error
+
+      - name: Prepare release asset
+        run: cp flamingo.zip flamingo-latest-main.zip
+
+      - name: Update rolling release tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f latest-main ${{ github.sha }}
+          git push origin refs/tags/latest-main --force
+
+      - name: Upsert latest GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES=$(cat <<EOF
+          Automated package from \`main\`.
+
+          Commit: \`${{ github.sha }}\`
+          Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+          )
+
+          if gh release view latest-main >/dev/null 2>&1; then
+            gh release edit latest-main --title "Latest Main Build" --notes "$NOTES"
+          else
+            gh release create latest-main --title "Latest Main Build" --notes "$NOTES" --prerelease
+          fi
+
+          gh release upload latest-main flamingo-latest-main.zip --clobber
