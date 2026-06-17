@@ -1,15 +1,15 @@
-name: Package Chrome Extension
+name: Publish Chrome Extension to Web Store
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: chrome-extension-package
+  group: chrome-extension-webstore-publish
   cancel-in-progress: false
 
 jobs:
   package:
-    name: Build & Package Extension
+    name: Build & Publish Extension
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
