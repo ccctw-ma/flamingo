@@ -1,0 +1,33 @@
+docs/privacy-policy.html
+  s_177860bc7d23fc::t_064efc21c0632a 107,132,165-168,212-214,231-235,258,303-305,343,358
+  s_177860bc7d23fc::t_98df59f98db798 275-276,341-342,359-361
+manifest.json
+  h_29e8199775c20f 4
+docs/privacy-policy.zh-CN.md
+  s_177860bc7d23fc::t_17bacbaade055d 3,16,33,57,68
+docs/privacy-policy.md
+  s_177860bc7d23fc::t_a6b91b0b63cd85 3,16,33,57,68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5757fa4cfeeb2e420111cc41742c45a924252a10",
+  "prompts": {},
+  "humans": {
+    "h_29e8199775c20f": {
+      "author": "mashichen <mashichen.msc@bytedance.com>"
+    }
+  },
+  "sessions": {
+    "s_177860bc7d23fc": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a30bd285b5f64c204cd17d5",
+        "model": "gpt-5.4__max"
+      },
+      "human_author": "mashichen <mashichen.msc@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
