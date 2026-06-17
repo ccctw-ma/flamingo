@@ -24,8 +24,7 @@ function closeServer(server: Server) {
     server.closeAllConnections();
     server.close((error) => {
       if (error) {
-        const errorCode =
-          typeof error === "object" && "code" in error ? String(error.code) : "";
+        const errorCode = typeof error === "object" && "code" in error ? String(error.code) : "";
         if (errorCode === "ERR_SERVER_NOT_RUNNING") {
           resolve();
           return;
@@ -65,27 +64,21 @@ test("real extension proxy modifies request headers through DNR", async () => {
   const port = await test.step("start local target server", async () => await listen(server));
   const userDataDir = await mkdtemp(path.join(tmpdir(), "flamingo-extension-e2e-"));
   const extensionPath = path.resolve("build");
-  const context = await test.step(
-    "launch Chromium with the built extension",
-    async () =>
-      await chromium.launchPersistentContext(userDataDir, {
-        headless: true,
-        channel: "chromium",
-        args: [
-          "--headless=new",
-          `--disable-extensions-except=${extensionPath}`,
-          `--load-extension=${extensionPath}`,
-        ],
-      })
-  );
+  const context = await test.step("launch Chromium with the built extension", async () =>
+    await chromium.launchPersistentContext(userDataDir, {
+      headless: true,
+      channel: "chromium",
+      args: [
+        "--headless=new",
+        `--disable-extensions-except=${extensionPath}`,
+        `--load-extension=${extensionPath}`,
+      ],
+    }));
 
   try {
-    const serviceWorker = await test.step(
-      "resolve extension service worker",
-      async () =>
-        context.serviceWorkers()[0] ??
-        (await context.waitForEvent("serviceworker", { timeout: 10_000 }))
-    );
+    const serviceWorker = await test.step("resolve extension service worker", async () =>
+      context.serviceWorkers()[0] ??
+      (await context.waitForEvent("serviceworker", { timeout: 10_000 })));
     const extensionId = new URL(serviceWorker.url()).host;
     const now = Date.now();
     const extensionPage = await test.step("open extension page", async () => {
@@ -220,6 +213,20 @@ test("real extension proxy modifies request headers through DNR", async () => {
       return page;
     });
 
+    await test.step("wait for page-level proxy patch after active state arrives", async () => {
+      await expect
+        .poll(async () => {
+          return await page.evaluate(() => ({
+            fetchPatched: !window.fetch.toString().includes("[native code]"),
+            xhrPatched: !XMLHttpRequest.prototype.send.toString().includes("[native code]"),
+          }));
+        })
+        .toEqual({
+          fetchPatched: true,
+          xhrPatched: true,
+        });
+    });
+
     await test.step("assert real request headers are modified", async () => {
       await expect
         .poll(async () => {
@@ -266,6 +273,113 @@ test("real extension proxy modifies request headers through DNR", async () => {
       expect(cdpNavigationObservedHeaders["x-use-ppe"]).toBe("1");
       expect(cdpNavigationObservedHeaders["x-tt-env"]).toBe("ppe_magic_2026");
     });
+  } finally {
+    await context.close();
+    await rm(userDataDir, { recursive: true, force: true });
+    await closeServer(server);
+  }
+});
+
+test("inactive extension leaves page network APIs native", async () => {
+  test.setTimeout(60_000);
+  const server = createServer((_request, response) => {
+    response.setHeader("content-type", "text/html;charset=utf-8");
+    response.end("<!doctype html><title>Flamingo inactive check</title>");
+  });
+  const port = await test.step("start local target server", async () => await listen(server));
+  const userDataDir = await mkdtemp(path.join(tmpdir(), "flamingo-extension-inactive-e2e-"));
+  const extensionPath = path.resolve("build");
+  const context = await test.step("launch Chromium with the built extension", async () =>
+    await chromium.launchPersistentContext(userDataDir, {
+      headless: true,
+      channel: "chromium",
+      args: [
+        "--headless=new",
+        `--disable-extensions-except=${extensionPath}`,
+        `--load-extension=${extensionPath}`,
+      ],
+    }));
+
+  try {
+    const serviceWorker = await test.step("resolve extension service worker", async () =>
+      context.serviceWorkers()[0] ??
+      (await context.waitForEvent("serviceworker", { timeout: 10_000 })));
+    const extensionId = new URL(serviceWorker.url()).host;
+    const extensionPage = await context.newPage();
+    await extensionPage.goto(`chrome-extension://${extensionId}/home.html`, {
+      waitUntil: "domcontentloaded",
+      timeout: 10_000,
+    });
+
+    await test.step("persist disabled global state with a broad stored rule", async () => {
+      await extensionPage.evaluate(async () => {
+        await chrome.storage.local.set({
+          STORAGE_MODE: "local",
+          WORKING: false,
+          rules_storage_key: [
+            {
+              id: 9901,
+              priority: 1,
+              name: "disabled-global-broad-rule",
+              create: Date.now(),
+              update: Date.now(),
+              enable: true,
+              action: {
+                type: "modifyHeaders",
+                requestHeaders: [
+                  {
+                    enabled: true,
+                    operation: "set",
+                    header: "x-use-ppe",
+                    value: "1",
+                  },
+                ],
+              },
+              condition: {
+                regexFilter: "*",
+              },
+              uiActionType: "modifyHeaders",
+            },
+          ],
+        });
+        await chrome.runtime.sendMessage({
+          type: "FLAMINGO_SYNC_ACTION_STATE",
+          enabledRuleCount: 1,
+          isWorking: false,
+        });
+      });
+    });
+
+    const page = await context.newPage();
+    await page.goto(`http://127.0.0.1:${port}/`, {
+      waitUntil: "domcontentloaded",
+      timeout: 10_000,
+    });
+
+    await expect
+      .poll(async () => {
+        return await page.evaluate(() => {
+          const state = (
+            window as unknown as {
+              __FLAMINGO_PROXY_STATE__?: {
+                working?: boolean;
+                rules?: unknown[];
+                proxyRules?: unknown[];
+              };
+            }
+          ).__FLAMINGO_PROXY_STATE__;
+          return {
+            stateWorking: state?.working,
+            fetchIsNative: window.fetch.toString().includes("[native code]"),
+            xhrSendIsNative: XMLHttpRequest.prototype.send.toString().includes("[native code]"),
+          };
+        });
+      })
+      .toEqual({
+        stateWorking: false,
+        fetchIsNative: true,
+        xhrSendIsNative: true,
+      });
   } finally {
     await context.close();
     await rm(userDataDir, { recursive: true, force: true });

@@ -11,6 +11,7 @@ type WebRequestRule = {
 };
 
 let webRequestRules: WebRequestRule[] = [];
+let isRuleEngineWorking = false;
 
 async function getIsWorking() {
   return (
@@ -49,6 +50,38 @@ function syncWebRequestRules(enabledRules: Rule[]) {
     const webRequestRule = toWebRequestRule(rule);
     return webRequestRule ? [webRequestRule] : [];
   });
+}
+
+function hasWebRequestListener() {
+  return (
+    !!chrome.webRequest?.onBeforeSendHeaders &&
+    chrome.webRequest.onBeforeSendHeaders.hasListener(handleBeforeSendHeaders)
+  );
+}
+
+function removeWebRequestListener() {
+  if (hasWebRequestListener()) {
+    chrome.webRequest.onBeforeSendHeaders.removeListener(handleBeforeSendHeaders);
+  }
+}
+
+function syncWebRequestListener() {
+  if (!chrome.webRequest?.onBeforeSendHeaders) {
+    return;
+  }
+
+  if (!isRuleEngineWorking || !webRequestRules.length) {
+    removeWebRequestListener();
+    return;
+  }
+
+  if (!hasWebRequestListener()) {
+    chrome.webRequest.onBeforeSendHeaders.addListener(
+      handleBeforeSendHeaders,
+      { urls: ["http://*/*", "https://*/*"] },
+      ["blocking", "requestHeaders", "extraHeaders"]
+    );
+  }
 }
 
 function matchesWebRequestRule(rule: WebRequestRule, url: string) {
@@ -98,6 +131,10 @@ function applyRequestHeaderOperations(
 const handleBeforeSendHeaders = (
   details: chrome.webRequest.WebRequestHeadersDetails
 ): chrome.webRequest.BlockingResponse | undefined => {
+  if (!isRuleEngineWorking || !webRequestRules.length) {
+    return undefined;
+  }
+
   const matchedRules = webRequestRules.filter((rule) => matchesWebRequestRule(rule, details.url));
   if (!matchedRules.length) {
     return undefined;
@@ -112,18 +149,24 @@ const handleBeforeSendHeaders = (
 
 async function setRules(isWorkingOverride?: boolean) {
   try {
-    const enableRules = await getEnabledRules();
+    const isWorking = isWorkingOverride ?? (await getIsWorking());
+    isRuleEngineWorking = isWorking;
+    if (!isWorking) {
+      syncWebRequestRules([]);
+      syncWebRequestListener();
+    }
+
+    const enableRules = isWorking ? await getEnabledRules() : [];
     const newRules = enableRules.flatMap((rule) => {
       const dynamicRule = toDynamicRule(rule);
       return dynamicRule ? [dynamicRule] : [];
     });
     const oldRules = await getCurrentDynamicRules();
-    const isWorking = isWorkingOverride ?? (await getIsWorking());
-    const workingRules = isWorking ? newRules : [];
-    syncWebRequestRules(isWorking ? enableRules : []);
+    syncWebRequestRules(enableRules);
+    syncWebRequestListener();
     const removeIds = oldRules.map((r) => r.id);
     await chrome.declarativeNetRequest.updateDynamicRules({
-      addRules: workingRules,
+      addRules: newRules,
       removeRuleIds: removeIds,
     });
     await syncActionState(enableRules.length, isWorking);
@@ -198,16 +241,7 @@ function init() {
     chrome.storage.onChanged.removeListener(handleStorageChange);
   }
   chrome.storage.onChanged.addListener(handleStorageChange);
-  if (chrome.webRequest?.onBeforeSendHeaders) {
-    if (chrome.webRequest.onBeforeSendHeaders.hasListener(handleBeforeSendHeaders)) {
-      chrome.webRequest.onBeforeSendHeaders.removeListener(handleBeforeSendHeaders);
-    }
-    chrome.webRequest.onBeforeSendHeaders.addListener(
-      handleBeforeSendHeaders,
-      { urls: ["http://*/*", "https://*/*"] },
-      ["blocking", "requestHeaders", "extraHeaders"]
-    );
-  }
+  removeWebRequestListener();
   chrome.declarativeNetRequest.setExtensionActionOptions({ displayActionCountAsBadgeText: false });
   syncActionState();
   setRules();

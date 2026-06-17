@@ -37,6 +37,7 @@ type StorageMode = "local" | "sync";
 type StoredRule = {
   id: number;
   enable?: boolean;
+  groupEnabled?: boolean;
   action?: {
     type?: string;
     requestHeaders?: Array<{
@@ -113,7 +114,10 @@ async function readMockState(): Promise<MockStatePayload> {
     rules: ensureRules(rules)
       .filter(
         (rule) =>
-          rule.enable && rule.uiActionType === CUSTOM_ACTION_MOCK && rule.mockResponse?.enabled
+          rule.enable &&
+          rule.groupEnabled !== false &&
+          rule.uiActionType === CUSTOM_ACTION_MOCK &&
+          rule.mockResponse?.enabled
       )
       .map((rule) => ({
         id: rule.id,
@@ -124,6 +128,7 @@ async function readMockState(): Promise<MockStatePayload> {
       .filter(
         (rule) =>
           rule.enable &&
+          rule.groupEnabled !== false &&
           rule.uiActionType !== CUSTOM_ACTION_MOCK &&
           rule.action?.type === "modifyHeaders" &&
           getEnabledRequestHeaders(rule).length > 0

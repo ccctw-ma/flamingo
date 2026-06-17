@@ -28,7 +28,6 @@ const MESSAGE_REQUEST_STATE = "FLAMINGO_REQUEST_MOCK_RULES";
 const INSTALLED_KEY = "__FLAMINGO_MOCK_INSTALLED__";
 const STATE_KEY = "__FLAMINGO_PROXY_STATE__";
 const MOCK_HEADERS = "content-type: application/json;charset=utf-8\r\nx-flamingo-mock: true\r\n";
-const INITIAL_STATE_TIMEOUT_MS = 1000;
 
 declare global {
   interface Window {
@@ -38,42 +37,16 @@ declare global {
 }
 
 let mockState: MockStatePayload = {
-  working: true,
+  working: false,
   rules: [],
   proxyRules: [],
 };
 window[STATE_KEY] = mockState;
-let hasInitialState = false;
-let initialStateTimer: number | undefined;
-const initialStateWaiters = new Set<() => void>();
+let restoreFetch: (() => void) | undefined;
+let restoreXhr: (() => void) | undefined;
 
-function resolveInitialStateWaiters() {
-  if (hasInitialState) {
-    return;
-  }
-
-  hasInitialState = true;
-  if (initialStateTimer !== undefined) {
-    window.clearTimeout(initialStateTimer);
-    initialStateTimer = undefined;
-  }
-  for (const resolve of initialStateWaiters) {
-    resolve();
-  }
-  initialStateWaiters.clear();
-}
-
-function waitForInitialState() {
-  if (hasInitialState) {
-    return Promise.resolve();
-  }
-
-  return new Promise<void>((resolve) => {
-    initialStateWaiters.add(resolve);
-    if (initialStateTimer === undefined) {
-      initialStateTimer = window.setTimeout(resolveInitialStateWaiters, INITIAL_STATE_TIMEOUT_MS);
-    }
-  });
+function hasActiveRules(state: MockStatePayload) {
+  return state.working && (state.rules.length > 0 || state.proxyRules.length > 0);
 }
 
 function toAbsoluteUrl(input: RequestInfo | URL) {
@@ -129,6 +102,7 @@ function findProxyRules(url: string) {
 function updateMockState(nextState: MockStatePayload) {
   mockState = nextState;
   window[STATE_KEY] = nextState;
+  syncNetworkPatches();
 }
 
 function logMockHit(transport: "fetch" | "xhr", url: string, rule: MockRulePayload) {
@@ -153,10 +127,13 @@ function buildMockResponse(body: string) {
 }
 
 function patchFetch() {
-  const nativeFetch = window.fetch.bind(window);
+  if (restoreFetch) {
+    return;
+  }
 
-  window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-    await waitForInitialState();
+  const originalFetch = window.fetch;
+  const nativeFetch = window.fetch.bind(window);
+  const patchedFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = toAbsoluteUrl(input);
     const mock = findMock(url);
     if (mock) {
@@ -187,7 +164,15 @@ function patchFetch() {
     nextInit.headers = headers;
 
     return nativeFetch(input, nextInit);
-  }) as typeof window.fetch;
+  };
+
+  window.fetch = patchedFetch as typeof window.fetch;
+  restoreFetch = () => {
+    if (window.fetch === patchedFetch) {
+      window.fetch = originalFetch;
+    }
+    restoreFetch = undefined;
+  };
 }
 
 function buildXhrResponse(body: string, responseType: XMLHttpRequestResponseType) {
@@ -208,6 +193,10 @@ function buildXhrResponse(body: string, responseType: XMLHttpRequestResponseType
 }
 
 function patchXhr() {
+  if (restoreXhr) {
+    return;
+  }
+
   const nativeOpen = XMLHttpRequest.prototype.open;
   const nativeSend = XMLHttpRequest.prototype.send;
   const nativeSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
@@ -302,11 +291,6 @@ function patchXhr() {
       return undefined;
     };
 
-    if (!hasInitialState && meta.async) {
-      void waitForInitialState().then(sendRequest);
-      return undefined;
-    }
-
     return sendRequest();
   };
 
@@ -357,6 +341,34 @@ function patchXhr() {
     buildXhrResponse(xhrMeta.get(xhr)?.mockBody ?? "", xhr.responseType)
   );
   defineGetter("responseURL", (xhr) => xhrMeta.get(xhr)?.url ?? "");
+
+  restoreXhr = () => {
+    XMLHttpRequest.prototype.open = nativeOpen;
+    XMLHttpRequest.prototype.send = nativeSend;
+    XMLHttpRequest.prototype.setRequestHeader = nativeSetRequestHeader;
+    XMLHttpRequest.prototype.getResponseHeader = nativeGetResponseHeader;
+    XMLHttpRequest.prototype.getAllResponseHeaders = nativeGetAllResponseHeaders;
+
+    for (const [name, descriptor] of Object.entries(nativeDescriptors)) {
+      if (descriptor) {
+        Object.defineProperty(XMLHttpRequest.prototype, name, descriptor);
+      } else {
+        delete XMLHttpRequest.prototype[name as keyof typeof nativeDescriptors];
+      }
+    }
+    restoreXhr = undefined;
+  };
+}
+
+function syncNetworkPatches() {
+  if (hasActiveRules(mockState)) {
+    patchFetch();
+    patchXhr();
+    return;
+  }
+
+  restoreFetch?.();
+  restoreXhr?.();
 }
 
 if (!window[INSTALLED_KEY]) {
@@ -368,11 +380,8 @@ if (!window[INSTALLED_KEY]) {
       event.data?.type === MESSAGE_STATE
     ) {
       updateMockState(event.data.payload as MockStatePayload);
-      resolveInitialStateWaiters();
     }
   });
-  patchFetch();
-  patchXhr();
   window.postMessage(
     {
       source: MESSAGE_SOURCE,
