@@ -45,6 +45,13 @@ jobs:
       - name: Build and package extension
         run: bun run package
 
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flamingo-extension-zip
+          path: flamingo.zip
+          if-no-files-found: error
+
       - name: Publish to Chrome Web Store
         env:
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -113,10 +120,3 @@ jobs:
             throw new Error(`Chrome Web Store publish failed: ${JSON.stringify(publish)}`);
           }
           NODE
-
-      - name: Upload package artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: flamingo-extension-zip
-          path: flamingo.zip
-          if-no-files-found: error
